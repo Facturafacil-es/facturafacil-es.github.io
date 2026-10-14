@@ -40,6 +40,29 @@ label{display:block;font-size:14px;color:var(--sub);margin-bottom:6px}
 .copiar{width:100%;margin-top:12px;border:0;background:var(--acc);color:#fff;font:600 16px system-ui,-apple-system,"Segoe UI",sans-serif;padding:13px;border-radius:12px;cursor:pointer}
 footer{text-align:center;font-size:14px;color:var(--sub);margin-top:6px}
 footer a{color:var(--sub)}
+.btn2{width:100%;margin-top:10px;border:2px solid var(--acc);background:none;color:var(--acc);font:600 16px system-ui,-apple-system,"Segoe UI",sans-serif;padding:11px;border-radius:12px;cursor:pointer}
+#fac{display:none}#fac.on{display:block}
+.fac h2{font-size:18px;margin:4px 0 12px}
+.fac h3{font-size:15px;color:var(--sub);margin:16px 0 8px;font-weight:600}
+.fac input{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:16px system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px 12px;border-radius:10px;margin-bottom:8px;outline:0}
+.fac input:focus{border-color:var(--acc)}
+.dos{display:flex;gap:8px}.dos input{flex:1;min-width:0}
+.lin{display:flex;gap:8px;align-items:center}.lin input:first-child{flex:1;min-width:0}.lin input.im{width:110px;flex:none;text-align:right}
+.lin .x{border:0;background:none;color:var(--sub);font-size:20px;padding:0 4px 8px;cursor:pointer}
+.mas{border:0;background:none;color:var(--acc);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:4px 0;cursor:pointer}
+.cerrar{float:right;border:0;background:none;color:var(--sub);font-size:24px;line-height:1;cursor:pointer}
+#hoja{display:none}
+@media print{body{background:#fff;color:#000;padding:0;display:block}main{display:none}#hoja{display:block}}
+#hoja{font:12pt/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:#000;padding:16mm;max-width:190mm;margin:0 auto}
+#hoja h1{font-size:26pt;color:#0F5C4D;margin:0 0 4px}
+#hoja .cab{display:flex;justify-content:space-between;gap:20px;margin-bottom:22px}
+#hoja .caja{flex:1}#hoja .caja small{display:block;color:#666;font-size:9pt;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+#hoja table{width:100%;border-collapse:collapse;margin:14px 0}
+#hoja th{text-align:left;font-size:9pt;color:#666;text-transform:uppercase;border-bottom:2px solid #0F5C4D;padding:6px 0}
+#hoja td{padding:8px 0;border-bottom:1px solid #ddd}#hoja .d{text-align:right}
+#hoja .tot{margin-left:auto;width:60%;min-width:280px}#hoja .tot span:last-child,#hoja .d{white-space:nowrap}#hoja .tot span:first-child{padding-right:12px}#hoja .tot div{display:flex;justify-content:space-between;padding:4px 0}
+#hoja .tot .g{border-top:2px solid #0F5C4D;margin-top:6px;padding-top:8px;font-size:15pt;font-weight:700}
+#hoja .pie{margin-top:26px;font-size:10pt;color:#444}
 </style>
 </head>
 <body>
@@ -68,10 +91,31 @@ footer a{color:var(--sub)}
   <div class="r neg"><span id="tIrpf">− IRPF 15 %</span><b id="oIrpf">0,00 €</b></div>
   <div class="total"><span>Total factura</span><b id="oTot">0,00 €</b></div>
   <button class="copiar" id="copiar">Copiar resultado</button>
+  <button class="btn2" id="abrirFac">🧾 Hacer factura</button>
+</div>
+
+<div class="card fac" id="fac">
+  <button class="cerrar" id="cerrarFac" aria-label="Cerrar">✕</button>
+  <h2>Factura</h2>
+  <div class="dos"><input id="fNum" placeholder="Nº factura (ej. 2026-001)"><input id="fFecha" type="date"></div>
+  <h3>Tus datos</h3>
+  <input id="eNom" placeholder="Nombre o empresa" autocomplete="name">
+  <input id="eNif" placeholder="NIF">
+  <input id="eDir" placeholder="Dirección">
+  <input id="eIban" placeholder="IBAN para el pago (opcional)">
+  <h3>Cliente</h3>
+  <input id="cNom" placeholder="Nombre o empresa">
+  <input id="cNif" placeholder="NIF">
+  <input id="cDir" placeholder="Dirección">
+  <h3>Conceptos (sin impuestos)</h3>
+  <div id="lineas"></div>
+  <button class="mas" id="masLin">＋ Añadir línea</button>
+  <button class="copiar" id="imprimir">🖨️ Imprimir / Guardar PDF</button>
 </div>
 
 <footer><a href="privacidad.html">Privacidad</a></footer>
 </main>
+<div id="hoja"></div>
 <script>
 const $=id=>document.getElementById(id);
 let modo='base',iva=21,irpf=15;
@@ -100,6 +144,38 @@ try{const g=JSON.parse(localStorage.getItem('ff')||'{}');
   if(g.irpf!=null){irpf=g.irpf;$('irpf').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===irpf))}
   if(g.modo)setModo(g.modo)}catch(e){}
 calc();$('imp').focus();
+
+// ---- Factura ----
+const num=v=>{const n=parseFloat(String(v||'').replace(/\./g,'').replace(',','.'));return isNaN(n)?0:n};
+const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const E=['eNom','eNif','eDir','eIban'];
+function linea(c='',i=''){const d=document.createElement('div');d.className='lin';
+  d.innerHTML='<input placeholder="Concepto"><input class="im" inputmode="decimal" placeholder="0,00 €"><button class="x" aria-label="Quitar">✕</button>';
+  d.children[0].value=c;d.children[1].value=i;d.children[2].onclick=()=>{d.remove();if(!$('lineas').children.length)linea()};
+  $('lineas').appendChild(d)}
+$('masLin').onclick=()=>linea();
+$('abrirFac').onclick=()=>{
+  try{const g=JSON.parse(localStorage.getItem('ffe')||'{}');E.forEach(k=>{if(g[k]&&!$(k).value)$(k).value=g[k]})}catch(e){}
+  if(!$('fFecha').value){const d=new Date();$('fFecha').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+  if(!$('lineas').children.length){const b=calc().b;linea('',b?b.toFixed(2).replace('.',','):'')}
+  $('fac').classList.add('on');$('fac').scrollIntoView({behavior:'smooth'})};
+$('cerrarFac').onclick=()=>{$('fac').classList.remove('on');window.scrollTo({top:0,behavior:'smooth'})};
+$('imprimir').onclick=()=>{
+  const g={};E.forEach(k=>g[k]=$(k).value.trim());try{localStorage.setItem('ffe',JSON.stringify(g))}catch(e){}
+  const ls=[...$('lineas').children].map(d=>({c:d.children[0].value.trim(),i:num(d.children[1].value)})).filter(l=>l.c||l.i);
+  const b=r2(ls.reduce((a,l)=>a+l.i,0)),i=r2(b*iva/100),p=r2(b*irpf/100),t=r2(b+i-p);
+  const f=$('fFecha').value?new Date($('fFecha').value+'T12:00').toLocaleDateString('es-ES'):'';
+  const br=s=>esc(s).replace(/\n/g,'<br>');
+  $('hoja').innerHTML=`<div class="cab"><div><h1>Factura</h1>${$('fNum').value?'Nº '+esc($('fNum').value):''}${f?'<br>Fecha: '+f:''}</div></div>
+  <div class="cab"><div class="caja"><small>Emisor</small><b>${esc(g.eNom)}</b><br>${g.eNif?'NIF: '+esc(g.eNif)+'<br>':''}${br(g.eDir)}</div>
+  <div class="caja"><small>Cliente</small><b>${esc($('cNom').value)}</b><br>${$('cNif').value?'NIF: '+esc($('cNif').value)+'<br>':''}${br($('cDir').value)}</div></div>
+  <table><tr><th>Concepto</th><th class="d">Importe</th></tr>${ls.map(l=>`<tr><td>${esc(l.c)}</td><td class="d">${eur(l.i)}</td></tr>`).join('')}</table>
+  <div class="tot"><div><span>Base imponible</span><span>${eur(b)}</span></div>
+  <div><span>${iva?'IVA '+iva+' %':'IVA (exento)'}</span><span>${eur(i)}</span></div>
+  ${irpf?`<div><span>Retención IRPF ${irpf} %</span><span>−${eur(p)}</span></div>`:''}
+  <div class="g"><span>Total</span><span>${eur(t)}</span></div></div>
+  ${g.eIban?`<div class="pie">Forma de pago: transferencia a ${esc(g.eIban)}</div>`:''}`;
+  const tt=document.title;document.title='Factura '+($('fNum').value||'');window.print();document.title=tt};
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
