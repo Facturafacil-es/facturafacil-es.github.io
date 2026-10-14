@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Factura Fácil · Calculadora de IVA e IRPF</title>
+<meta name="description" content="Calcula al momento el IVA, el IRPF y el total de tus facturas de autónomo. Gratis, en español y sin internet.">
+<meta name="theme-color" content="#0F5C4D">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#F4F6F5;--card:#fff;--txt:#14201C;--sub:#5B6B65;--line:#E2E8E5;--acc:#0F5C4D;--acc2:#E7F2EF;--neg:#B3412E}
+@media (prefers-color-scheme:dark){:root{--bg:#121816;--card:#1C2421;--txt:#EEF3F1;--sub:#9DAEA7;--line:#2C3833;--acc:#3FB896;--acc2:#1F332D;--neg:#F08A76}}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--txt);font:17px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px 32px;display:flex;justify-content:center}
+main{width:100%;max-width:440px}
+h1{font-size:22px;margin:4px 0 16px;display:flex;align-items:center;gap:10px}
+h1 img{width:34px;height:34px;border-radius:9px}
+.card{background:var(--card);border-radius:18px;padding:18px;border:1px solid var(--line);margin-bottom:14px}
+.modo{display:flex;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:16px}
+.modo button{flex:1;border:0;background:none;color:var(--sub);font:inherit;font-size:15px;padding:9px;border-radius:9px;cursor:pointer}
+.modo button.on{background:var(--card);color:var(--txt);font-weight:600;box-shadow:0 1px 3px #0002}
+label{display:block;font-size:14px;color:var(--sub);margin-bottom:6px}
+.imp{display:flex;align-items:center;border:2px solid var(--line);border-radius:14px;padding:0 14px}
+.imp:focus-within{border-color:var(--acc)}
+.imp input{flex:1;border:0;background:none;color:var(--txt);font:600 30px system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px 0;width:100%;outline:0}
+.imp span{font-size:24px;color:var(--sub)}
+.fila{margin-top:16px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{border:1px solid var(--line);background:var(--card);color:var(--txt);font:inherit;font-size:15px;padding:8px 14px;border-radius:20px;cursor:pointer}
+.chips button.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.r{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}
+.r:last-child{border:0}
+.r b{font-variant-numeric:tabular-nums}
+.r.neg b{color:var(--neg)}
+.total{background:var(--acc2);border-radius:14px;padding:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center}
+.total span{font-weight:600}
+.total b{font-size:28px;color:var(--acc);font-variant-numeric:tabular-nums}
+.copiar{width:100%;margin-top:12px;border:0;background:var(--acc);color:#fff;font:600 16px system-ui,-apple-system,"Segoe UI",sans-serif;padding:13px;border-radius:12px;cursor:pointer}
+footer{text-align:center;font-size:14px;color:var(--sub);margin-top:6px}
+footer a{color:var(--sub)}
+</style>
+</head>
+<body>
+<main>
+<h1><img src="icon-192.png" alt="">Factura Fácil</h1>
+
+<div class="card">
+  <div class="modo">
+    <button id="mBase" class="on">Sé la base</button>
+    <button id="mTotal">Sé lo que cobro</button>
+  </div>
+  <label id="lbl">Importe sin impuestos</label>
+  <div class="imp"><input id="imp" inputmode="decimal" placeholder="0" autocomplete="off"><span>€</span></div>
+
+  <div class="fila"><label>IVA</label>
+    <div class="chips" id="iva"><button data-v="21" class="on">21 %</button><button data-v="10">10 %</button><button data-v="4">4 %</button><button data-v="0">Sin IVA</button></div>
+  </div>
+  <div class="fila"><label>Retención IRPF</label>
+    <div class="chips" id="irpf"><button data-v="15" class="on">15 %</button><button data-v="7">7 % (nuevo)</button><button data-v="0">Sin IRPF</button></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="r"><span>Base</span><b id="oBase">0,00 €</b></div>
+  <div class="r"><span id="tIva">+ IVA 21 %</span><b id="oIva">0,00 €</b></div>
+  <div class="r neg"><span id="tIrpf">− IRPF 15 %</span><b id="oIrpf">0,00 €</b></div>
+  <div class="total"><span>Total factura</span><b id="oTot">0,00 €</b></div>
+  <button class="copiar" id="copiar">Copiar resultado</button>
+</div>
+
+<footer><a href="privacidad.html">Privacidad</a></footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let modo='base',iva=21,irpf=15;
+const eur=n=>n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const r2=n=>Math.round(n*100)/100;
+function leer(){const v=parseFloat(($('imp').value||'').replace(/\./g,'').replace(',','.'));return isNaN(v)?0:v}
+function calc(){
+  const x=leer();
+  const base=modo==='base'?x:x/(1+iva/100-irpf/100);
+  const b=r2(base),i=r2(b*iva/100),p=r2(b*irpf/100),t=r2(b+i-p);
+  $('oBase').textContent=eur(b);$('oIva').textContent=eur(i);$('oIrpf').textContent=eur(p);$('oTot').textContent=eur(t);
+  $('tIva').textContent=iva?'+ IVA '+iva+' %':'Sin IVA';
+  $('tIrpf').textContent=irpf?'− IRPF '+irpf+' %':'Sin IRPF';
+  try{localStorage.setItem('ff',JSON.stringify({iva,irpf,modo}))}catch(e){}
+  return {b,i,p,t};
+}
+function chips(id,set){$(id).querySelectorAll('button').forEach(btn=>btn.onclick=()=>{$(id).querySelectorAll('button').forEach(o=>o.classList.remove('on'));btn.classList.add('on');set(+btn.dataset.v);calc()})}
+chips('iva',v=>iva=v);chips('irpf',v=>irpf=v);
+function setModo(m){modo=m;$('mBase').classList.toggle('on',m==='base');$('mTotal').classList.toggle('on',m!=='base');$('lbl').textContent=m==='base'?'Importe sin impuestos':'Lo que quieres cobrar (total)';calc()}
+$('mBase').onclick=()=>setModo('base');$('mTotal').onclick=()=>setModo('total');
+$('imp').oninput=calc;
+$('copiar').onclick=()=>{const o=calc();const txt=`Base: ${eur(o.b)}\n${$('tIva').textContent}: ${eur(o.i)}\n${$('tIrpf').textContent}: ${eur(o.p)}\nTotal: ${eur(o.t)}`;
+  (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>{$('copiar').textContent='✓ Copiado';setTimeout(()=>$('copiar').textContent='Copiar resultado',1500)}).catch(()=>{})};
+try{const g=JSON.parse(localStorage.getItem('ff')||'{}');
+  if(g.iva!=null){iva=g.iva;$('iva').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===iva))}
+  if(g.irpf!=null){irpf=g.irpf;$('irpf').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===irpf))}
+  if(g.modo)setModo(g.modo)}catch(e){}
+calc();$('imp').focus();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
