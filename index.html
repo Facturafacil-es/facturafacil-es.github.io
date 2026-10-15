@@ -196,7 +196,8 @@ window.facturaPDF=function(F,eur){const d=Doc(),G=[15,92,77],GR=[102,102,102],L=
 const $=id=>document.getElementById(id);
 let modo='base',iva=21,irpf=15,cli='emp';
 const IR=()=>cli==='part'?0:irpf;
-const eur=n=>n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const n2=n=>{const t=Math.abs(n).toFixed(2).split('.');return (n<0?'-':'')+t[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.')+','+t[1]};
+const eur=n=>n2(n)+' €';
 const pf=v=>String(v).replace('.',',');
 const r2=n=>Math.round(n*100)/100;
 // Lee importes: "12,50", "12.50", "1.250", "1.250,50" y "1250"
@@ -215,6 +216,7 @@ function calc(){
   $('filaIrpf').hidden=$('rIrpf').hidden=cli==='part';
   try{localStorage.setItem('ff',JSON.stringify({iva,irpf,modo,cli}))}catch(e){}
   if($('exWrap'))$('exWrap').hidden=iva!==0;
+  const L=$('lineas')&&$('lineas').children;if(L&&L.length===1&&L[0].dataset.auto)L[0].children[1].value=b?n2(b):'';
   return {b,i,p,t};
 }
 const pct=v=>{const n=parseFloat(String(v||'').replace(',','.'));return isNaN(n)?0:Math.min(Math.max(n,0),100)};
@@ -257,13 +259,13 @@ const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const E=['eNom','eNif','eDir','eIban','fExento'];
 function linea(c='',i=''){const d=document.createElement('div');d.className='lin';
   d.innerHTML='<input placeholder="Concepto"><input class="im" inputmode="decimal" placeholder="0,00 €"><button class="x" aria-label="Quitar">✕</button>';
-  d.children[0].value=c;d.children[1].value=i;d.children[2].onclick=()=>{d.remove();if(!$('lineas').children.length)linea()};
+  d.children[0].value=c;d.children[1].value=i;d.children[1].addEventListener('input',()=>delete d.dataset.auto);d.children[2].onclick=()=>{d.remove();if(!$('lineas').children.length)linea()};
   $('lineas').appendChild(d)}
 $('masLin').onclick=()=>linea();
 $('abrirFac').onclick=()=>{
   try{const g=JSON.parse(localStorage.getItem('ffe')||'{}');E.forEach(k=>{if(g[k]&&!$(k).value)$(k).value=g[k]})}catch(e){}
   if(!$('fFecha').value){const d=new Date();$('fFecha').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
-  if(!$('lineas').children.length){const b=calc().b;linea('',b?b.toFixed(2).replace('.',','):'')}
+  if(!$('lineas').children.length){linea();$('lineas').children[0].dataset.auto='1';calc()}
   $('fac').classList.add('on');$('fac').scrollIntoView({behavior:'smooth'})};
 $('cerrarFac').onclick=()=>{$('fac').classList.remove('on');window.scrollTo({top:0,behavior:'smooth'})};
 $('imprimir').onclick=()=>{
@@ -309,14 +311,16 @@ $('valoraSi').onclick=()=>{$('valora').hidden=true;ls_('ffValora','si')};
 verValora();
 $('cerrarVista').onclick=()=>{$('vista').classList.remove('on');document.body.style.overflow='';verValora()};
 let FAC=null;
+const APP=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
 const MOVIL=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
-$('imprimir2').onclick=()=>{const tt=document.title;document.title=($('falta').hidden?'Factura ':'Borrador factura ')+($('fNum').value||'');window.print();setTimeout(()=>document.title=tt,1000)};
+$('imprimir2').onclick=()=>{if(MOVIL&&APP){$('enviar').onclick();return}const tt=document.title;document.title=($('falta').hidden?'Factura ':'Borrador factura ')+($('fNum').value||'');window.print();setTimeout(()=>document.title=tt,1000)};
 $('enviar').onclick=async()=>{if(!FAC)return;
   const name=((FAC.borr?'Borrador factura ':'Factura ')+(FAC.num||'')).trim().replace(/[\\/:*?"<>|]/g,'-')+'.pdf';
   const blob=facturaPDF(FAC,eur);
   let file=null;try{file=new File([blob],name,{type:'application/pdf'})}catch(e){}
   if(MOVIL&&file&&navigator.canShare&&navigator.canShare({files:[file]})){
-    try{await navigator.share({files:[file],title:name});return}catch(e){if(e&&e.name==='AbortError')return}}
+    try{await navigator.share({files:[file],title:name});return}catch(e){if(e&&e.name==='AbortError')return;if(APP){alert('No se ha podido crear el PDF ('+(e&&e.name)+'). Prueba desde Safari.');return}}}
+  else if(MOVIL&&APP){alert('Este iPhone no deja crear el PDF desde la app. Prueba desde Safari.');return}
   const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),60000)};
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
