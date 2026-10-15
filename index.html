@@ -229,7 +229,21 @@ function setModo(m){modo=m;$('mBase').classList.toggle('on',m==='base');$('mTota
 function setCli(c){cli=c;$('cli').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.c===c));calc()}
 $('cli').querySelectorAll('button').forEach(b=>b.onclick=()=>setCli(b.dataset.c));
 $('mBase').onclick=()=>setModo('base');$('mTotal').onclick=()=>setModo('total');
-$('imp').oninput=calc;
+// Pone los puntos de miles mientras se escribe (12.000.000,50)
+let impAnt='';
+function fmtImp(e){const el=$('imp');let v=el.value,pos=el.selectionStart??v.length;
+  if(e&&e.data==='.'&&!v.slice(0,pos-1).includes(',')&&!v.slice(pos).includes(','))v=v.slice(0,pos-1)+','+v.slice(pos);
+  // Si se borró solo un punto, borra también la cifra de antes
+  if(v.length===impAnt.length-1&&impAnt[pos]==='.'&&impAnt.slice(0,pos)+impAnt.slice(pos+1)===v&&pos>0){v=v.slice(0,pos-1)+v.slice(pos);pos--}
+  const antes=v.slice(0,pos).replace(/[^\d,]/g,'').length;
+  let t=v.replace(/[^\d,]/g,''),k=t.indexOf(',');
+  let ent=k<0?t:t.slice(0,k),dec=k<0?null:t.slice(k+1).replace(/,/g,'').slice(0,2);
+  ent=ent.replace(/^0+(?=\d)/,'');if(ent===''&&dec!==null)ent='0';
+  const out=ent.replace(/\B(?=(\d{3})+(?!\d))/g,'.')+(dec!==null?','+dec:'');
+  let n=0,c=0;while(c<out.length&&n<antes){if(out[c]!=='.')n++;c++}
+  el.value=out;impAnt=out;try{el.setSelectionRange(c,c)}catch(_){}
+  calc()}
+$('imp').oninput=fmtImp;
 try{const g=JSON.parse(localStorage.getItem('ff')||'{}');
   if(g.iva!=null){iva=g.iva;marcar('iva',iva)}
   if(g.irpf!=null){irpf=g.irpf;marcar('irpf',irpf)}
