@@ -30,6 +30,7 @@ label{display:block;font-size:14px;color:var(--sub);margin-bottom:6px}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chips button{border:1px solid var(--line);background:var(--card);color:var(--txt);font:inherit;font-size:15px;padding:8px 14px;border-radius:20px;cursor:pointer}
 .chips button.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.otro{width:100%;margin-top:10px;border:2px solid var(--acc);background:var(--bg);color:var(--txt);font:600 18px system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px 12px;border-radius:12px;outline:0}
 .r{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}
 .r:last-child{border:0}
 .r b{font-variant-numeric:tabular-nums}
@@ -78,10 +79,12 @@ footer a{color:var(--sub)}
   <div class="imp"><input id="imp" inputmode="decimal" placeholder="0" autocomplete="off"><span>€</span></div>
 
   <div class="fila"><label>IVA</label>
-    <div class="chips" id="iva"><button data-v="21" class="on">21 %</button><button data-v="10">10 %</button><button data-v="4">4 %</button><button data-v="0">Sin IVA</button></div>
+    <div class="chips" id="iva"><button data-v="21" class="on">21 %</button><button data-v="10">10 %</button><button data-v="4">4 %</button><button data-v="0">Sin IVA</button><button data-v="otro">Otro</button></div>
+    <input class="otro" id="ivaOtro" inputmode="decimal" placeholder="Escribe el % de IVA" hidden>
   </div>
   <div class="fila"><label>Retención IRPF</label>
-    <div class="chips" id="irpf"><button data-v="15" class="on">15 %</button><button data-v="7">7 % (nuevo)</button><button data-v="0">Sin IRPF</button></div>
+    <div class="chips" id="irpf"><button data-v="15" class="on">15 %</button><button data-v="7">7 % (nuevo)</button><button data-v="0">Sin IRPF</button><button data-v="otro">Otro</button></div>
+    <input class="otro" id="irpfOtro" inputmode="decimal" placeholder="Escribe el % de IRPF" hidden>
   </div>
 </div>
 
@@ -120,6 +123,7 @@ footer a{color:var(--sub)}
 const $=id=>document.getElementById(id);
 let modo='base',iva=21,irpf=15;
 const eur=n=>n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const pf=v=>String(v).replace('.',',');
 const r2=n=>Math.round(n*100)/100;
 function leer(){const v=parseFloat(($('imp').value||'').replace(/\./g,'').replace(',','.'));return isNaN(v)?0:v}
 function calc(){
@@ -127,12 +131,18 @@ function calc(){
   const base=modo==='base'?x:x/(1+iva/100-irpf/100);
   const b=r2(base),i=r2(b*iva/100),p=r2(b*irpf/100),t=r2(b+i-p);
   $('oBase').textContent=eur(b);$('oIva').textContent=eur(i);$('oIrpf').textContent=eur(p);$('oTot').textContent=eur(t);
-  $('tIva').textContent=iva?'+ IVA '+iva+' %':'Sin IVA';
-  $('tIrpf').textContent=irpf?'− IRPF '+irpf+' %':'Sin IRPF';
+  $('tIva').textContent=iva?'+ IVA '+pf(iva)+' %':'Sin IVA';
+  $('tIrpf').textContent=irpf?'− IRPF '+pf(irpf)+' %':'Sin IRPF';
   try{localStorage.setItem('ff',JSON.stringify({iva,irpf,modo}))}catch(e){}
   return {b,i,p,t};
 }
-function chips(id,set){$(id).querySelectorAll('button').forEach(btn=>btn.onclick=()=>{$(id).querySelectorAll('button').forEach(o=>o.classList.remove('on'));btn.classList.add('on');set(+btn.dataset.v);calc()})}
+const pct=v=>{const n=parseFloat(String(v||'').replace(',','.'));return isNaN(n)?0:Math.min(Math.max(n,0),100)};
+function chips(id,set){const inp=$(id+'Otro');
+  $(id).querySelectorAll('button').forEach(btn=>btn.onclick=()=>{$(id).querySelectorAll('button').forEach(o=>o.classList.remove('on'));btn.classList.add('on');
+    if(btn.dataset.v==='otro'){inp.hidden=false;inp.focus();set(pct(inp.value))}else{inp.hidden=true;set(+btn.dataset.v)}calc()});
+  inp.oninput=()=>{set(pct(inp.value));calc()}}
+function marcar(id,v){let ok=false;$(id).querySelectorAll('button').forEach(b=>{const m=b.dataset.v!=='otro'&&+b.dataset.v===v;b.classList.toggle('on',m);if(m)ok=true});
+  if(!ok){$(id).querySelector('[data-v="otro"]').classList.add('on');$(id+'Otro').hidden=false;$(id+'Otro').value=String(v).replace('.',',')}}
 chips('iva',v=>iva=v);chips('irpf',v=>irpf=v);
 function setModo(m){modo=m;$('mBase').classList.toggle('on',m==='base');$('mTotal').classList.toggle('on',m!=='base');$('lbl').textContent=m==='base'?'Importe sin impuestos':'Lo que quieres cobrar (total)';calc()}
 $('mBase').onclick=()=>setModo('base');$('mTotal').onclick=()=>setModo('total');
@@ -140,8 +150,8 @@ $('imp').oninput=calc;
 $('copiar').onclick=()=>{const o=calc();const txt=`Base: ${eur(o.b)}\n${$('tIva').textContent}: ${eur(o.i)}\n${$('tIrpf').textContent}: ${eur(o.p)}\nTotal: ${eur(o.t)}`;
   (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>{$('copiar').textContent='✓ Copiado';setTimeout(()=>$('copiar').textContent='Copiar resultado',1500)}).catch(()=>{})};
 try{const g=JSON.parse(localStorage.getItem('ff')||'{}');
-  if(g.iva!=null){iva=g.iva;$('iva').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===iva))}
-  if(g.irpf!=null){irpf=g.irpf;$('irpf').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===irpf))}
+  if(g.iva!=null){iva=g.iva;marcar('iva',iva)}
+  if(g.irpf!=null){irpf=g.irpf;marcar('irpf',irpf)}
   if(g.modo)setModo(g.modo)}catch(e){}
 calc();$('imp').focus();
 
@@ -171,8 +181,8 @@ $('imprimir').onclick=()=>{
   <div class="caja"><small>Cliente</small><b>${esc($('cNom').value)}</b><br>${$('cNif').value?'NIF: '+esc($('cNif').value)+'<br>':''}${br($('cDir').value)}</div></div>
   <table><tr><th>Concepto</th><th class="d">Importe</th></tr>${ls.map(l=>`<tr><td>${esc(l.c)}</td><td class="d">${eur(l.i)}</td></tr>`).join('')}</table>
   <div class="tot"><div><span>Base imponible</span><span>${eur(b)}</span></div>
-  <div><span>${iva?'IVA '+iva+' %':'IVA (exento)'}</span><span>${eur(i)}</span></div>
-  ${irpf?`<div><span>Retención IRPF ${irpf} %</span><span>−${eur(p)}</span></div>`:''}
+  <div><span>${iva?'IVA '+pf(iva)+' %':'IVA (exento)'}</span><span>${eur(i)}</span></div>
+  ${irpf?`<div><span>Retención IRPF ${pf(irpf)} %</span><span>−${eur(p)}</span></div>`:''}
   <div class="g"><span>Total</span><span>${eur(t)}</span></div></div>
   ${g.eIban?`<div class="pie">Forma de pago: transferencia a ${esc(g.eIban)}</div>`:''}`;
   const tt=document.title;document.title='Factura '+($('fNum').value||'');window.print();document.title=tt};
