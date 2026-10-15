@@ -58,7 +58,9 @@ footer a{color:var(--sub)}
 #vista.on{display:block}
 .vbar{position:sticky;top:0;display:flex;gap:10px;align-items:center;padding:max(12px,env(safe-area-inset-top)) 16px 12px;background:#2b3431}
 .vbar .cerrar{float:none;color:#fff;font-size:26px;padding:0 6px}
-.vbar .copiar{margin:0;flex:1}
+.vbar .copiar{margin:0;flex:1 1 auto;width:auto;min-width:0;white-space:nowrap;font-size:15px;padding:13px 10px}
+.vbar .enviar{flex:0 0 auto;padding:13px 12px;background:#fff;color:#0F5C4D}
+.vbar{gap:8px!important;padding-left:10px!important;padding-right:10px!important}
 .falta{background:#FFF4D6;color:#5C3D00;margin:16px auto 0;max-width:210mm;width:calc(100% - 32px);box-sizing:border-box;border-radius:10px;padding:12px 14px;font-size:15px;line-height:1.4}
 .falta b{display:block;margin-bottom:2px}
 .papel{position:relative;overflow:hidden}
@@ -109,7 +111,6 @@ footer a{color:var(--sub)}
   <div class="r"><span id="tIva">+ IVA 21 %</span><b id="oIva">0,00 €</b></div>
   <div class="r neg" id="rIrpf"><span id="tIrpf">− IRPF 15 %</span><b id="oIrpf">0,00 €</b></div>
   <div class="total"><span>Total factura</span><b id="oTot">0,00 €</b></div>
-  <button class="copiar" id="copiar">Copiar resultado</button>
   <button class="btn2" id="abrirFac">🧾 Hacer factura</button>
 </div>
 
@@ -143,7 +144,54 @@ footer a{color:var(--sub)}
 
 <footer><a href="privacidad.html">Privacidad</a></footer>
 </main>
-<div id="vista"><div class="vbar"><button class="cerrar" id="cerrarVista" aria-label="Volver">✕</button><button class="copiar" id="imprimir2">🖨️ Imprimir / Guardar PDF</button></div><div class="falta" id="falta" hidden></div><div class="papel"><div id="hoja"></div></div></div>
+<div id="vista"><div class="vbar"><button class="cerrar" id="cerrarVista" aria-label="Volver">✕</button><button class="copiar" id="imprimir2">🖨️ Imprimir / PDF</button><button class="copiar enviar" id="enviar">📤 Enviar</button></div><div class="falta" id="falta" hidden></div><div class="papel"><div id="hoja"></div></div></div>
+<script>
+// Mini generador de PDF propio (sin librerías). Factura Fácil.
+(function(){
+const HW=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+const BW=[278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584];
+const MAP={'€':128,'‚':130,'„':132,'…':133,'‘':145,'’':146,'“':147,'”':148,'•':149,'–':150,'—':151,'−':45,' ':32,' ':32};
+function enc(s){let o='';for(const ch of String(s)){const c=ch.charCodeAt(0);if(MAP[ch]!==undefined)o+=String.fromCharCode(MAP[ch]);else if(c<256)o+=ch;else{const b=ch.normalize('NFD')[0];o+=b.charCodeAt(0)<256?b:'?'}}return o}
+function wch(code,bold){const t=bold?BW:HW;if(code>=32&&code<=126)return t[code-32];if(code===128)return 556;if(code===160)return 278;if(code===186||code===170)return 365;if(code===183)return 278;
+  const b=String.fromCharCode(code).normalize('NFD')[0].charCodeAt(0);return b>=32&&b<=126?t[b-32]:556}
+function width(s,size,bold){const e=enc(s);let w=0;for(let i=0;i<e.length;i++)w+=wch(e.charCodeAt(i),bold);return w*size/1000}
+function esc(e){return e.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')}
+function wrap(s,size,bold,max){const out=[];String(s||'').split('\n').forEach(par=>{let line='';par.split(/\s+/).filter(Boolean).forEach(w=>{const t=line?line+' '+w:w;if(width(t,size,bold)<=max||!line)line=t;else{out.push(line);line=w}});out.push(line)});return out}
+function Doc(){const H=841.89;let c='';const col=(r,g,b)=>(r/255).toFixed(3)+' '+(g/255).toFixed(3)+' '+(b/255).toFixed(3);
+  return{H,
+    text(s,x,y,o={}){const size=o.size||11,bold=!!o.bold,e=enc(s);let xx=x;if(o.align==='right')xx=x-width(s,size,bold);
+      c+='BT '+col(...(o.color||[20,32,28]))+' rg /'+(bold?'F2':'F1')+' '+size+' Tf '+xx.toFixed(2)+' '+(H-y).toFixed(2)+' Td ('+esc(e)+') Tj ET\n'},
+    rot(s,cx,cy,size,deg,color){const a=deg*Math.PI/180,co=Math.cos(a),si=Math.sin(a),w=width(s,size,true),hh=size*0.35;
+      const px=cx-(w/2*co-hh*si),py=(H-cy)-(w/2*si+hh*co);
+      c+='BT '+col(...color)+' rg /F2 '+size+' Tf '+[co,si,-si,co,px,py].map(n=>n.toFixed(3)).join(' ')+' Tm ('+esc(enc(s))+') Tj ET\n'},
+    line(x1,y1,x2,y2,w,color){c+=col(...color)+' RG '+w+' w '+x1.toFixed(2)+' '+(H-y1).toFixed(2)+' m '+x2.toFixed(2)+' '+(H-y2).toFixed(2)+' l S\n'},
+    out(){const objs=['<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>',
+      '<< /Length '+c.length+' >>\nstream\n'+c+'endstream',
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>'];
+      let s='%PDF-1.4\n%\xe2\xe3\xcf\xd3\n';const off=[];objs.forEach((o,i)=>{off.push(s.length);s+=(i+1)+' 0 obj\n'+o+'\nendobj\n'});
+      const x=s.length;s+='xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n'+off.map(n=>String(n).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size '+(objs.length+1)+' /Root 1 0 R >>\nstartxref\n'+x+'\n%%EOF';
+      const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i)&255;return u}}}
+// F = {titulo,num,fecha,em:{nom,nif,dir},cl:{nom,nif,dir},ls:[{c,i}],tot:[[etiqueta,valor]],total,pies:[],borr}
+window.facturaPDF=function(F,eur){const d=Doc(),G=[15,92,77],GR=[102,102,102],L=50,R=545;
+  if(F.borr)d.rot('BORRADOR',297,421,96,30,[246,218,214]);
+  d.text(F.titulo,L,82,{size:26,bold:true,color:G});let y=108;
+  if(F.num){d.text('Nº '+F.num,L,y);y+=16}if(F.fecha){d.text('Fecha: '+F.fecha,L,y);y+=16}
+  y+=26;const col=(lab,p,x)=>{let yy=y;d.text(lab,x,yy,{size:8,color:GR});yy+=16;
+    if(p.nom){wrap(p.nom,11,true,225).forEach(t=>{d.text(t,x,yy,{bold:true});yy+=15})}
+    if(p.nif){d.text('NIF: '+p.nif,x,yy);yy+=15}
+    wrap(p.dir,11,false,225).forEach(t=>{if(t){d.text(t,x,yy);yy+=15}});return yy};
+  y=Math.max(col('EMISOR',F.em,L),col('CLIENTE',F.cl,310))+22;
+  d.text('CONCEPTO',L,y,{size:8,bold:true,color:GR});d.text('IMPORTE',R,y,{size:8,bold:true,color:GR,align:'right'});
+  y+=7;d.line(L,y,R,y,1.5,G);y+=18;
+  F.ls.forEach(l=>{const lines=wrap(l.c,11,false,370);lines.forEach((t,k)=>{d.text(t,L,y+k*15)});d.text(eur(l.i),R,y,{align:'right'});y+=lines.length*15+4;d.line(L,y-8,R,y-8,.5,[221,221,221]);y+=8});
+  y+=8;const TX=300;F.tot.forEach(([a,b])=>{d.text(a,TX,y);d.text(b,R,y,{align:'right'});y+=19});
+  y+=2;d.line(TX,y-8,R,y-8,1.5,G);y+=12;d.text('Total',TX,y,{size:15,bold:true});d.text(F.total,R,y,{size:15,bold:true,align:'right'});
+  y+=36;(F.pies||[]).forEach(p=>{wrap(p,10,false,R-L).forEach(t=>{d.text(t,L,y,{size:10,color:[68,68,68]});y+=14});y+=4});
+  return new Blob([d.out()],{type:'application/pdf'})};
+})();
+</script>
 <script>
 const $=id=>document.getElementById(id);
 let modo='base',iva=21,irpf=15,cli='emp';
@@ -177,8 +225,6 @@ function setCli(c){cli=c;$('cli').querySelectorAll('button').forEach(b=>b.classL
 $('cli').querySelectorAll('button').forEach(b=>b.onclick=()=>setCli(b.dataset.c));
 $('mBase').onclick=()=>setModo('base');$('mTotal').onclick=()=>setModo('total');
 $('imp').oninput=calc;
-$('copiar').onclick=()=>{const o=calc();const txt=`Precio: ${eur(o.b)}\n${$('tIva').textContent}: ${eur(o.i)}\n${cli==='part'?'':$('tIrpf').textContent+': '+eur(o.p)+'\n'}Total: ${eur(o.t)}`;
-  (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>{$('copiar').textContent='✓ Copiado';setTimeout(()=>$('copiar').textContent='Copiar resultado',1500)}).catch(()=>{})};
 try{const g=JSON.parse(localStorage.getItem('ff')||'{}');
   if(g.iva!=null){iva=g.iva;marcar('iva',iva)}
   if(g.irpf!=null){irpf=g.irpf;marcar('irpf',irpf)}
@@ -231,7 +277,11 @@ $('imprimir').onclick=()=>{
   <div class="g"><span>Total</span><span>${eur(t)}</span></div></div>
   ${iva===0&&g.fExento?`<div class="pie">${esc(g.fExento)}</div>`:''}
   ${g.eIban?`<div class="pie">Forma de pago: transferencia a ${esc(g.eIban)}</div>`:''}`;
-  ls_('ffN',(+ls_('ffN')||0)+1);$('vista').classList.add('on');$('vista').scrollTop=0;document.body.style.overflow='hidden'};
+  ls_('ffN',(+ls_('ffN')||0)+1);FAC={titulo:borr?'Borrador de factura':'Factura',num:v('fNum'),fecha:f,borr,
+    em:{nom:g.eNom,nif:g.eNif,dir:g.eDir},cl:{nom:v('cNom'),nif:v('cNif'),dir:v('cDir')},ls,
+    tot:[['Base imponible',eur(b)],[iva?'IVA '+pf(iva)+' %':'IVA (exento)',eur(i)]].concat(IR()?[['Retención IRPF '+pf(irpf)+' %','-'+eur(p)]]:[]),
+    total:eur(t),pies:[iva===0&&g.fExento?g.fExento:'',g.eIban?'Forma de pago: transferencia a '+g.eIban:''].filter(Boolean)};
+  $('vista').classList.add('on');$('vista').scrollTop=0;document.body.style.overflow='hidden'};
 // ---- Valorar (solo en Windows, tras 3 facturas) ----
 const ls_=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
 function verValora(){if(/Windows/.test(navigator.userAgent)&&!ls_('ffValora')&&(+ls_('ffN')||0)>=3)$('valora').hidden=false}
@@ -239,7 +289,17 @@ $('valoraNo').onclick=()=>{$('valora').hidden=true;ls_('ffValora','no')};
 $('valoraSi').onclick=()=>{$('valora').hidden=true;ls_('ffValora','si')};
 verValora();
 $('cerrarVista').onclick=()=>{$('vista').classList.remove('on');document.body.style.overflow='';verValora()};
+let FAC=null;
+const MOVIL=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
 $('imprimir2').onclick=()=>{const tt=document.title;document.title=($('falta').hidden?'Factura ':'Borrador factura ')+($('fNum').value||'');window.print();setTimeout(()=>document.title=tt,1000)};
+$('enviar').onclick=async()=>{if(!FAC)return;
+  const name=((FAC.borr?'Borrador factura ':'Factura ')+(FAC.num||'')).trim().replace(/[\\/:*?"<>|]/g,'-')+'.pdf';
+  const blob=facturaPDF(FAC,eur);
+  let file=null;try{file=new File([blob],name,{type:'application/pdf'})}catch(e){}
+  if(MOVIL&&file&&navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:name});return}catch(e){if(e&&e.name==='AbortError')return}}
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000)};
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
