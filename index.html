@@ -52,7 +52,8 @@ footer a{color:var(--sub)}
 .fac input{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:16px system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px 12px;border-radius:10px;margin-bottom:8px;outline:0}
 .fac input:focus{border-color:var(--acc)}
 .dos{display:flex;gap:8px}.dos input{flex:1;min-width:0}
-.lin{display:flex;gap:8px;align-items:center}.lin input:first-child{flex:1;min-width:0}.lin input.im{width:110px;flex:none;text-align:right}
+.lin{border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:10px}.lin .l1,.lin .l2{display:flex;gap:8px;align-items:center}.lin .l1 input{flex:1;min-width:0}
+.lin .l2 input{margin-bottom:0}.lin .lq{width:62px;flex:none;text-align:center;padding-left:4px;padding-right:4px}.lin .lp{flex:1;min-width:0;text-align:right}.lin .op{color:var(--sub);font-size:16px}.lin .li{min-width:84px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}@media(max-width:360px){.lin .l2{gap:5px}.lin .lq{width:46px}.lin .li{min-width:0;font-size:15px}.lin .lp{padding-left:8px;padding-right:8px}}
 .lin .x{border:0;background:none;color:var(--sub);font-size:20px;padding:0 4px 8px;cursor:pointer}
 .mas{border:0;background:none;color:var(--acc);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:4px 0;cursor:pointer}
 .cerrar{float:right;border:0;background:none;color:var(--sub);font-size:24px;line-height:1;cursor:pointer}
@@ -197,6 +198,12 @@ footer a{color:var(--sub)}
   </div>
 </div>
 
+<div class="capa" id="capaPanel">
+  <div class="cbar"><button class="cerrar" id="cerrarPanel" aria-label="Volver">✕</button><h2>Panel</h2></div>
+  <div class="cin"><div class="res"><div><small>Usuarios</small><b id="pUs">–</b></div><div><small>Nuevos 7 días</small><b id="pNu">–</b></div><div><small>Con regalo</small><b id="pRe">–</b></div></div>
+    <div id="pLista"><div class="vacio">Cargando…</div></div></div>
+</div>
+
 <div class="capa" id="capaCli">
   <div class="cbar"><button class="cerrar" id="cerrarCli" aria-label="Volver">✕</button><h2>Clientes</h2></div>
   <div class="cin"><input id="buscaCli" placeholder="Buscar cliente" style="width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--card);color:var(--txt);font:16px system-ui,-apple-system,'Segoe UI',sans-serif;padding:11px 12px;border-radius:12px;margin-bottom:10px"><div id="listaCli"></div></div>
@@ -215,7 +222,7 @@ footer a{color:var(--sub)}
 <div class="hoja2" id="hojaNube" role="dialog" aria-modal="true"><h3>☁️ Tus facturas en la nube</h3>
   <div id="nP1"><p>Entra con tu correo y tendrás tus facturas en cualquier dispositivo, sin perderlas.</p><input id="nEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"><div class="acc"><button class="copiar" id="nEnviar" style="margin:0">Enviarme un código</button><button id="nNo">Ahora no</button></div></div>
   <div id="nP2" hidden><p>Te hemos enviado un correo a <b id="nEmailTxt"></b>. Escribe aquí el código o toca el enlace del correo. Si no llega, mira en spam.</p><input id="nCod" inputmode="numeric" autocomplete="one-time-code" placeholder="Código" maxlength="10"><div class="acc"><button class="copiar" id="nEntrar" style="margin:0">Entrar</button><button id="nOtro">Cambiar correo</button></div></div>
-  <div id="nP3" hidden><p>Conectado con <b id="nYo"></b><br><span id="nEst"></span></p><div class="acc"><button class="copiar" id="nAct" style="margin:0">🔄 Actualizar ahora</button><button id="nSalir">Salir de la cuenta</button></div></div>
+  <div id="nP3" hidden><p>Conectado con <b id="nYo"></b><br><span id="nEst"></span></p><div class="acc"><button class="copiar" id="nAct" style="margin:0">🔄 Actualizar ahora</button><button id="nPanel" hidden>📊 Panel del propietario</button><button id="nSalir">Salir de la cuenta</button></div></div>
   <p id="nMsg" style="margin:10px 0 0" hidden></p></div>
 <div class="toast" id="toast" hidden></div>
 <div id="vista"><div class="vbar"><button class="cerrar" id="cerrarVista" aria-label="Volver">✕</button><button class="copiar" id="imprimir2">🖨️ Imprimir / PDF</button><button class="copiar enviar" id="enviar">📤 Enviar</button></div><div class="falta" id="falta" hidden></div><div class="papel"><div id="hoja"></div></div></div>
@@ -247,7 +254,7 @@ function Doc(){const H=841.89;let c='';const col=(r,g,b)=>(r/255).toFixed(3)+' '
       let s='%PDF-1.4\n%\xe2\xe3\xcf\xd3\n';const off=[];objs.forEach((o,i)=>{off.push(s.length);s+=(i+1)+' 0 obj\n'+o+'\nendobj\n'});
       const x=s.length;s+='xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n'+off.map(n=>String(n).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size '+(objs.length+1)+' /Root 1 0 R >>\nstartxref\n'+x+'\n%%EOF';
       const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i)&255;return u}}}
-// F = {titulo,num,fecha,em:{nom,nif,dir},cl:{nom,nif,dir},ls:[{c,i}],tot:[[etiqueta,valor]],total,pies:[],borr}
+// F = {titulo,num,fecha,em:{nom,nif,dir},cl:{nom,nif,dir},ls:[{c,q,p,i}],det,fq,tot:[[etiqueta,valor]],total,pies:[],borr}
 window.facturaPDF=function(F,eur){const d=Doc(),G=[15,92,77],GR=[102,102,102],L=50,R=545;
   if(F.borr)d.rot('BORRADOR',297,421,96,30,[246,218,214]);
   d.text(F.titulo,L,82,{size:26,bold:true,color:G});let y=108;
@@ -257,9 +264,11 @@ window.facturaPDF=function(F,eur){const d=Doc(),G=[15,92,77],GR=[102,102,102],L=
     if(p.nif){d.text('NIF: '+p.nif,x,yy);yy+=15}
     wrap(p.dir,11,false,225).forEach(t=>{if(t){d.text(t,x,yy);yy+=15}});return yy};
   y=Math.max(col('EMISOR',F.em,L),col('CLIENTE',F.cl,310))+22;
-  d.text('CONCEPTO',L,y,{size:8,bold:true,color:GR});d.text('IMPORTE',R,y,{size:8,bold:true,color:GR,align:'right'});
+  const H={size:8,bold:true,color:GR},QX=345,PX=440;d.text('CONCEPTO',L,y,H);if(F.det){d.text('CANT.',QX,y,{...H,align:'right'});d.text('PRECIO',PX,y,{...H,align:'right'})}d.text('IMPORTE',R,y,{...H,align:'right'});
   y+=7;d.line(L,y,R,y,1.5,G);y+=18;
-  F.ls.forEach(l=>{const lines=wrap(l.c,11,false,370);lines.forEach((t,k)=>{d.text(t,L,y+k*15)});d.text(eur(l.i),R,y,{align:'right'});y+=lines.length*15+4;d.line(L,y-8,R,y-8,.5,[221,221,221]);y+=8});
+  F.ls.forEach(l=>{const lines=wrap(l.c,11,false,F.det?250:370);lines.forEach((t,k)=>{d.text(t,L,y+k*15)});
+    if(F.det){d.text(F.fq(l.q!=null?l.q:1),QX,y,{align:'right'});d.text(eur(l.p!=null?l.p:l.i),PX,y,{align:'right'})}
+    d.text(eur(l.i),R,y,{align:'right'});y+=lines.length*15+4;d.line(L,y-8,R,y-8,.5,[221,221,221]);y+=8});
   y+=8;const TX=300;F.tot.forEach(([a,b])=>{d.text(a,TX,y);d.text(b,R,y,{align:'right'});y+=19});
   y+=2;d.line(TX,y-8,R,y-8,1.5,G);y+=12;d.text('Total',TX,y,{size:15,bold:true});d.text(F.total,R,y,{size:15,bold:true,align:'right'});
   y+=36;(F.pies||[]).forEach(p=>{wrap(p,10,false,R-L).forEach(t=>{d.text(t,L,y,{size:10,color:[68,68,68]});y+=14});y+=4});
@@ -290,7 +299,7 @@ function calc(){
   $('filaIrpf').hidden=$('rIrpf').hidden=cli==='part';
   try{localStorage.setItem('ff',JSON.stringify({iva,irpf,modo,cli}))}catch(e){}
   if($('exWrap'))$('exWrap').hidden=iva!==0;
-  const L=$('lineas')&&$('lineas').children;if(L&&L.length===1&&L[0].dataset.auto)L[0].children[1].value=b?n2(b):'';
+  const L=$('lineas')&&$('lineas').children;if(L&&L.length===1&&L[0].dataset.auto){L[0].querySelector('.lq').value='1';L[0].querySelector('.lp').value=b?n2(b):'';linImp(L[0])}
   return {b,i,p,t};
 }
 const pct=v=>{const n=parseFloat(String(v||'').replace(',','.'));return isNaN(n)?0:Math.min(Math.max(n,0),100)};
@@ -331,9 +340,13 @@ calc();$('imp').focus();
 const num=aNum;
 const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const E=['eNom','eNif','eDir','eIban','fExento'];
-function linea(c='',i=''){const d=document.createElement('div');d.className='lin';
-  d.innerHTML='<input placeholder="Concepto"><input class="im" inputmode="decimal" placeholder="0,00 €"><button class="x" aria-label="Quitar">✕</button>';
-  d.children[0].value=c;d.children[1].value=i;d.children[1].addEventListener('input',()=>delete d.dataset.auto);d.children[2].onclick=()=>{d.remove();if(!$('lineas').children.length)linea()};
+const fq=q=>String(r2(q)).replace('.',',');
+function linImp(d){const q=d.querySelector('.lq').value.trim(),qq=q===''?1:num(q),pp=num(d.querySelector('.lp').value);const i=r2(qq*pp);d.querySelector('.li').textContent=pp?eur(i):'';return {q:qq,p:pp,i}}
+function linea(c='',pr='',q='1'){const d=document.createElement('div');d.className='lin';
+  d.innerHTML='<div class="l1"><input class="lc" placeholder="Concepto"><button class="x" aria-label="Quitar">✕</button></div><div class="l2"><input class="lq" inputmode="decimal" placeholder="Cant." aria-label="Cantidad"><span class="op">×</span><input class="lp" inputmode="decimal" placeholder="Precio €" aria-label="Precio por unidad"><span class="op">=</span><span class="li"></span></div>';
+  d.querySelector('.lc').value=c;d.querySelector('.lq').value=q;d.querySelector('.lp').value=pr;linImp(d);
+  ['.lq','.lp'].forEach(k=>d.querySelector(k).addEventListener('input',()=>{delete d.dataset.auto;linImp(d)}));
+  d.querySelector('.x').onclick=()=>{d.remove();if(!$('lineas').children.length)linea()};
   $('lineas').appendChild(d)}
 $('masLin').onclick=()=>linea();
 $('abrirFac').onclick=()=>{
@@ -349,7 +362,7 @@ function leerForm(){
   const v=id=>$(id).value.trim();
   return {num:v('fNum'),fecha:v('fFecha'),venc:v('fVenc'),em:{nom:g.eNom,nif:g.eNif,dir:g.eDir,iban:g.eIban},
     cl:{nom:v('cNom'),nif:v('cNif'),dir:v('cDir')},
-    ls:[...$('lineas').children].map(d=>({c:d.children[0].value.trim(),i:num(d.children[1].value)})).filter(l=>l.c||l.i),
+    ls:[...$('lineas').children].map(d=>({c:d.querySelector('.lc').value.trim(),...linImp(d)})).filter(l=>l.c||l.i),
     iva,irpf:IR(),cli,exento:iva===0?g.fExento:''}}
 const fes=iso=>iso?new Date(iso+'T12:00').toLocaleDateString('es-ES'):'';
 function importes(D){const b=r2(D.ls.reduce((a,l)=>a+l.i,0)),i=r2(b*D.iva/100),p=r2(b*D.irpf/100);return {b,i,p,t:r2(b+i-p)}}
@@ -360,7 +373,7 @@ function faltan(D){const f=[],emp=D.cli!=='part';
   if(!D.ls.some(l=>l.c&&l.i))f.push('concepto con su importe');if(D.iva===0&&!D.exento)f.push('motivo de no llevar IVA');return f}
 let FAC=null;
 function mostrar(D,guardar){
-  const {b,i,p,t}=importes(D),f=fes(D.fecha),br=s=>esc(s).replace(/\n/g,'<br>'),falta=faltan(D),borr=falta.length>0;
+  const {b,i,p,t}=importes(D),det=D.ls.some(l=>l.q!=null&&l.q!==1),f=fes(D.fecha),br=s=>esc(s).replace(/\n/g,'<br>'),falta=faltan(D),borr=falta.length>0;
   $('falta').hidden=!borr;
   $('falta').innerHTML=borr?'<b>Borrador: '+(falta.length>1?'faltan '+falta.length+' datos':'falta 1 dato')+'</b>'+esc(falta.join(', '))+'.':'';
   const pies=[D.exento||'',D.em.iban?'Forma de pago: transferencia a '+D.em.iban:'',D.venc?'Vencimiento: '+fes(D.venc):''].filter(Boolean);
@@ -368,11 +381,11 @@ function mostrar(D,guardar){
   $('hoja').innerHTML=(borr?'<div class="marca" aria-hidden="true"><span>BORRADOR</span></div>':'')+`<div class="cab"><div><h1>${borr?'Borrador de factura':'Factura'}</h1>${D.num?'Nº '+esc(D.num):''}${f?'<br>Fecha: '+f:''}</div></div>
   <div class="cab"><div class="caja"><small>Emisor</small><b>${esc(D.em.nom)}</b><br>${D.em.nif?'NIF: '+esc(D.em.nif)+'<br>':''}${br(D.em.dir)}</div>
   <div class="caja"><small>Cliente</small><b>${esc(D.cl.nom)}</b><br>${D.cl.nif?'NIF: '+esc(D.cl.nif)+'<br>':''}${br(D.cl.dir)}</div></div>
-  <table><tr><th>Concepto</th><th class="d">Importe</th></tr>${D.ls.map(l=>`<tr><td>${esc(l.c)}</td><td class="d">${eur(l.i)}</td></tr>`).join('')}</table>
+  <table>${det?'<tr><th>Concepto</th><th class="d">Cant.</th><th class="d">Precio</th><th class="d">Importe</th></tr>':'<tr><th>Concepto</th><th class="d">Importe</th></tr>'}${D.ls.map(l=>`<tr><td>${esc(l.c)}</td>${det?`<td class="d">${fq(l.q!=null?l.q:1)}</td><td class="d">${eur(l.p!=null?l.p:l.i)}</td>`:''}<td class="d">${eur(l.i)}</td></tr>`).join('')}</table>
   <div class="tot">${tot.map(([x,y])=>`<div><span>${esc(x)}</span><span>${esc(y).replace(/^-/,'−')}</span></div>`).join('')}
   <div class="g"><span>Total</span><span>${eur(t)}</span></div></div>
   ${pies.map(x=>`<div class="pie">${esc(x)}</div>`).join('')}`;
-  FAC={titulo:borr?'Borrador de factura':'Factura',num:D.num,fecha:f,borr,em:D.em,cl:D.cl,ls:D.ls,tot,total:eur(t),pies};
+  FAC={titulo:borr?'Borrador de factura':'Factura',num:D.num,fecha:f,borr,em:D.em,cl:D.cl,ls:D.ls,det,fq,tot,total:eur(t),pies};
   $('vista').classList.add('on');$('vista').scrollTop=0;document.body.style.overflow='hidden';
   if(guardar){ls_('ffN',(+ls_('ffN')||0)+1);if(PREM()&&!borr){guardarFactura(D,t);aviso('✓ Guardada en Mis facturas')}}}
 $('imprimir').onclick=()=>mostrar(leerForm(),true);
@@ -453,7 +466,7 @@ $('accVer').onclick=()=>{const f=dbL().facturas.find(x=>x.num===sel);cerrarHojas
 $('accDup').onclick=()=>{const d=dbL(),f=d.facturas.find(x=>x.num===sel);cerrarHojas();if(!f)return;const D=f.D;
   $('fNum').value=numero(d,d.sig);$('fFecha').value=hoyISO();$('fVenc').value='';
   $('cNom').value=D.cl.nom||'';$('cNif').value=D.cl.nif||'';$('cDir').value=D.cl.dir||'';
-  $('lineas').innerHTML='';D.ls.forEach(l=>linea(l.c,l.i?n2(l.i):''));if(!D.ls.length)linea();
+  $('lineas').innerHTML='';D.ls.forEach(l=>linea(l.c,l.p!=null?(l.p?n2(l.p):''):(l.i?n2(l.i):''),l.q!=null?fq(l.q):'1'));if(!D.ls.length)linea();
   iva=D.iva;marcar('iva',iva);setCli(D.cli||'emp');if(D.cli!=='part'&&D.irpf){irpf=D.irpf;marcar('irpf',irpf)}calc();
   $('vencWrap').hidden=false;$('fac').classList.add('on');cerrarCapa('capaFac');setTimeout(()=>$('fac').scrollIntoView({behavior:'smooth'}),50);aviso('Copia lista con el nº '+$('fNum').value)};
 // ---- Exportar y copia de seguridad ----
@@ -530,7 +543,7 @@ async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true
 function pintarNube(){const b=$('nubeBtn'),pend=ls_('ffSyncPend')==='1';
   b.className='nube'+(ses?' ok':'');b.textContent=ses?('☁️ En la nube · '+ses.email+(pend?' · pendiente de subir':'')):'☁️ Guarda tus facturas en la nube';
   const vis=!$('misFac').hidden;$('ftCuenta').hidden=vis;$('ftEntrar').textContent=ses?'Mi cuenta':'Ya tengo cuenta';
-  if(ses){$('nYo').textContent=ses.email;$('nEst').textContent=pend?'Hay cambios sin subir (sin conexión). Se subirán solos.':(syncOk?'Todo guardado ('+syncOk+')':'')}}
+  $('nPanel').hidden=!(ses&&ses.email===DUENO);if(ses){$('nYo').textContent=ses.email;$('nEst').textContent=pend?'Hay cambios sin subir (sin conexión). Se subirán solos.':(syncOk?'Todo guardado ('+syncOk+')':'')}}
 function abrirNube(){$('nMsg').hidden=true;['nP1','nP2','nP3'].forEach(i=>$(i).hidden=true);$(ses?'nP3':'nP1').hidden=false;pintarNube();abrirHoja('hojaNube')}
 const nMsg=t=>{$('nMsg').textContent=t;$('nMsg').hidden=!t};
 $('nubeBtn').onclick=abrirNube;$('ftEntrar').onclick=e=>{e.preventDefault();abrirNube()};$('nNo').onclick=cerrarHojas;
@@ -556,6 +569,15 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ses)pedir
   try{const u=await sbF('/auth/v1/user',{headers:{Authorization:'Bearer '+h.get('access_token')}});
     guardaSes(sesDe({access_token:h.get('access_token'),refresh_token:h.get('refresh_token'),expires_in:+h.get('expires_in')||3600,user:u}));
     await sync();aviso('☁️ Has entrado: tus facturas están en la nube')}catch(e){aviso('El enlace ha caducado. Pide otro.')}})();
+// ---- Panel del propietario (los datos solo los entrega Supabase a este correo) ----
+const DUENO='facturafacil.es.app@gmail.com';
+async function abrirPanel(){cerrarHojas();abrirCapa('capaPanel');$('pLista').innerHTML='<div class="vacio">Cargando…</div>';
+  try{const at=await tokenOk(),j=await sbF('/rest/v1/rpc/panel',{method:'POST',headers:{Authorization:'Bearer '+at},body:'{}'});
+    $('pUs').textContent=j.usuarios;$('pNu').textContent=j.nuevos7;$('pRe').textContent=j.regalo;
+    const fd=x=>x?new Date(x).toLocaleDateString('es-ES'):'—';
+    $('pLista').innerHTML=(j.lista||[]).length?j.lista.map(u=>`<div class="item" style="cursor:default"><div class="ii"><b>${esc(u.email)}</b><small>Alta ${fd(u.alta)} · última vez ${fd(u.ultima)}${u.regalo?' · 🎁':''} · ${u.facturas} facturas</small></div></div>`).join(''):'<div class="vacio">Aún no hay usuarios.</div>'}
+  catch(e){$('pLista').innerHTML='<div class="vacio">No se ha podido cargar el panel.</div>'}}
+$('nPanel').onclick=abrirPanel;$('cerrarPanel').onclick=()=>cerrarCapa('capaPanel');
 verPrem();pintarNube();if(ses)sync();
 if(ls_('ffRegaloAviso')==='1'){ls_('ffRegaloAviso','0');setTimeout(()=>{const e=$('toast');aviso('🎁 Regalo de lanzamiento: Premium gratis para siempre');clearTimeout(tAv);tAv=setTimeout(()=>e.hidden=true,5000)},600)}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
