@@ -89,6 +89,7 @@ footer a{color:var(--sub)}
 .velo{position:fixed;inset:0;background:#0006;z-index:19;display:none}.velo.on{display:block}
 .hoja2 input{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:17px system-ui,-apple-system,'Segoe UI',sans-serif;padding:12px;border-radius:12px;margin:0 0 4px;outline:0}.hoja2 input:focus{border-color:var(--acc)}
 .nube{display:block;width:100%;margin:0 0 12px;border:1px solid var(--acc);background:var(--acc2);color:var(--acc);font:600 15px system-ui,-apple-system,'Segoe UI',sans-serif;padding:12px;border-radius:12px;cursor:pointer;text-align:center}.nube.ok{border-color:var(--line);background:var(--card);color:var(--sub);font-weight:500}
+.expG{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin:0 0 10px}.expG button{border:1px solid var(--line);background:var(--card);color:var(--txt);font:600 15px system-ui,-apple-system,'Segoe UI',sans-serif;padding:12px 6px;border-radius:12px;cursor:pointer}.expG button.an{grid-column:1/-1;background:var(--acc);border-color:var(--acc);color:#fff}.expY{font-weight:600;color:var(--sub);margin:4px 0 6px}
 .prem li{margin:6px 0}.prem ul{padding-left:20px;margin:8px 0 14px}
 .toast{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top));transform:translateX(-50%);background:#14201C;color:#fff;padding:12px 18px;border-radius:24px;font-size:15px;z-index:30;box-shadow:0 6px 20px #0005}
 .pbtn{display:block;width:100%;margin:0 0 8px;border:1px dashed var(--acc);background:none;color:var(--acc);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px;border-radius:10px;cursor:pointer}
@@ -224,6 +225,7 @@ footer a{color:var(--sub)}
   <div id="nP2" hidden><p>Te hemos enviado un correo a <b id="nEmailTxt"></b>. Escribe aquí el código o toca el enlace del correo. Si no llega, mira en spam.</p><input id="nCod" inputmode="numeric" autocomplete="one-time-code" placeholder="Código" maxlength="10"><div class="acc"><button class="copiar" id="nEntrar" style="margin:0">Entrar</button><button id="nOtro">Cambiar correo</button></div></div>
   <div id="nP3" hidden><p>Conectado con <b id="nYo"></b><br><span id="nEst"></span></p><div class="acc"><button class="copiar" id="nAct" style="margin:0">🔄 Actualizar ahora</button><button id="nPanel" hidden>📊 Panel del propietario</button><button id="nSalir">Salir de la cuenta</button></div></div>
   <p id="nMsg" style="margin:10px 0 0" hidden></p></div>
+<div class="hoja2" id="hojaExp" role="dialog" aria-modal="true"><h3>⬇️ Exportar a Excel</h3><p>¿Qué periodo?</p><div id="expOps"></div><div class="acc"><button id="expNo">Cancelar</button></div></div>
 <div class="toast" id="toast" hidden></div>
 <div id="vista"><div class="vbar"><button class="cerrar" id="cerrarVista" aria-label="Volver">✕</button><button class="copiar" id="imprimir2">🖨️ Imprimir / PDF</button><button class="copiar enviar" id="enviar">📤 Enviar</button></div><div class="falta" id="falta" hidden></div><div class="papel"><div id="hoja"></div></div></div>
 <script>
@@ -420,7 +422,7 @@ function dbG(d){d.t=new Date().toISOString();try{localStorage.setItem('ffDB',JSO
 const numero=(d,n)=>d.serie+String(n).padStart(3,'0');
 let tAv;function aviso(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(tAv);tAv=setTimeout(()=>e.hidden=true,2200)}
 function abrirHoja(id){$('velo').classList.add('on');$(id).classList.add('on')}
-function cerrarHojas(){$('velo').classList.remove('on');['hojaAcc','hojaPrem','hojaNube'].forEach(i=>$(i).classList.remove('on'))}
+function cerrarHojas(){$('velo').classList.remove('on');['hojaAcc','hojaPrem','hojaNube','hojaExp'].forEach(i=>$(i).classList.remove('on'))}
 $('velo').onclick=cerrarHojas;
 function abrirCapa(id){$(id).classList.add('on');$(id).scrollTop=0;document.body.style.overflow='hidden'}
 function cerrarCapa(id){$(id).classList.remove('on');if(!document.querySelector('.capa.on')&&!$('vista').classList.contains('on'))document.body.style.overflow=''}
@@ -471,11 +473,20 @@ $('accDup').onclick=()=>{const d=dbL(),f=d.facturas.find(x=>x.num===sel);cerrarH
   $('vencWrap').hidden=false;$('fac').classList.add('on');cerrarCapa('capaFac');setTimeout(()=>$('fac').scrollIntoView({behavior:'smooth'}),50);aviso('Copia lista con el nº '+$('fNum').value)};
 // ---- Exportar y copia de seguridad ----
 function descargar(nombre,contenido,tipo){const bl=new Blob([contenido],{type:tipo}),u=URL.createObjectURL(bl),a=document.createElement('a');a.href=u;a.download=nombre;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
-$('expCsv').onclick=()=>{const d=dbL(),q=x=>'"'+String(x==null?'':x).replace(/"/g,'""')+'"',n=x=>r2(x).toFixed(2).replace('.',',');
-  const rows=[['Número','Fecha','Vencimiento','Cliente','NIF cliente','Base','IVA %','IVA','IRPF %','IRPF','Total','Estado']];
-  d.facturas.slice().sort((x,y)=>(x.fecha||'').localeCompare(y.fecha||'')).forEach(f=>{const D=f.D,m=importes(D);
+const trim=f=>Math.floor((+(f.fecha||'').slice(5,7)-1)/3)+1;
+function exportar(ano,t){const d=dbL(),q=x=>'"'+String(x==null?'':x).replace(/"/g,'""')+'"',n=x=>r2(x).toFixed(2).replace('.',',');
+  const F=d.facturas.filter(f=>(f.fecha||'').startsWith(ano)&&(!t||trim(f)===t)).sort((x,y)=>(x.fecha||'').localeCompare(y.fecha||'')||x.num.localeCompare(y.num));
+  const rows=[['Número','Fecha','Vencimiento','Cliente','NIF cliente','Base','IVA %','IVA','IRPF %','IRPF','Total','Estado']];let sb=0,si=0,sp=0,st=0;
+  F.forEach(f=>{const D=f.D,m=importes(D);sb+=m.b;si+=m.i;sp+=m.p;st+=m.t;
     rows.push([f.num,fes(f.fecha),fes(f.venc),D.cl.nom,D.cl.nif,n(m.b),pf(D.iva),n(m.i),pf(D.irpf),n(m.p),n(m.t),f.cobrada?'Cobrada':'Por cobrar'])});
-  descargar('Facturas '+hoyISO()+'.csv','﻿'+rows.map(r=>r.map(q).join(';')).join('\r\n'),'text/csv;charset=utf-8')};
+  rows.push([]);rows.push(['TOTAL '+(t?t+'T ':'')+ano,'','','',F.length+(F.length===1?' factura':' facturas'),n(sb),'',n(si),'',n(sp),n(st),'']);
+  descargar('Facturas '+(t?t+'T ':'')+ano+'.csv','\ufeff'+rows.map(r=>r.map(q).join(';')).join('\r\n'),'text/csv;charset=utf-8');cerrarHojas()}
+$('expCsv').onclick=()=>{const d=dbL();if(!d.facturas.length)return aviso('Aún no hay facturas para exportar');
+  const A=[...new Set(d.facturas.map(f=>(f.fecha||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  $('expOps').innerHTML=A.map(a=>{const T=[1,2,3,4].filter(t=>d.facturas.some(f=>(f.fecha||'').startsWith(a)&&trim(f)===t));
+    return `<div class="expY">${a}</div><div class="expG">${T.map(t=>`<button data-a="${a}" data-t="${t}">${t}º trimestre</button>`).join('')}<button class="an" data-a="${a}" data-t="0">Todo ${a}</button></div>`}).join('');
+  $('expOps').querySelectorAll('button').forEach(b=>b.onclick=()=>exportar(b.dataset.a,+b.dataset.t));abrirHoja('hojaExp')};
+$('expNo').onclick=cerrarHojas;
 $('copiaSeg').onclick=()=>{const d=dbL();let e={};try{e=JSON.parse(localStorage.getItem('ffe')||'{}')}catch(x){}
   descargar('Copia Factura Facil '+hoyISO()+'.json',JSON.stringify({app:'facturafacil',v:1,fecha:new Date().toISOString(),db:d,emisor:e}),'application/json');aviso('Copia descargada')};
 $('restaurar').onchange=async ev=>{const fl=ev.target.files[0];ev.target.value='';if(!fl)return;
