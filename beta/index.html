@@ -229,7 +229,7 @@ footer a{color:var(--sub)}
 <div class="hoja2" id="hojaNube" role="dialog" aria-modal="true"><h3 id="nTit">☁️ Tus facturas en la nube</h3>
   <div id="nP1"><p id="nTxt"></p><input id="nEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"><div class="acc"><button class="copiar" id="nEnviar" style="margin:0">Guardar en la nube</button><button id="nNo">Ahora no</button></div></div>
   <div id="nP2" hidden><p>Te hemos enviado un código a <b id="nEmailTxt"></b>. Escríbelo aquí. Si no lo ves, mira en spam.</p><input id="nCod" inputmode="numeric" autocomplete="one-time-code" placeholder="Código" maxlength="10"><div class="acc"><button class="copiar" id="nEntrar" style="margin:0">Entrar</button><button id="nOtro">Cambiar correo</button></div></div>
-  <div id="nP3" hidden><p>Conectado con <b id="nYo"></b><br><span id="nEst"></span></p><div class="acc"><button class="copiar" id="nAct" style="margin:0">🔄 Actualizar ahora</button><button id="nPanel" hidden>📊 Panel del propietario</button><button id="nSalir">Salir de la cuenta</button></div></div>
+  <div id="nP3" hidden><p>Conectado con <b id="nYo"></b><br><span id="nEst"></span></p><div class="acc"><button class="copiar" id="nAct" style="margin:0">🔄 Actualizar ahora</button><button id="nSusc" hidden>⚙️ Gestionar mi suscripción</button><button id="nPanel" hidden>📊 Panel del propietario</button><button id="nSalir">Salir de la cuenta</button></div></div>
   <p id="nMsg" style="margin:10px 0 0" hidden></p></div>
 <div class="hoja2" id="hojaExp" role="dialog" aria-modal="true"><h3>⬇️ Exportar a Excel</h3><p>¿Qué periodo?</p><div id="expOps"></div><div class="acc"><button id="expNo">Cancelar</button></div></div>
 <div class="hoja2 prem" id="hojaRegalo" role="dialog" aria-modal="true"><h3>🎁 Tienes Premium gratis para siempre</h3>
@@ -457,7 +457,8 @@ if(ls_('ffRegalo')!=='1'&&Date.now()<FIN_REGALO){ls_('ffRegalo','1');ls_('ffRega
 const PREM=()=>ls_('ffPrem')==='1'||ls_('ffRegalo')==='1'||ls_('ffPremCuenta')==='1';
 // Versión beta (facturafacil-es.github.io/beta/): prueba de la venta con pago web antes de pasarlo a la app normal
 const BETA=/\/beta\//.test(location.pathname);
-const CHECKOUT='https://buy.stripe.com/test_cNifZgeTBbOJ8YndJP5os00';// enlace de pago de Stripe (modo prueba)
+const CHECKOUT='https://buy.stripe.com/test_cNifZgeTBbOJ8YndJP5os00';
+const PORTAL='https://billing.stripe.com/p/login/test_cNifZgeTBbOJ8YndJP5os00';// cancelar o cambiar tarjeta// enlace de pago de Stripe (modo prueba)
 // Prueba gratis en la beta: con cuenta, 2 facturas Premium guardadas sin pagar
 const PRUEBA_N=2;
 const PRUEBA=num=>BETA&&!!ses&&!PREM()&&(dbL().facturas.length<PRUEBA_N||(num!=null&&dbL().facturas.some(f=>f.num===num)));
@@ -610,7 +611,7 @@ async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true
 function pintarNube(){const b=$('nubeBtn'),pend=ls_('ffSyncPend')==='1';
   b.className='nube'+(ses?' ok':'');b.textContent=ses?('☁️ En la nube · '+ses.email+(pend?' · pendiente de subir':'')):'⚠️ Solo en este dispositivo · Guardar en la nube';
   const vis=!$('misFac').hidden;$('ftCuenta').hidden=vis;$('ftEntrar').textContent=ses?'Mi cuenta':'Ya tengo cuenta';
-  $('nPanel').hidden=!(ses&&ses.email===DUENO);if(ses){$('nYo').textContent=ses.email;$('nEst').textContent=pend?'Hay cambios sin subir (sin conexión). Se subirán solos.':(syncOk?'Todo guardado ('+syncOk+')':'')}}
+  $('nPanel').hidden=!(ses&&ses.email===DUENO);$('nSusc').hidden=!(BETA&&ses&&ls_('ffPremCuenta')==='1');if(ses){$('nYo').textContent=ses.email;$('nEst').textContent=pend?'Hay cambios sin subir (sin conexión). Se subirán solos.':(syncOk?'Todo guardado ('+syncOk+')':'')}}
 function abrirNube(aviso){$('nTit').textContent=aviso===true?'Tu factura está guardada solo en este dispositivo':'☁️ Tus facturas en la nube';
   const pb=aviso===true&&BETA&&!PREM();if(pb)$('nTit').textContent='⭐ Prueba Premium gratis';
   $('nTxt').textContent=aviso===true?'Si cambias de móvil o se borra, la pierdes. Guárdala en la nube: solo tu correo, sin contraseñas.':'Guárdalas en la nube y tendrás tus facturas en cualquier dispositivo, sin perderlas. Solo tu correo, sin contraseñas.';
@@ -653,7 +654,8 @@ async function abrirPanel(){cerrarHojas();abrirCapa('capaPanel');$('pLista').inn
     const fd=x=>x?new Date(x).toLocaleDateString('es-ES'):'—';
     $('pLista').innerHTML=(j.lista||[]).length?j.lista.map(u=>`<div class="item" style="cursor:default"><div class="ii"><b>${esc(u.email)}</b><small>Alta ${fd(u.alta)} · última vez ${fd(u.ultima)}${u.regalo?' · 🎁':''}${u.pagado?' · ⭐':''} · ${u.facturas} facturas</small></div></div>`).join(''):'<div class="vacio">Aún no hay usuarios.</div>'}
   catch(e){$('pLista').innerHTML='<div class="vacio">No se ha podido cargar el panel.</div>'}}
-$('nPanel').onclick=abrirPanel;$('cerrarPanel').onclick=()=>cerrarCapa('capaPanel');
+$('nPanel').onclick=abrirPanel;
+$('nSusc').onclick=()=>{location.href=PORTAL+'?prefilled_email='+encodeURIComponent(ses?ses.email:'')};$('cerrarPanel').onclick=()=>cerrarCapa('capaPanel');
 verPrem();pintarNube();if(ses)sync();
 // Vuelta de la página de pago: comprobar hasta que llegue el aviso del pago
 if(new URLSearchParams(location.search).get('pagado')==='1'){history.replaceState(null,'',location.pathname);
