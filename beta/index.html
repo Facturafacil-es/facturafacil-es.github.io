@@ -65,7 +65,7 @@ h2{font-size:clamp(28px,6vw,40px);line-height:1.15;letter-spacing:-.8px;font-wei
 .sub{color:var(--sub);text-align:center;font-size:18px;max-width:34em;margin:0 auto 36px}
 .grid{display:grid;gap:16px}
 @media(min-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(min-width:1000px){.grid.four{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:1000px){.grid.four{grid-template-columns:repeat(3,1fr)}}
 .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px}
 .ico{width:48px;height:48px;border-radius:14px;background:var(--soft);color:var(--acc);display:grid;place-items:center;margin-bottom:14px}
 .ico svg{width:26px;height:26px}
@@ -123,7 +123,7 @@ footer a{text-decoration:underline}
   <div>
     <span class="pill">Para autónomos y particulares en España</span>
     <h1>Tus facturas, <em>en un minuto</em>.</h1>
-    <p class="lead">Calcula el IVA y el IRPF, haz la factura y envíala en PDF desde el móvil o el ordenador. Sin instalar nada.</p>
+    <p class="lead">Calcula el IVA y el IRPF, haz facturas y presupuestos y envíalos en PDF desde el móvil o el ordenador. Sin instalar nada.</p>
     <div class="ctas">
       <a class="btn btn-main" href="app/">Empezar gratis →</a>
       <button class="btn btn-ghost" id="instalar" hidden>📲 Instalar app</button>
@@ -145,9 +145,11 @@ footer a{text-decoration:underline}
   <p class="sub">Pensada para quien no quiere perder tiempo con programas complicados.</p>
   <div class="grid four">
     <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h3M14 14h2M8 18h3M14 18h2"/></svg></div><h3>IVA e IRPF al momento</h3><p>Pon tu precio o lo que quieres cobrar y te sale el total exacto.</p></div>
-    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></div><h3>Factura en PDF</h3><p>Rellenas tus datos y los del cliente, y la envías por WhatsApp o correo.</p></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></div><h3>Factura en PDF</h3><p>Con un diseño profesional. Rellenas los datos y la envías por WhatsApp o correo.</p></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div><h3>Presupuestos</h3><p>Haz presupuestos con el mismo diseño. Cuando el cliente acepta, conviértelo en factura con un toque.</p></div>
     <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.3A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></div><h3>En el móvil y en el PC</h3><p>Guarda tus facturas en la nube y ábrelas desde cualquier dispositivo.</p></div>
     <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div><h3>Control de cobros</h3><p>Ve qué te han pagado, qué falta y qué está vencido. Excel por trimestre.</p></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 9.7C22 5.4 17.5 2 12 2z"/></svg></div><h3>Tu marca</h3><p>Pon tu logo y elige el color de tus facturas y presupuestos.</p></div>
   </div>
 </div></section>
 
@@ -169,7 +171,7 @@ footer a{text-decoration:underline}
       <h3>Gratis</h3>
       <div class="amount">0 €</div>
       <div class="iva">Para siempre</div>
-      <ul><li>Calculadora de IVA e IRPF</li><li>Facturas en PDF</li><li>Varios conceptos por factura</li><li>Enviar por WhatsApp o correo</li></ul>
+      <ul><li>Calculadora de IVA e IRPF</li><li>Facturas en PDF</li><li>Presupuestos en PDF</li><li>Varios conceptos por factura</li><li>Enviar por WhatsApp o correo</li></ul>
     </div>
     <div class="price best">
       <span class="tag">14 días gratis</span>
@@ -177,7 +179,7 @@ footer a{text-decoration:underline}
       <div class="amount">4,99 €<span> /mes</span></div>
       <div class="iva">IVA incluido · Cancela cuando quieras</div>
       <div class="year">o <b>39,99 € al año</b> <span>Ahorras 33 %</span></div>
-      <ul><li>Todo lo de Gratis</li><li>Mis facturas, cobros y vencidas</li><li>Numeración automática</li><li>Clientes guardados y tu logo</li><li>Excel por trimestre</li><li>Nube en todos tus dispositivos</li></ul>
+      <ul><li>Todo lo de Gratis</li><li>Mis facturas, cobros y vencidas</li><li>Numeración automática</li><li>Presupuestos guardados: convertir en factura con un toque</li><li>Clientes guardados, tu logo y tu color</li><li>Excel por trimestre</li><li>Nube en todos tus dispositivos</li></ul>
     </div>
   </div>
   <div class="compare">Otros programas de facturación cuestan desde unos 18 € al mes.</div>
@@ -199,7 +201,7 @@ footer a{text-decoration:underline}
 
 <section style="padding-top:0"><div class="wrap">
   <div class="final">
-    <h2>Haz tu primera factura ahora</h2>
+    <h2>Haz tu primera factura o presupuesto</h2>
     <p>Gratis, en español y sin complicaciones.</p>
     <a class="btn btn-main" href="app/">Empezar gratis →</a>
   </div>
