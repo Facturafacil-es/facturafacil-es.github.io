@@ -205,6 +205,7 @@ footer a{color:var(--sub)}
 <div class="capa" id="capaPanel">
   <div class="cbar"><button class="cerrar" id="cerrarPanel" aria-label="Volver">✕</button><h2>Panel</h2></div>
   <div class="cin"><div class="res"><div><small>Usuarios</small><b id="pUs">–</b></div><div><small>Nuevos 7 días</small><b id="pNu">–</b></div><div><small>Con regalo</small><b id="pRe">–</b></div></div>
+    <div id="pIng"></div>
     <div id="pLista"><div class="vacio">Cargando…</div></div></div>
 </div>
 
@@ -432,7 +433,10 @@ const PRODUCTO='premium';
 // Regalo de lanzamiento: quien abra la app antes del 20-10-2026 (hora España) se queda el Premium gratis para siempre
 const FIN_REGALO=Date.parse('2026-10-20T00:00:00+02:00');
 if(ls_('ffRegalo')!=='1'&&Date.now()<FIN_REGALO){ls_('ffRegalo','1');ls_('ffRegaloAviso','1')}
-const PREM=()=>ls_('ffPrem')==='1'||ls_('ffRegalo')==='1';
+const PREM=()=>ls_('ffPrem')==='1'||ls_('ffRegalo')==='1'||ls_('ffPremCuenta')==='1';
+// Versión beta (facturafacil-es.github.io/beta/): prueba de la venta con pago web antes de pasarlo a la app normal
+const BETA=/\/beta\//.test(location.pathname);
+const CHECKOUT='';// enlace de compra de Lemon Squeezy (modo prueba)
 function dbL(){try{const d=JSON.parse(localStorage.getItem('ffDB')||'{}');return {clientes:d.clientes||[],facturas:d.facturas||[],serie:d.serie!=null?d.serie:String(new Date().getFullYear())+'-',sig:d.sig||1}}catch(e){return {clientes:[],facturas:[],serie:new Date().getFullYear()+'-',sig:1}}}
 function dbG(d){d.t=new Date().toISOString();try{localStorage.setItem('ffDB',JSON.stringify(d));if(typeof pedirSync==='function')pedirSync();return true}catch(e){aviso('No se ha podido guardar: memoria llena');return false}}
 const numero=(d,n)=>d.serie+String(n).padStart(3,'0');
@@ -525,7 +529,12 @@ $('cerrarCli').onclick=()=>cerrarCapa('capaCli');
 // ---- Compra en Microsoft Store (pendiente de probar en la app de Windows) ----
 async function tienda(){try{if(!('getDigitalGoodsService' in window))return null;return await window.getDigitalGoodsService('https://store.microsoft.com/billing')}catch(e){return null}}
 async function comprobarCompra(){const s=await tienda();if(!s)return;try{const c=await s.listPurchases();ls_('ffPrem',c.some(p=>p.itemId===PRODUCTO)?'1':'0');if(typeof verPrem==='function')verPrem()}catch(e){}}
-$('comprar').onclick=async()=>{const s=await tienda(),msg=$('premMsg');
+$('comprar').onclick=async()=>{const msg=$('premMsg');
+  if(BETA){if(!CHECKOUT){msg.textContent='El pago aún no está configurado.';msg.hidden=false;return}
+    if(!ses){cerrarHojas();setTimeout(()=>{abrirNube();nMsg('Primero entra con tu correo: el Premium quedará en tu cuenta y lo tendrás en todos tus dispositivos.')},250);return}
+    msg.textContent='Abriendo el pago…';msg.hidden=false;
+    location.href=CHECKOUT+(CHECKOUT.includes('?')?'&':'?')+'checkout[custom][user_id]='+encodeURIComponent(ses.uid)+'&checkout[email]='+encodeURIComponent(ses.email);return}
+  const s=await tienda();
   if(!s||!window.PaymentRequest){msg.textContent='La compra se hace desde la app de Windows (Microsoft Store). Muy pronto también aquí.';msg.hidden=false;return}
   try{const req=new PaymentRequest([{supportedMethods:'https://store.microsoft.com/billing',data:{sku:PRODUCTO}}],{total:{label:'Total',amount:{currency:'EUR',value:'0'}}});
     const r=await req.show();await r.complete('success');await comprobarCompra();
@@ -536,7 +545,7 @@ $('premNo').onclick=cerrarHojas;
 (()=>{const q=new URLSearchParams(location.search).get('premium');if(q==='prueba-ivan'){ls_('ffPrem','1');aviso('Premium de prueba activado')}if(q==='quitar'){ls_('ffPrem','0');aviso('Premium de prueba quitado')}if(q)history.replaceState(null,'',location.pathname)})();
 comprobarCompra();
 // Mientras la compra no esté lista (VENTA=false), el Premium solo se ve en modo prueba
-const VENTA=false;
+const VENTA=BETA;
 function verPrem(){const v=VENTA||PREM();$('misFac').hidden=!v;$('elegirCli').hidden=!v;if(typeof pintarNube==='function'&&$('nubeBtn'))pintarNube()}
 // ---- Nube: cuenta con correo + código (Supabase propio de Factura Fácil) ----
 const SB='https://iyhqopatmfnslnfsjdgq.supabase.co',SBK='sb_publishable_tXQ1D8XkIwPdc6-2fKaukg_T5Td1W7b';
@@ -566,6 +575,7 @@ async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true
     const rows=await sbF('/rest/v1/copias?select=data',{headers:H});const R=rows&&rows[0]&&rows[0].data;
     const L=local(),M=R?mezclar(L,R):L;aplicar(M);
     if(!R||JSON.stringify(M)!==JSON.stringify(R))await sbF('/rest/v1/copias',{method:'POST',headers:{...H,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:ses.uid,data:M})});
+    try{const c=await sbF('/rest/v1/compras?select=estado&estado=eq.pagado&limit=1',{headers:H});const t=Array.isArray(c)&&c.length>0;if(t!==(ls_('ffPremCuenta')==='1')){ls_('ffPremCuenta',t?'1':'0');verPrem();prepPrem()}}catch(e){}
     syncOk=new Date().toLocaleString('es-ES',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'});ls_('ffSyncPend','0')}
   catch(e){ls_('ffSyncPend','1')}
   finally{syncVa=false;pintarNube();if(syncOtra)pedirSync()}}
@@ -591,7 +601,7 @@ $('nEntrar').onclick=async()=>{const cod=$('nCod').value.replace(/\D/g,''),em=$(
   catch(e){nMsg(e.st===429?'Demasiados intentos. Espera unos minutos.':(e.st&&e.st<500?'Código incorrecto o caducado. Pide otro.':'No se ha podido entrar. Prueba otra vez.'))}
   finally{b.disabled=false}};
 $('nAct').onclick=async()=>{nMsg('Actualizando…');await sync();nMsg(ls_('ffSyncPend')==='1'?'No hay conexión. Se subirá solo más tarde.':'Todo guardado.')};
-$('nSalir').onclick=()=>{if(ses)fetch(SB+'/auth/v1/logout',{method:'POST',headers:{apikey:SBK,Authorization:'Bearer '+ses.at}}).catch(()=>{});guardaSes(null);cerrarHojas();pintarNube();aviso('Has salido. Tus facturas siguen en este dispositivo y en la nube.')};
+$('nSalir').onclick=()=>{ls_('ffPremCuenta','0');if(ses)fetch(SB+'/auth/v1/logout',{method:'POST',headers:{apikey:SBK,Authorization:'Bearer '+ses.at}}).catch(()=>{});guardaSes(null);cerrarHojas();pintarNube();aviso('Has salido. Tus facturas siguen en este dispositivo y en la nube.')};
 addEventListener('online',()=>{if(ses)sync()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ses)pedirSync()});
 // Entrada con el enlace del correo (si llega enlace en vez de código)
@@ -605,11 +615,20 @@ const DUENO='facturafacil.es.app@gmail.com';
 async function abrirPanel(){cerrarHojas();abrirCapa('capaPanel');$('pLista').innerHTML='<div class="vacio">Cargando…</div>';
   try{const at=await tokenOk(),j=await sbF('/rest/v1/rpc/panel',{method:'POST',headers:{Authorization:'Bearer '+at},body:'{}'});
     $('pUs').textContent=j.usuarios;$('pNu').textContent=j.nuevos7;$('pRe').textContent=j.regalo;
+    const I=j.ingresos||[],sum=k=>I.reduce((a,x)=>a+(+x[k]||0),0);
+    $('pIng').innerHTML='<h3 style="margin:14px 0 8px;font-size:16px">💶 Ingresos'+(j.pagados?' · '+j.pagados+' de pago':'')+'</h3>'+(I.length?
+      '<div class="item" style="cursor:default;display:block"><b>Total: '+eur(sum('neto'))+' aprox. para ti</b><br><small>Cobrado '+eur(sum('bruto'))+' · IVA '+eur(sum('iva'))+' · comisión aprox. '+eur(sum('comision'))+'</small></div>'+
+      I.map(x=>`<div class="item" style="cursor:default;display:block"><b>${esc(x.mes)} · ${x.ventas} ${x.ventas==1?'venta':'ventas'}</b><br><small>Cobrado ${eur(+x.bruto)} · IVA ${eur(+x.iva)} · comisión aprox. ${eur(+x.comision)} · para ti aprox. ${eur(+x.neto)}</small></div>`).join('')
+      :'<div class="vacio" style="padding:10px">Aún no hay ventas.'+(j.pruebas?' ('+j.pruebas+' de prueba)':'')+'</div>');
     const fd=x=>x?new Date(x).toLocaleDateString('es-ES'):'—';
-    $('pLista').innerHTML=(j.lista||[]).length?j.lista.map(u=>`<div class="item" style="cursor:default"><div class="ii"><b>${esc(u.email)}</b><small>Alta ${fd(u.alta)} · última vez ${fd(u.ultima)}${u.regalo?' · 🎁':''} · ${u.facturas} facturas</small></div></div>`).join(''):'<div class="vacio">Aún no hay usuarios.</div>'}
+    $('pLista').innerHTML=(j.lista||[]).length?j.lista.map(u=>`<div class="item" style="cursor:default"><div class="ii"><b>${esc(u.email)}</b><small>Alta ${fd(u.alta)} · última vez ${fd(u.ultima)}${u.regalo?' · 🎁':''}${u.pagado?' · ⭐':''} · ${u.facturas} facturas</small></div></div>`).join(''):'<div class="vacio">Aún no hay usuarios.</div>'}
   catch(e){$('pLista').innerHTML='<div class="vacio">No se ha podido cargar el panel.</div>'}}
 $('nPanel').onclick=abrirPanel;$('cerrarPanel').onclick=()=>cerrarCapa('capaPanel');
 verPrem();pintarNube();if(ses)sync();
+// Vuelta de la página de pago: comprobar hasta que llegue el aviso del pago
+if(new URLSearchParams(location.search).get('pagado')==='1'){history.replaceState(null,'',location.pathname);
+  (async()=>{aviso('Comprobando el pago…');for(let k=0;k<10&&ses;k++){await sync();if(ls_('ffPremCuenta')==='1'){aviso('⭐ ¡Premium activado! Gracias');return}await new Promise(r=>setTimeout(r,3000))}
+    aviso('El pago tarda en confirmarse. Vuelve a abrir la app en un rato.')})()}
 // Lista de lo que incluye Premium (una sola lista para todas las pantallas)
 const PLISTA=['📁 Todas tus facturas guardadas, para volver a descargarlas','📊 Lo facturado este mes y este año, y lo que te deben','✅ Cobradas, por cobrar y vencidas','🔢 Numeración automática, sin saltos','👥 Clientes guardados: elegir con un toque','📄 Duplicar una factura en otra nueva','⬇️ Excel por trimestre para tu gestor','☁️ En la nube: en cualquier dispositivo, sin perderlas'];
 document.querySelectorAll('.plista').forEach(u=>u.innerHTML=PLISTA.map(t=>'<li>'+esc(t)+'</li>').join(''));
