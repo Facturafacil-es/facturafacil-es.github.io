@@ -86,6 +86,8 @@ footer a{color:var(--sub)}
 .hoja2 h3{margin:0 0 4px;font-size:18px}.hoja2 p{color:var(--sub);margin:0 0 12px;font-size:15px}
 .hoja2 .acc{margin-top:8px}
 .velo{position:fixed;inset:0;background:#0006;z-index:19;display:none}.velo.on{display:block}
+.hoja2 input{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:17px system-ui,-apple-system,'Segoe UI',sans-serif;padding:12px;border-radius:12px;margin:0 0 4px;outline:0}.hoja2 input:focus{border-color:var(--acc)}
+.nube{display:block;width:100%;margin:0 0 12px;border:1px solid var(--acc);background:var(--acc2);color:var(--acc);font:600 15px system-ui,-apple-system,'Segoe UI',sans-serif;padding:12px;border-radius:12px;cursor:pointer;text-align:center}.nube.ok{border-color:var(--line);background:var(--card);color:var(--sub);font-weight:500}
 .prem li{margin:6px 0}.prem ul{padding-left:20px;margin:8px 0 14px}
 .toast{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top));transform:translateX(-50%);background:#14201C;color:#fff;padding:12px 18px;border-radius:24px;font-size:15px;z-index:30;box-shadow:0 6px 20px #0005}
 .pbtn{display:block;width:100%;margin:0 0 8px;border:1px dashed var(--acc);background:none;color:var(--acc);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px;border-radius:10px;cursor:pointer}
@@ -182,6 +184,7 @@ footer a{color:var(--sub)}
 <div class="capa" id="capaFac">
   <div class="cbar"><button class="cerrar" id="cerrarMis" aria-label="Volver">✕</button><h2>Mis facturas</h2></div>
   <div class="cin">
+    <button class="nube" id="nubeBtn"></button>
     <div class="res"><div><small>Este mes</small><b id="rMes">0 €</b></div><div><small>Este año</small><b id="rAno">0 €</b></div><div id="rPendBox"><small>Por cobrar</small><b id="rPend">0 €</b><small class="vv" id="rVenc" hidden></small></div></div>
     <div class="filt" id="filt"><button data-f="todas" class="on">Todas</button><button data-f="pend">Por cobrar</button><button data-f="cob">Cobradas</button></div>
     <div id="lista"></div>
@@ -199,7 +202,7 @@ footer a{color:var(--sub)}
   <div class="cin"><input id="buscaCli" placeholder="Buscar cliente" style="width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--card);color:var(--txt);font:16px system-ui,-apple-system,'Segoe UI',sans-serif;padding:11px 12px;border-radius:12px;margin-bottom:10px"><div id="listaCli"></div></div>
 </div>
 
-<footer><a href="privacidad.html">Privacidad</a></footer>
+<footer><a href="privacidad.html">Privacidad</a><span id="ftCuenta" hidden> · <a href="#" id="ftEntrar"></a></span></footer>
 </main>
 <div class="velo" id="velo"></div>
 <div class="hoja2" id="hojaAcc" role="dialog" aria-modal="true"><h3 id="accT"></h3><p id="accS"></p><div class="acc">
@@ -209,6 +212,11 @@ footer a{color:var(--sub)}
   <ul><li>Numeración automática, sin saltos</li><li>Todas tus facturas guardadas para volver a descargarlas</li><li>Clientes guardados: elegir con un toque</li><li>Saber qué te deben: cobradas y por cobrar</li><li>Resumen del mes y del año, y exportar a Excel</li></ul>
   <div class="acc"><button class="copiar" id="comprar" style="margin:0">Desbloquear Premium</button><button id="premNo">Ahora no</button></div>
   <p id="premMsg" style="margin-top:10px" hidden></p></div>
+<div class="hoja2" id="hojaNube" role="dialog" aria-modal="true"><h3>☁️ Tus facturas en la nube</h3>
+  <div id="nP1"><p>Entra con tu correo y tendrás tus facturas en cualquier dispositivo, sin perderlas.</p><input id="nEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"><div class="acc"><button class="copiar" id="nEnviar" style="margin:0">Enviarme un código</button><button id="nNo">Ahora no</button></div></div>
+  <div id="nP2" hidden><p>Te hemos enviado un código a <b id="nEmailTxt"></b>. Si no llega, mira en spam.</p><input id="nCod" inputmode="numeric" autocomplete="one-time-code" placeholder="Código" maxlength="10"><div class="acc"><button class="copiar" id="nEntrar" style="margin:0">Entrar</button><button id="nOtro">Cambiar correo</button></div></div>
+  <div id="nP3" hidden><p>Conectado con <b id="nYo"></b><br><span id="nEst"></span></p><div class="acc"><button class="copiar" id="nAct" style="margin:0">🔄 Actualizar ahora</button><button id="nSalir">Salir de la cuenta</button></div></div>
+  <p id="nMsg" style="margin:10px 0 0" hidden></p></div>
 <div class="toast" id="toast" hidden></div>
 <div id="vista"><div class="vbar"><button class="cerrar" id="cerrarVista" aria-label="Volver">✕</button><button class="copiar" id="imprimir2">🖨️ Imprimir / PDF</button><button class="copiar enviar" id="enviar">📤 Enviar</button></div><div class="falta" id="falta" hidden></div><div class="papel"><div id="hoja"></div></div></div>
 <script>
@@ -337,7 +345,7 @@ $('abrirFac').onclick=()=>{
 $('cerrarFac').onclick=()=>{$('fac').classList.remove('on');window.scrollTo({top:0,behavior:'smooth'})};
 // ---- Leer formulario y mostrar factura ----
 function leerForm(){
-  const g={};E.forEach(k=>g[k]=$(k).value.trim());try{localStorage.setItem('ffe',JSON.stringify(g))}catch(e){}
+  const g={};E.forEach(k=>g[k]=$(k).value.trim());try{const o=localStorage.getItem('ffe');const n=JSON.stringify(g);if(o!==n){localStorage.setItem('ffe',n);localStorage.setItem('ffeT',new Date().toISOString());if(typeof pedirSync==='function')pedirSync()}}catch(e){}
   const v=id=>$(id).value.trim();
   return {num:v('fNum'),fecha:v('fFecha'),venc:v('fVenc'),em:{nom:g.eNom,nif:g.eNif,dir:g.eDir,iban:g.eIban},
     cl:{nom:v('cNom'),nif:v('cNif'),dir:v('cDir')},
@@ -395,11 +403,11 @@ const FIN_REGALO=Date.parse('2026-10-20T00:00:00+02:00');
 if(ls_('ffRegalo')!=='1'&&Date.now()<FIN_REGALO){ls_('ffRegalo','1');ls_('ffRegaloAviso','1')}
 const PREM=()=>ls_('ffPrem')==='1'||ls_('ffRegalo')==='1';
 function dbL(){try{const d=JSON.parse(localStorage.getItem('ffDB')||'{}');return {clientes:d.clientes||[],facturas:d.facturas||[],serie:d.serie!=null?d.serie:String(new Date().getFullYear())+'-',sig:d.sig||1}}catch(e){return {clientes:[],facturas:[],serie:new Date().getFullYear()+'-',sig:1}}}
-function dbG(d){try{localStorage.setItem('ffDB',JSON.stringify(d));return true}catch(e){aviso('No se ha podido guardar: memoria llena');return false}}
+function dbG(d){d.t=new Date().toISOString();try{localStorage.setItem('ffDB',JSON.stringify(d));if(typeof pedirSync==='function')pedirSync();return true}catch(e){aviso('No se ha podido guardar: memoria llena');return false}}
 const numero=(d,n)=>d.serie+String(n).padStart(3,'0');
 let tAv;function aviso(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(tAv);tAv=setTimeout(()=>e.hidden=true,2200)}
 function abrirHoja(id){$('velo').classList.add('on');$(id).classList.add('on')}
-function cerrarHojas(){$('velo').classList.remove('on');['hojaAcc','hojaPrem'].forEach(i=>$(i).classList.remove('on'))}
+function cerrarHojas(){$('velo').classList.remove('on');['hojaAcc','hojaPrem','hojaNube'].forEach(i=>$(i).classList.remove('on'))}
 $('velo').onclick=cerrarHojas;
 function abrirCapa(id){$(id).classList.add('on');$(id).scrollTop=0;document.body.style.overflow='hidden'}
 function cerrarCapa(id){$(id).classList.remove('on');if(!document.querySelector('.capa.on')&&!$('vista').classList.contains('on'))document.body.style.overflow=''}
@@ -411,7 +419,7 @@ function prepPrem(){const p=PREM();$('vencWrap').hidden=!p;
     $('fNum').value=numero(d,d.sig);['cNom','cNif','cDir','fVenc'].forEach(k=>$(k).value='');$('lineas').innerHTML=''}}
 // Guardar factura y cliente
 function guardarFactura(D,total){const d=dbL();const i=d.facturas.findIndex(f=>f.num===D.num);
-  const reg={num:D.num,fecha:D.fecha,venc:D.venc,cliente:D.cl.nom,total,D,cobrada:i>=0?d.facturas[i].cobrada:false,guardada:new Date().toISOString()};
+  const reg={mod:new Date().toISOString(),num:D.num,fecha:D.fecha,venc:D.venc,cliente:D.cl.nom,total,D,cobrada:i>=0?d.facturas[i].cobrada:false,guardada:new Date().toISOString()};
   if(i>=0)d.facturas[i]=reg;else d.facturas.push(reg);
   if(D.num===numero(d,d.sig))d.sig++;
   if(D.cl.nom){const k=d.clientes.findIndex(c=>(D.cl.nif&&c.nif===D.cl.nif)||(!D.cl.nif&&c.nom===D.cl.nom));
@@ -440,7 +448,7 @@ function abrirAcc(n){const f=dbL().facturas.find(x=>x.num===n);if(!f)return;sel=
   $('accT').textContent=(f.cliente||'Sin cliente')+' · '+eur(f.total);$('accS').textContent='Nº '+f.num+' · '+fes(f.fecha)+(f.venc?' · vence '+fes(f.venc):'');
   $('accCob').textContent=f.cobrada?'↩️ Marcar como por cobrar':'✅ Marcar como cobrada';abrirHoja('hojaAcc')}
 $('accNo').onclick=cerrarHojas;
-$('accCob').onclick=()=>{const d=dbL(),f=d.facturas.find(x=>x.num===sel);if(f){f.cobrada=!f.cobrada;dbG(d)}cerrarHojas();pintarMis()};
+$('accCob').onclick=()=>{const d=dbL(),f=d.facturas.find(x=>x.num===sel);if(f){f.cobrada=!f.cobrada;f.mod=new Date().toISOString();dbG(d)}cerrarHojas();pintarMis()};
 $('accVer').onclick=()=>{const f=dbL().facturas.find(x=>x.num===sel);cerrarHojas();if(f)mostrar(f.D,false)};
 $('accDup').onclick=()=>{const d=dbL(),f=d.facturas.find(x=>x.num===sel);cerrarHojas();if(!f)return;const D=f.D;
   $('fNum').value=numero(d,d.sig);$('fFecha').value=hoyISO();$('fVenc').value='';
@@ -487,8 +495,62 @@ $('premNo').onclick=cerrarHojas;
 comprobarCompra();
 // Mientras la compra no esté lista (VENTA=false), el Premium solo se ve en modo prueba
 const VENTA=false;
-function verPrem(){const v=VENTA||PREM();$('misFac').hidden=!v;$('elegirCli').hidden=!v}
-verPrem();
+function verPrem(){const v=VENTA||PREM();$('misFac').hidden=!v;$('elegirCli').hidden=!v;if(typeof pintarNube==='function'&&$('nubeBtn'))pintarNube()}
+// ---- Nube: cuenta con correo + código (Supabase propio de Factura Fácil) ----
+const SB='https://iyhqopatmfnslnfsjdgq.supabase.co',SBK='sb_publishable_tXQ1D8XkIwPdc6-2fKaukg_T5Td1W7b';
+let ses=null;try{ses=JSON.parse(localStorage.getItem('ffSes')||'null')}catch(e){}
+const guardaSes=x=>{ses=x;try{x?localStorage.setItem('ffSes',JSON.stringify(x)):localStorage.removeItem('ffSes')}catch(e){}};
+async function sbF(ruta,op={}){const h={apikey:SBK,'Content-Type':'application/json',...(op.headers||{})};
+  const r=await fetch(SB+ruta,{...op,headers:h});let j=null;try{j=await r.json()}catch(e){}if(!r.ok){const e=new Error((j&&(j.msg||j.message||j.error_description))||('Error '+r.status));e.st=r.status;e.code=j&&(j.error_code||j.code);throw e}return j}
+const sesDe=j=>({at:j.access_token,rt:j.refresh_token,exp:Date.now()+((j.expires_in||3600)-60)*1000,email:j.user&&j.user.email||(ses&&ses.email),uid:j.user&&j.user.id||(ses&&ses.uid)});
+async function tokenOk(){if(!ses)throw new Error('sin sesión');if(Date.now()<ses.exp)return ses.at;
+  try{guardaSes(sesDe(await sbF('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:JSON.stringify({refresh_token:ses.rt})})));return ses.at}
+  catch(e){if(e.st===400||e.st===401){guardaSes(null);pintarNube();aviso('Vuelve a entrar en tu cuenta')}throw e}}
+function local(){let e={};try{e=JSON.parse(localStorage.getItem('ffe')||'{}')}catch(x){}return {app:'facturafacil',v:1,db:dbL(),emisor:e,emisorT:ls_('ffeT')||'',regalo:ls_('ffRegalo')==='1'}}
+function mezclar(L,R){const a=L.db,b=R.db||{},F=new Map();
+  [...(b.facturas||[]),...a.facturas].forEach(f=>{if(!f||!f.num)return;const o=F.get(f.num);if(!o||(f.mod||f.guardada||'')>=(o.mod||o.guardada||''))F.set(f.num,f)});
+  const C=[...a.clientes];(b.clientes||[]).forEach(c=>{if(c&&c.nom&&!C.some(x=>x.nom===c.nom&&(x.nif||'')===(c.nif||'')))C.push(c)});
+  const lNuevo=(a.t||'')>=(b.t||''),eL=Object.values(L.emisor||{}).some(Boolean),eR=Object.values(R.emisor||{}).some(Boolean);
+  const usaL=eL&&(!eR||(L.emisorT||'')>=(R.emisorT||''));
+  return {app:'facturafacil',v:1,db:{facturas:[...F.values()],clientes:C,serie:lNuevo||b.serie==null?a.serie:b.serie,sig:Math.max(a.sig||1,b.sig||1),t:(a.t||'')>(b.t||'')?a.t:(b.t||a.t)},
+    emisor:usaL?L.emisor:(R.emisor||{}),emisorT:usaL?L.emisorT:(R.emisorT||''),regalo:!!(L.regalo||R.regalo)}}
+function aplicar(M){try{localStorage.setItem('ffDB',JSON.stringify(M.db));localStorage.setItem('ffe',JSON.stringify(M.emisor||{}));if(M.emisorT)localStorage.setItem('ffeT',M.emisorT)}catch(e){}
+  E.forEach(k=>{if(M.emisor&&M.emisor[k]&&!$(k).value)$(k).value=M.emisor[k]});
+  if(M.regalo&&ls_('ffRegalo')!=='1')ls_('ffRegalo','1');verPrem();if($('capaFac').classList.contains('on'))pintarMis()}
+let syncVa=false,syncOtra=false,syncT=null,syncOk='';
+function pedirSync(){if(!ses)return;clearTimeout(syncT);syncT=setTimeout(sync,1500)}
+async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true;syncOtra=false;
+  try{const at=await tokenOk(),H={Authorization:'Bearer '+at};
+    const rows=await sbF('/rest/v1/copias?select=data',{headers:H});const R=rows&&rows[0]&&rows[0].data;
+    const L=local(),M=R?mezclar(L,R):L;aplicar(M);
+    if(!R||JSON.stringify(M)!==JSON.stringify(R))await sbF('/rest/v1/copias',{method:'POST',headers:{...H,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:ses.uid,data:M})});
+    syncOk=new Date().toLocaleString('es-ES',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'});ls_('ffSyncPend','0')}
+  catch(e){ls_('ffSyncPend','1')}
+  finally{syncVa=false;pintarNube();if(syncOtra)pedirSync()}}
+function pintarNube(){const b=$('nubeBtn'),pend=ls_('ffSyncPend')==='1';
+  b.className='nube'+(ses?' ok':'');b.textContent=ses?('☁️ En la nube · '+ses.email+(pend?' · pendiente de subir':'')):'☁️ Guarda tus facturas en la nube';
+  const vis=!$('misFac').hidden;$('ftCuenta').hidden=vis;$('ftEntrar').textContent=ses?'Mi cuenta':'Ya tengo cuenta';
+  if(ses){$('nYo').textContent=ses.email;$('nEst').textContent=pend?'Hay cambios sin subir (sin conexión). Se subirán solos.':(syncOk?'Todo guardado ('+syncOk+')':'')}}
+function abrirNube(){$('nMsg').hidden=true;['nP1','nP2','nP3'].forEach(i=>$(i).hidden=true);$(ses?'nP3':'nP1').hidden=false;pintarNube();abrirHoja('hojaNube')}
+const nMsg=t=>{$('nMsg').textContent=t;$('nMsg').hidden=!t};
+$('nubeBtn').onclick=abrirNube;$('ftEntrar').onclick=e=>{e.preventDefault();abrirNube()};$('nNo').onclick=cerrarHojas;
+$('nOtro').onclick=()=>{$('nP2').hidden=true;$('nP1').hidden=false;nMsg('')};
+$('nEnviar').onclick=async()=>{const em=$('nEmail').value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return nMsg('Escribe bien tu correo.');
+  const b=$('nEnviar');b.disabled=true;nMsg('Enviando…');
+  try{await sbF('/auth/v1/otp',{method:'POST',body:JSON.stringify({email:em,create_user:true})});$('nEmailTxt').textContent=em;$('nP1').hidden=true;$('nP2').hidden=false;$('nCod').value='';nMsg('');setTimeout(()=>$('nCod').focus(),100)}
+  catch(e){nMsg(e.st===429?'Demasiados intentos. Espera unos minutos y vuelve a probar.':(navigator.onLine?'No se ha podido enviar el código. Prueba otra vez.':'Sin conexión a internet.'))}
+  finally{b.disabled=false}};
+$('nEntrar').onclick=async()=>{const cod=$('nCod').value.replace(/\D/g,''),em=$('nEmailTxt').textContent;if(cod.length<6)return nMsg('Escribe el código que te ha llegado.');
+  const b=$('nEntrar');b.disabled=true;nMsg('Entrando…');
+  try{guardaSes(sesDe(await sbF('/auth/v1/verify',{method:'POST',body:JSON.stringify({type:'email',email:em,token:cod})})));
+    nMsg('Guardando tus facturas…');await sync();cerrarHojas();aviso(ls_('ffSyncPend')==='1'?'Has entrado. Se subirá al tener conexión.':'☁️ Listo: tus facturas están en la nube')}
+  catch(e){nMsg(e.st===429?'Demasiados intentos. Espera unos minutos.':(e.st&&e.st<500?'Código incorrecto o caducado. Pide otro.':'No se ha podido entrar. Prueba otra vez.'))}
+  finally{b.disabled=false}};
+$('nAct').onclick=async()=>{nMsg('Actualizando…');await sync();nMsg(ls_('ffSyncPend')==='1'?'No hay conexión. Se subirá solo más tarde.':'Todo guardado.')};
+$('nSalir').onclick=()=>{if(ses)fetch(SB+'/auth/v1/logout',{method:'POST',headers:{apikey:SBK,Authorization:'Bearer '+ses.at}}).catch(()=>{});guardaSes(null);cerrarHojas();pintarNube();aviso('Has salido. Tus facturas siguen en este dispositivo y en la nube.')};
+addEventListener('online',()=>{if(ses)sync()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ses)pedirSync()});
+verPrem();pintarNube();if(ses)sync();
 if(ls_('ffRegaloAviso')==='1'){ls_('ffRegaloAviso','0');setTimeout(()=>{const e=$('toast');aviso('🎁 Regalo de lanzamiento: Premium gratis para siempre');clearTimeout(tAv);tAv=setTimeout(()=>e.hidden=true,5000)},600)}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
