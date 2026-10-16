@@ -611,7 +611,7 @@ async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true
 function pintarNube(){const b=$('nubeBtn'),pend=ls_('ffSyncPend')==='1';
   b.className='nube'+(ses?' ok':'');b.textContent=ses?('☁️ En la nube · '+ses.email+(pend?' · pendiente de subir':'')):'⚠️ Solo en este dispositivo · Guardar en la nube';
   const vis=!$('misFac').hidden;$('ftCuenta').hidden=vis;$('ftEntrar').textContent=ses?'Mi cuenta':'Ya tengo cuenta';
-  $('nPanel').hidden=!(ses&&ses.email===DUENO);$('nSusc').hidden=!(BETA&&ses&&ls_('ffPremCuenta')==='1');if(ses){$('nYo').textContent=ses.email;$('nEst').textContent=pend?'Hay cambios sin subir (sin conexión). Se subirán solos.':(syncOk?'Todo guardado ('+syncOk+')':'')}}
+  $('nPanel').hidden=!(ses&&DUENOS.includes(ses.email));$('nSusc').hidden=!(BETA&&ses&&ls_('ffPremCuenta')==='1');if(ses){$('nYo').textContent=ses.email;$('nEst').textContent=pend?'Hay cambios sin subir (sin conexión). Se subirán solos.':(syncOk?'Todo guardado ('+syncOk+')':'')}}
 function abrirNube(aviso){$('nTit').textContent=aviso===true?'Tu factura está guardada solo en este dispositivo':'☁️ Tus facturas en la nube';
   const pb=aviso===true&&BETA&&!PREM();if(pb)$('nTit').textContent='⭐ Prueba Premium gratis';
   $('nTxt').textContent=aviso===true?'Si cambias de móvil o se borra, la pierdes. Guárdala en la nube: solo tu correo, sin contraseñas.':'Guárdalas en la nube y tendrás tus facturas en cualquier dispositivo, sin perderlas. Solo tu correo, sin contraseñas.';
@@ -642,7 +642,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ses)pedir
     guardaSes(sesDe({access_token:h.get('access_token'),refresh_token:h.get('refresh_token'),expires_in:+h.get('expires_in')||3600,user:u}));
     await sync();aviso('☁️ Has entrado: tus facturas están en la nube')}catch(e){aviso('El enlace ha caducado. Pide otro.')}})();
 // ---- Panel del propietario (los datos solo los entrega Supabase a este correo) ----
-const DUENO='facturafacil.es.app@gmail.com';
+const DUENOS=['facturafacil.es.app@gmail.com','ivanbenitez84@gmail.com'];
 async function abrirPanel(){cerrarHojas();abrirCapa('capaPanel');$('pLista').innerHTML='<div class="vacio">Cargando…</div>';
   try{const at=await tokenOk(),j=await sbF('/rest/v1/rpc/panel',{method:'POST',headers:{Authorization:'Bearer '+at},body:'{}'});
     $('pUs').textContent=j.usuarios;$('pNu').textContent=j.nuevos7;$('pRe').textContent=j.regalo;
