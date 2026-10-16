@@ -8,6 +8,8 @@
 <title>Factura Fácil · Facturas e IVA para autónomos</title>
 <meta name="description" content="Calcula IVA e IRPF y haz tus facturas en PDF en un minuto, seas autónomo o particular. Gratis, en español, desde el móvil o el PC.">
 <link rel="icon" href="../icon-192.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -27,6 +29,13 @@ a{color:inherit;text-decoration:none}
 .btn:active{transform:scale(.97)}
 .btn-dark{background:var(--txt);color:var(--bg)}
 .btn-main{background:#fff;color:#0F5C4D;font-size:18px;padding:17px 28px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.btn-ghost{background:rgba(255,255,255,.12);color:#fff;border:2px solid rgba(255,255,255,.5);font-size:18px;padding:15px 24px;cursor:pointer;font-family:inherit}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}
+.modal[hidden]{display:none}
+.modal .box{background:var(--card);color:var(--txt);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:24px 20px max(24px,env(safe-area-inset-bottom))}
+.modal h3{font-size:22px;font-weight:800;margin-bottom:6px}.modal p{color:var(--sub)}
+.modal ol{margin:14px 0 20px;padding-left:22px}.modal li{margin:8px 0}
+.modal .btn{width:100%;border:0;cursor:pointer;font-family:inherit}
 .btn-acc{background:var(--acc);color:#fff;font-size:18px;padding:17px 28px}
 @media (prefers-color-scheme:dark){.btn-acc{color:#08231E}}
 /* Hero */
@@ -117,6 +126,7 @@ footer a{text-decoration:underline}
     <p class="lead">Calcula el IVA y el IRPF, haz la factura y envíala en PDF desde el móvil o el ordenador. Sin instalar nada.</p>
     <div class="ctas">
       <a class="btn btn-main" href="app/">Empezar gratis →</a>
+      <button class="btn btn-ghost" id="instalar" hidden>📲 Instalar app</button>
       <span class="note">Sin registro · Sin tarjeta</span>
     </div>
   </div>
@@ -195,6 +205,23 @@ footer a{text-decoration:underline}
   </div>
 </div></section>
 
+<div class="modal" id="hojaInst" hidden><div class="box"><h3>📲 Instala Factura Fácil</h3><p>Tendrás su icono en la pantalla de inicio, como una app.</p><ol id="instPasos"></ol><button class="btn btn-acc" id="instOk">Entendido</button></div></div>
 <footer><div class="wrap">Factura Fácil · <a href="../privacidad.html">Privacidad</a></div></footer>
+<script>
+(()=>{const $=i=>document.getElementById(i),b=$('instalar');let ev=null;
+const APP=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
+b.hidden=APP;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e});
+addEventListener('appinstalled',()=>{b.hidden=true});
+b.onclick=async()=>{
+  if(/Windows/.test(navigator.userAgent)){open('https://apps.microsoft.com/detail/9PNWP85KLVJN','_blank');return}
+  if(ev){ev.prompt();try{const r=await ev.userChoice;if(r.outcome==='accepted')b.hidden=true}catch(e){}ev=null;return}
+  $('instPasos').innerHTML=(IOS?['Pulsa el botón Compartir ⬆️ de Safari (en algunos iPhone está dentro del botón ···).','Baja y pulsa «Añadir a pantalla de inicio».','Pulsa «Añadir». ¡Listo!']
+    :['Abre el menú del navegador (⋮).','Pulsa «Instalar app» o «Añadir a pantalla de inicio».','Confirma. ¡Listo!']).map(t=>'<li>'+t+'</li>').join('');
+  $('hojaInst').hidden=false};
+$('instOk').onclick=()=>{$('hojaInst').hidden=true};$('hojaInst').onclick=e=>{if(e.target.id==='hojaInst')$('hojaInst').hidden=true};
+})();
+</script>
 </body>
 </html>

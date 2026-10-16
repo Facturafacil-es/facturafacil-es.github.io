@@ -84,6 +84,9 @@ footer a{color:var(--sub)}
 .numer input{width:90px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:16px system-ui,-apple-system,"Segoe UI",sans-serif;padding:8px;border-radius:8px}
 .numer span{color:var(--sub);font-size:14px}
 .hoja2{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-radius:20px 20px 0 0;box-shadow:0 -6px 30px #0004;padding:18px 16px max(18px,env(safe-area-inset-bottom));max-width:480px;margin:0 auto;transform:translateY(120%);visibility:hidden;transition:transform .25s,visibility .25s}
+@media(max-width:429px){.cabe:has(#instalar:not([hidden])) h1{font-size:20px}.cabe:has(#instalar:not([hidden])) .top{padding:8px 9px}.cabe>span{gap:4px!important}#instalar{font-size:0;padding:8px 10px}#instalar::before{content:"📲";font-size:16px}}
+@media(min-width:375px){.cabe:has(#instalar:not([hidden])) h1{white-space:nowrap}}
+.pasos{margin:12px 0 16px;padding-left:22px}.pasos li{margin:8px 0;font-size:17px}
 .hoja2.on{transform:none;visibility:visible}.hoja2{max-height:92vh;max-height:92dvh;overflow-y:auto}@media(max-height:600px){.prem li{margin:3px 0;font-size:15px}}
 .hoja2 h3{margin:0 0 4px;font-size:18px}.hoja2 p{color:var(--sub);margin:0 0 12px;font-size:15px}
 .hoja2 .acc{margin-top:8px}
@@ -124,7 +127,7 @@ footer a{color:var(--sub)}
 </head>
 <body>
 <main>
-<div class="cabe"><h1><img src="../../icon-192.png" alt="">Factura Fácil</h1><button class="top" id="misFac">📁 Mis facturas</button></div>
+<div class="cabe"><h1><img src="../../icon-192.png" alt="">Factura Fácil</h1><span style="display:flex;gap:6px"><button class="top" id="instalar" hidden>📲 App</button><button class="top" id="misFac">📁 Mis facturas</button></span></div>
 
 <div class="card">
   <div class="modo">
@@ -235,6 +238,9 @@ footer a{color:var(--sub)}
 <div class="hoja2 prem" id="hojaRegalo" role="dialog" aria-modal="true"><h3>🎁 Tienes Premium gratis para siempre</h3>
   <p>Por ser de los primeros. Esto es lo que incluye:</p><ul class="plista"></ul>
   <div class="acc"><button class="copiar" id="regOk" style="margin:0">¡Genial!</button></div></div>
+<div class="hoja2" id="hojaInst" role="dialog" aria-modal="true"><h3>📲 Instala Factura Fácil</h3>
+  <p>Tendrás su icono en la pantalla de inicio, como una app.</p><ol class="pasos" id="instPasos"></ol>
+  <div class="acc"><button class="copiar" id="instOk" style="margin:0">Entendido</button></div></div>
 <div class="toast" id="toast" hidden></div>
 <div id="vista"><div class="vbar"><button class="cerrar" id="cerrarVista" aria-label="Volver">✕</button><button class="copiar" id="imprimir2">🖨️ Imprimir / PDF</button><button class="copiar enviar" id="enviar">📤 Enviar</button></div><div class="falta" id="falta" hidden></div><div class="papel"><div id="hoja"></div></div></div>
 <script>
@@ -472,7 +478,7 @@ function dbG(d){d.t=new Date().toISOString();try{localStorage.setItem('ffDB',JSO
 const numero=(d,n)=>d.serie+String(n).padStart(3,'0');
 let tAv;function aviso(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(tAv);tAv=setTimeout(()=>e.hidden=true,2200)}
 function abrirHoja(id){$('velo').classList.add('on');$(id).classList.add('on')}
-function cerrarHojas(){$('velo').classList.remove('on');['hojaAcc','hojaPrem','hojaNube','hojaExp','hojaRegalo'].forEach(i=>$(i).classList.remove('on'))}
+function cerrarHojas(){$('velo').classList.remove('on');['hojaAcc','hojaPrem','hojaNube','hojaExp','hojaRegalo','hojaInst'].forEach(i=>$(i).classList.remove('on'))}
 $('velo').onclick=cerrarHojas;
 function abrirCapa(id){$(id).classList.add('on');$(id).scrollTop=0;document.body.style.overflow='hidden'}
 function cerrarCapa(id){$(id).classList.remove('on');if(!document.querySelector('.capa.on')&&!$('vista').classList.contains('on'))document.body.style.overflow=''}
@@ -674,6 +680,18 @@ const PLISTA=['📁 Todas tus facturas guardadas, para volver a descargarlas','�
 document.querySelectorAll('.plista').forEach(u=>u.innerHTML=PLISTA.map(t=>'<li>'+esc(t)+'</li>').join(''));
 $('regOk').onclick=cerrarHojas;
 if(ls_('ffRegaloAviso')==='1'){ls_('ffRegaloAviso','0');setTimeout(()=>abrirHoja('hojaRegalo'),600)}
+// ---- Botón Instalar app (de momento solo en la beta) ----
+let instEv=null;const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
+const verInst=()=>{$('instalar').hidden=!BETA||APP};verInst();
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();instEv=e});
+addEventListener('appinstalled',()=>{$('instalar').hidden=true});
+$('instalar').onclick=async()=>{
+  if(/Windows/.test(navigator.userAgent)){open('https://apps.microsoft.com/detail/9PNWP85KLVJN','_blank');return}
+  if(instEv){instEv.prompt();try{const r=await instEv.userChoice;if(r.outcome==='accepted')$('instalar').hidden=true}catch(e){}instEv=null;return}
+  $('instPasos').innerHTML=(IOS?['Pulsa el botón Compartir ⬆️ de Safari (en algunos iPhone está dentro del botón ···).','Baja y pulsa «Añadir a pantalla de inicio».','Pulsa «Añadir». ¡Listo!']
+    :['Abre el menú del navegador (⋮).','Pulsa «Instalar app» o «Añadir a pantalla de inicio».','Confirma. ¡Listo!']).map(t=>'<li>'+t+'</li>').join('');
+  abrirHoja('hojaInst')};
+$('instOk').onclick=cerrarHojas;
 if('serviceWorker' in navigator)navigator.serviceWorker.register('../../sw.js').catch(()=>{});
 </script>
 </body>
