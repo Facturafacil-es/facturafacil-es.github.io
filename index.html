@@ -223,9 +223,9 @@ footer a{color:var(--sub)}
   <ul><li>Numeración automática, sin saltos</li><li>Todas tus facturas guardadas para volver a descargarlas</li><li>Clientes guardados: elegir con un toque</li><li>Saber qué te deben: cobradas y por cobrar</li><li>Resumen del mes y del año, y exportar a Excel</li></ul>
   <div class="acc"><button class="copiar" id="comprar" style="margin:0">Desbloquear Premium</button><button id="premNo">Ahora no</button></div>
   <p id="premMsg" style="margin-top:10px" hidden></p></div>
-<div class="hoja2" id="hojaNube" role="dialog" aria-modal="true"><h3>☁️ Tus facturas en la nube</h3>
-  <div id="nP1"><p>Entra con tu correo y tendrás tus facturas en cualquier dispositivo, sin perderlas.</p><input id="nEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"><div class="acc"><button class="copiar" id="nEnviar" style="margin:0">Enviarme un código</button><button id="nNo">Ahora no</button></div></div>
-  <div id="nP2" hidden><p>Te hemos enviado un correo a <b id="nEmailTxt"></b>. Escribe aquí el código o toca el enlace del correo. Si no llega, mira en spam.</p><input id="nCod" inputmode="numeric" autocomplete="one-time-code" placeholder="Código" maxlength="10"><div class="acc"><button class="copiar" id="nEntrar" style="margin:0">Entrar</button><button id="nOtro">Cambiar correo</button></div></div>
+<div class="hoja2" id="hojaNube" role="dialog" aria-modal="true"><h3 id="nTit">☁️ Tus facturas en la nube</h3>
+  <div id="nP1"><p id="nTxt"></p><input id="nEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"><div class="acc"><button class="copiar" id="nEnviar" style="margin:0">Guardar en la nube</button><button id="nNo">Ahora no</button></div></div>
+  <div id="nP2" hidden><p>Te hemos enviado un código a <b id="nEmailTxt"></b>. Escríbelo aquí. Si no lo ves, mira en spam.</p><input id="nCod" inputmode="numeric" autocomplete="one-time-code" placeholder="Código" maxlength="10"><div class="acc"><button class="copiar" id="nEntrar" style="margin:0">Entrar</button><button id="nOtro">Cambiar correo</button></div></div>
   <div id="nP3" hidden><p>Conectado con <b id="nYo"></b><br><span id="nEst"></span></p><div class="acc"><button class="copiar" id="nAct" style="margin:0">🔄 Actualizar ahora</button><button id="nPanel" hidden>📊 Panel del propietario</button><button id="nSalir">Salir de la cuenta</button></div></div>
   <p id="nMsg" style="margin:10px 0 0" hidden></p></div>
 <div class="hoja2" id="hojaExp" role="dialog" aria-modal="true"><h3>⬇️ Exportar a Excel</h3><p>¿Qué periodo?</p><div id="expOps"></div><div class="acc"><button id="expNo">Cancelar</button></div></div>
@@ -282,7 +282,7 @@ window.facturaPDF=function(F,eur){const d=Doc(),G=[15,92,77],GR=[102,102,102],L=
 </script>
 <script>
 const $=id=>document.getElementById(id);
-let modo='base',iva=21,irpf=15,cli='emp',varios=false;
+let modo='base',iva=21,irpf=15,cli='emp',varios=false,avisoNube=0;
 const IR=()=>cli==='part'?0:irpf;
 const n2=n=>{const t=Math.abs(n).toFixed(2).split('.');return (n<0?'-':'')+t[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.')+','+t[1]};
 const eur=n=>n2(n)+' €';
@@ -402,7 +402,7 @@ function mostrar(D,guardar){
   ${pies.map(x=>`<div class="pie">${esc(x)}</div>`).join('')}`;
   FAC={titulo:borr?'Borrador de factura':'Factura',num:D.num,fecha:f,borr,em:D.em,cl:D.cl,ls:D.ls,det,fq,tot,total:eur(t),pies};
   $('vista').classList.add('on');$('vista').scrollTop=0;document.body.style.overflow='hidden';
-  if(guardar){ls_('ffN',(+ls_('ffN')||0)+1);if(PREM()&&!borr){guardarFactura(D,t);aviso('✓ Guardada en Mis facturas')}}}
+  if(guardar){ls_('ffN',(+ls_('ffN')||0)+1);if(PREM()&&!borr){guardarFactura(D,t);aviso('✓ Guardada en Mis facturas');if(!ses){const n=dbL().facturas.length;if((n>=1&&ls_('ffNubeAv1')!=='1')||(n>=5&&ls_('ffNubeAv5')!=='1'))avisoNube=n>=5?5:1}}}}
 $('imprimir').onclick=()=>mostrar(leerForm(),true);
 // ---- Valorar (solo en Windows, tras 3 facturas) ----
 const ls_=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
@@ -410,7 +410,7 @@ function verValora(){if(/Windows/.test(navigator.userAgent)&&!ls_('ffValora')&&(
 $('valoraNo').onclick=()=>{$('valora').hidden=true;ls_('ffValora','no')};
 $('valoraSi').onclick=()=>{$('valora').hidden=true;ls_('ffValora','si')};
 verValora();
-$('cerrarVista').onclick=()=>{$('vista').classList.remove('on');if(!document.querySelector('.capa.on'))document.body.style.overflow='';verValora()};
+$('cerrarVista').onclick=()=>{$('vista').classList.remove('on');if(!document.querySelector('.capa.on'))document.body.style.overflow='';if(avisoNube&&!ses){ls_('ffNubeAv1','1');if(avisoNube===5)ls_('ffNubeAv5','1');avisoNube=0;setTimeout(()=>abrirNube(true),250)}else verValora()};
 const APP=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
 const MOVIL=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
 $('imprimir2').onclick=()=>{if(MOVIL&&APP){$('enviar').onclick();return}const tt=document.title;document.title=($('falta').hidden?'Factura ':'Borrador factura ')+($('fNum').value||'');window.print();setTimeout(()=>document.title=tt,1000)};
@@ -567,10 +567,12 @@ async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true
   catch(e){ls_('ffSyncPend','1')}
   finally{syncVa=false;pintarNube();if(syncOtra)pedirSync()}}
 function pintarNube(){const b=$('nubeBtn'),pend=ls_('ffSyncPend')==='1';
-  b.className='nube'+(ses?' ok':'');b.textContent=ses?('☁️ En la nube · '+ses.email+(pend?' · pendiente de subir':'')):'☁️ Guarda tus facturas en la nube';
+  b.className='nube'+(ses?' ok':'');b.textContent=ses?('☁️ En la nube · '+ses.email+(pend?' · pendiente de subir':'')):'⚠️ Solo en este dispositivo · Guardar en la nube';
   const vis=!$('misFac').hidden;$('ftCuenta').hidden=vis;$('ftEntrar').textContent=ses?'Mi cuenta':'Ya tengo cuenta';
   $('nPanel').hidden=!(ses&&ses.email===DUENO);if(ses){$('nYo').textContent=ses.email;$('nEst').textContent=pend?'Hay cambios sin subir (sin conexión). Se subirán solos.':(syncOk?'Todo guardado ('+syncOk+')':'')}}
-function abrirNube(){$('nMsg').hidden=true;['nP1','nP2','nP3'].forEach(i=>$(i).hidden=true);$(ses?'nP3':'nP1').hidden=false;pintarNube();abrirHoja('hojaNube')}
+function abrirNube(aviso){$('nTit').textContent=aviso===true?'Tu factura está guardada solo en este dispositivo':'☁️ Tus facturas en la nube';
+  $('nTxt').textContent=aviso===true?'Si cambias de móvil o se borra, la pierdes. Guárdala en la nube: solo tu correo, sin contraseñas.':'Guárdalas en la nube y tendrás tus facturas en cualquier dispositivo, sin perderlas. Solo tu correo, sin contraseñas.';
+  $('nMsg').hidden=true;['nP1','nP2','nP3'].forEach(i=>$(i).hidden=true);$(ses?'nP3':'nP1').hidden=false;pintarNube();abrirHoja('hojaNube')}
 const nMsg=t=>{$('nMsg').textContent=t;$('nMsg').hidden=!t};
 $('nubeBtn').onclick=abrirNube;$('ftEntrar').onclick=e=>{e.preventDefault();abrirNube()};$('nNo').onclick=cerrarHojas;
 $('nOtro').onclick=()=>{$('nP2').hidden=true;$('nP1').hidden=false;nMsg('')};
