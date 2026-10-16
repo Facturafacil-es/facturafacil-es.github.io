@@ -214,7 +214,7 @@ footer a{color:var(--sub)}
   <p id="premMsg" style="margin-top:10px" hidden></p></div>
 <div class="hoja2" id="hojaNube" role="dialog" aria-modal="true"><h3>☁️ Tus facturas en la nube</h3>
   <div id="nP1"><p>Entra con tu correo y tendrás tus facturas en cualquier dispositivo, sin perderlas.</p><input id="nEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"><div class="acc"><button class="copiar" id="nEnviar" style="margin:0">Enviarme un código</button><button id="nNo">Ahora no</button></div></div>
-  <div id="nP2" hidden><p>Te hemos enviado un código a <b id="nEmailTxt"></b>. Si no llega, mira en spam.</p><input id="nCod" inputmode="numeric" autocomplete="one-time-code" placeholder="Código" maxlength="10"><div class="acc"><button class="copiar" id="nEntrar" style="margin:0">Entrar</button><button id="nOtro">Cambiar correo</button></div></div>
+  <div id="nP2" hidden><p>Te hemos enviado un correo a <b id="nEmailTxt"></b>. Escribe aquí el código o toca el enlace del correo. Si no llega, mira en spam.</p><input id="nCod" inputmode="numeric" autocomplete="one-time-code" placeholder="Código" maxlength="10"><div class="acc"><button class="copiar" id="nEntrar" style="margin:0">Entrar</button><button id="nOtro">Cambiar correo</button></div></div>
   <div id="nP3" hidden><p>Conectado con <b id="nYo"></b><br><span id="nEst"></span></p><div class="acc"><button class="copiar" id="nAct" style="margin:0">🔄 Actualizar ahora</button><button id="nSalir">Salir de la cuenta</button></div></div>
   <p id="nMsg" style="margin:10px 0 0" hidden></p></div>
 <div class="toast" id="toast" hidden></div>
@@ -537,7 +537,7 @@ $('nubeBtn').onclick=abrirNube;$('ftEntrar').onclick=e=>{e.preventDefault();abri
 $('nOtro').onclick=()=>{$('nP2').hidden=true;$('nP1').hidden=false;nMsg('')};
 $('nEnviar').onclick=async()=>{const em=$('nEmail').value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return nMsg('Escribe bien tu correo.');
   const b=$('nEnviar');b.disabled=true;nMsg('Enviando…');
-  try{await sbF('/auth/v1/otp',{method:'POST',body:JSON.stringify({email:em,create_user:true})});$('nEmailTxt').textContent=em;$('nP1').hidden=true;$('nP2').hidden=false;$('nCod').value='';nMsg('');setTimeout(()=>$('nCod').focus(),100)}
+  try{await sbF('/auth/v1/otp?redirect_to='+encodeURIComponent(location.origin+location.pathname),{method:'POST',body:JSON.stringify({email:em,create_user:true})});$('nEmailTxt').textContent=em;$('nP1').hidden=true;$('nP2').hidden=false;$('nCod').value='';nMsg('');setTimeout(()=>$('nCod').focus(),100)}
   catch(e){nMsg(e.st===429?'Demasiados intentos. Espera unos minutos y vuelve a probar.':(navigator.onLine?'No se ha podido enviar el código. Prueba otra vez.':'Sin conexión a internet.'))}
   finally{b.disabled=false}};
 $('nEntrar').onclick=async()=>{const cod=$('nCod').value.replace(/\D/g,''),em=$('nEmailTxt').textContent;if(cod.length<6)return nMsg('Escribe el código que te ha llegado.');
@@ -550,6 +550,12 @@ $('nAct').onclick=async()=>{nMsg('Actualizando…');await sync();nMsg(ls_('ffSyn
 $('nSalir').onclick=()=>{if(ses)fetch(SB+'/auth/v1/logout',{method:'POST',headers:{apikey:SBK,Authorization:'Bearer '+ses.at}}).catch(()=>{});guardaSes(null);cerrarHojas();pintarNube();aviso('Has salido. Tus facturas siguen en este dispositivo y en la nube.')};
 addEventListener('online',()=>{if(ses)sync()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ses)pedirSync()});
+// Entrada con el enlace del correo (si llega enlace en vez de código)
+(async()=>{const h=new URLSearchParams(location.hash.slice(1));if(!h.get('access_token')||!h.get('refresh_token'))return;
+  history.replaceState(null,'',location.pathname);
+  try{const u=await sbF('/auth/v1/user',{headers:{Authorization:'Bearer '+h.get('access_token')}});
+    guardaSes(sesDe({access_token:h.get('access_token'),refresh_token:h.get('refresh_token'),expires_in:+h.get('expires_in')||3600,user:u}));
+    await sync();aviso('☁️ Has entrado: tus facturas están en la nube')}catch(e){aviso('El enlace ha caducado. Pide otro.')}})();
 verPrem();pintarNube();if(ses)sync();
 if(ls_('ffRegaloAviso')==='1'){ls_('ffRegaloAviso','0');setTimeout(()=>{const e=$('toast');aviso('🎁 Regalo de lanzamiento: Premium gratis para siempre');clearTimeout(tAv);tAv=setTimeout(()=>e.hidden=true,5000)},600)}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
