@@ -17,6 +17,8 @@
 body{background:var(--bg);color:var(--txt);font:17px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px 32px;display:flex;justify-content:center}
 main{width:100%;max-width:440px}
 h1{font-size:22px;margin:4px 0 16px;display:flex;align-items:center;gap:10px}
+.cabe{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 16px}.cabe h1{margin:0}
+.top{border:1px solid var(--line);background:var(--card);color:var(--txt);font:600 14px system-ui,-apple-system,"Segoe UI",sans-serif;padding:9px 12px;border-radius:20px;cursor:pointer;white-space:nowrap}
 h1 img{width:34px;height:34px;border-radius:9px}
 .card{background:var(--card);border-radius:18px;padding:18px;border:1px solid var(--line);margin-bottom:14px}
 .modo{display:flex;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:16px}
@@ -54,6 +56,39 @@ footer a{color:var(--sub)}
 .lin .x{border:0;background:none;color:var(--sub);font-size:20px;padding:0 4px 8px;cursor:pointer}
 .mas{border:0;background:none;color:var(--acc);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:4px 0;cursor:pointer}
 .cerrar{float:right;border:0;background:none;color:var(--sub);font-size:24px;line-height:1;cursor:pointer}
+.capa{display:none;position:fixed;inset:0;background:var(--bg);overflow:auto;z-index:8;padding:0 0 40px}
+.capa.on{display:block}
+.cbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:max(10px,env(safe-area-inset-top)) 12px 10px;background:var(--bg)}
+.cbar h2{font-size:20px;margin:0;flex:1}
+.cbar .cerrar{float:none;font-size:26px;padding:4px 8px}
+.cin{max-width:440px;margin:0 auto;padding:0 16px}
+.res{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.res div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px}
+.res small{display:block;color:var(--sub);font-size:12px}.res b{font-size:16px;font-variant-numeric:tabular-nums}
+.res .rojo b{color:var(--neg)}.res .vv{color:var(--neg);font-weight:700;margin-top:2px}
+.acc .copiar{background:var(--acc);border-color:var(--acc);color:#fff}
+.filt{display:flex;gap:6px;margin-bottom:10px}
+.filt button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--txt);font:inherit;font-size:14px;padding:8px;border-radius:20px;cursor:pointer}
+.filt button.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px;cursor:pointer;width:100%;text-align:left;font:inherit;color:var(--txt)}
+.item .ii{flex:1;min-width:0}.item .ii b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.item .ii small{color:var(--sub);font-size:13px}
+.item .im{text-align:right;font-variant-numeric:tabular-nums}
+.est{display:inline-block;margin-top:4px;font-size:12px;font-weight:700;padding:3px 8px;border-radius:12px}
+.est.p{background:#FBEBC8;color:#6E4700}.est.v{background:#FDE2DF;color:#8C1D18}.est.c{background:#DDF1E8;color:#0B5A46}
+.vacio{text-align:center;color:var(--sub);padding:30px 10px}
+.acc{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.acc button,.acc label{display:block;text-align:center;border:1px solid var(--line);background:var(--card);color:var(--txt);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:12px;border-radius:12px;cursor:pointer}
+.numer{display:flex;gap:8px;align-items:center;margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.numer input{width:90px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:16px system-ui,-apple-system,"Segoe UI",sans-serif;padding:8px;border-radius:8px}
+.numer span{color:var(--sub);font-size:14px}
+.hoja2{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-radius:20px 20px 0 0;box-shadow:0 -6px 30px #0004;padding:18px 16px max(18px,env(safe-area-inset-bottom));max-width:480px;margin:0 auto;transform:translateY(120%);visibility:hidden;transition:transform .25s,visibility .25s}
+.hoja2.on{transform:none;visibility:visible}
+.hoja2 h3{margin:0 0 4px;font-size:18px}.hoja2 p{color:var(--sub);margin:0 0 12px;font-size:15px}
+.hoja2 .acc{margin-top:8px}
+.velo{position:fixed;inset:0;background:#0006;z-index:19;display:none}.velo.on{display:block}
+.prem li{margin:6px 0}.prem ul{padding-left:20px;margin:8px 0 14px}
+.toast{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top));transform:translateX(-50%);background:#14201C;color:#fff;padding:12px 18px;border-radius:24px;font-size:15px;z-index:30;box-shadow:0 6px 20px #0005}
+.pbtn{display:block;width:100%;margin:0 0 8px;border:1px dashed var(--acc);background:none;color:var(--acc);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px;border-radius:10px;cursor:pointer}
 #vista{display:none;position:fixed;inset:0;background:#5f6b67;overflow:auto;z-index:9;padding:0 0 32px}
 #vista.on{display:block}
 .vbar{position:sticky;top:0;display:flex;gap:10px;align-items:center;padding:max(12px,env(safe-area-inset-top)) 16px 12px;background:#2b3431}
@@ -83,7 +118,7 @@ footer a{color:var(--sub)}
 </head>
 <body>
 <main>
-<h1><img src="icon-192.png" alt="">Factura Fácil</h1>
+<div class="cabe"><h1><img src="icon-192.png" alt="">Factura Fácil</h1><button class="top" id="misFac">📁 Mis facturas</button></div>
 
 <div class="card">
   <div class="modo">
@@ -118,12 +153,14 @@ footer a{color:var(--sub)}
   <button class="cerrar" id="cerrarFac" aria-label="Cerrar">✕</button>
   <h2>Factura</h2>
   <div class="dos"><input id="fNum" placeholder="Nº factura (ej. 2026-001)"><input id="fFecha" type="date"></div>
+  <div class="dos" id="vencWrap" hidden><input value="Vence el" readonly tabindex="-1" style="border:0;background:none;color:var(--sub);padding-left:2px"><input id="fVenc" type="date" aria-label="Fecha de vencimiento"></div>
   <h3>Tus datos</h3>
   <input id="eNom" placeholder="Nombre o empresa" autocomplete="name">
   <input id="eNif" placeholder="NIF">
   <input id="eDir" placeholder="Dirección">
   <input id="eIban" placeholder="IBAN para el pago (opcional)">
   <h3>Cliente</h3>
+  <button class="pbtn" id="elegirCli">👥 Elegir cliente guardado</button>
   <input id="cNom" placeholder="Nombre o empresa">
   <input id="cNif" placeholder="NIF">
   <input id="cDir" placeholder="Dirección">
@@ -142,8 +179,37 @@ footer a{color:var(--sub)}
   <a class="copiar" id="valoraSi" href="ms-windows-store://review/?ProductId=9PNWP85KLVJN">⭐ Valorar en Microsoft Store</a>
 </div>
 
+<div class="capa" id="capaFac">
+  <div class="cbar"><button class="cerrar" id="cerrarMis" aria-label="Volver">✕</button><h2>Mis facturas</h2></div>
+  <div class="cin">
+    <div class="res"><div><small>Este mes</small><b id="rMes">0 €</b></div><div><small>Este año</small><b id="rAno">0 €</b></div><div id="rPendBox"><small>Por cobrar</small><b id="rPend">0 €</b><small class="vv" id="rVenc" hidden></small></div></div>
+    <div class="filt" id="filt"><button data-f="todas" class="on">Todas</button><button data-f="pend">Por cobrar</button><button data-f="cob">Cobradas</button></div>
+    <div id="lista"></div>
+    <div class="numer"><span>Numeración</span><input id="nSerie" aria-label="Serie" placeholder="2026-"><span>siguiente</span><input id="nSig" inputmode="numeric" aria-label="Siguiente número" style="width:70px"></div>
+    <div class="acc">
+      <button id="expCsv">⬇️ Exportar a Excel</button>
+      <button id="copiaSeg">💾 Guardar copia de seguridad</button>
+      <label for="restaurar">📂 Recuperar copia de seguridad<input type="file" id="restaurar" accept=".json,application/json" hidden></label>
+    </div>
+  </div>
+</div>
+
+<div class="capa" id="capaCli">
+  <div class="cbar"><button class="cerrar" id="cerrarCli" aria-label="Volver">✕</button><h2>Clientes</h2></div>
+  <div class="cin"><input id="buscaCli" placeholder="Buscar cliente" style="width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--card);color:var(--txt);font:16px system-ui,-apple-system,'Segoe UI',sans-serif;padding:11px 12px;border-radius:12px;margin-bottom:10px"><div id="listaCli"></div></div>
+</div>
+
 <footer><a href="privacidad.html">Privacidad</a></footer>
 </main>
+<div class="velo" id="velo"></div>
+<div class="hoja2" id="hojaAcc" role="dialog" aria-modal="true"><h3 id="accT"></h3><p id="accS"></p><div class="acc">
+  <button id="accVer">👁️ Ver / PDF</button><button id="accCob"></button><button id="accDup">📄 Duplicar en una nueva</button><button id="accNo">Cancelar</button></div></div>
+<div class="hoja2 prem" id="hojaPrem" role="dialog" aria-modal="true"><h3>⭐ Factura Fácil Premium</h3>
+  <p>Para quien factura a menudo.</p>
+  <ul><li>Numeración automática, sin saltos</li><li>Todas tus facturas guardadas para volver a descargarlas</li><li>Clientes guardados: elegir con un toque</li><li>Saber qué te deben: cobradas y por cobrar</li><li>Resumen del mes y del año, y exportar a Excel</li></ul>
+  <div class="acc"><button class="copiar" id="comprar" style="margin:0">Desbloquear Premium</button><button id="premNo">Ahora no</button></div>
+  <p id="premMsg" style="margin-top:10px" hidden></p></div>
+<div class="toast" id="toast" hidden></div>
 <div id="vista"><div class="vbar"><button class="cerrar" id="cerrarVista" aria-label="Volver">✕</button><button class="copiar" id="imprimir2">🖨️ Imprimir / PDF</button><button class="copiar enviar" id="enviar">📤 Enviar</button></div><div class="falta" id="falta" hidden></div><div class="papel"><div id="hoja"></div></div></div>
 <script>
 // Mini generador de PDF propio (sin librerías). Factura Fácil.
@@ -263,54 +329,52 @@ function linea(c='',i=''){const d=document.createElement('div');d.className='lin
   $('lineas').appendChild(d)}
 $('masLin').onclick=()=>linea();
 $('abrirFac').onclick=()=>{
+  prepPrem();
   try{const g=JSON.parse(localStorage.getItem('ffe')||'{}');E.forEach(k=>{if(g[k]&&!$(k).value)$(k).value=g[k]})}catch(e){}
   if(!$('fFecha').value){const d=new Date();$('fFecha').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
   if(!$('lineas').children.length){linea();$('lineas').children[0].dataset.auto='1';calc()}
   $('fac').classList.add('on');$('fac').scrollIntoView({behavior:'smooth'})};
 $('cerrarFac').onclick=()=>{$('fac').classList.remove('on');window.scrollTo({top:0,behavior:'smooth'})};
-$('imprimir').onclick=()=>{
+// ---- Leer formulario y mostrar factura ----
+function leerForm(){
   const g={};E.forEach(k=>g[k]=$(k).value.trim());try{localStorage.setItem('ffe',JSON.stringify(g))}catch(e){}
-  const ls=[...$('lineas').children].map(d=>({c:d.children[0].value.trim(),i:num(d.children[1].value)})).filter(l=>l.c||l.i);
-  const b=r2(ls.reduce((a,l)=>a+l.i,0)),i=r2(b*iva/100),p=r2(b*IR()/100),t=r2(b+i-p);
-  const f=$('fFecha').value?new Date($('fFecha').value+'T12:00').toLocaleDateString('es-ES'):'';
-  const br=s=>esc(s).replace(/\n/g,'<br>');
-  const v=id=>$(id).value.trim(), emp=cli!=='part', falta=[];
-  if(!v('fNum'))falta.push('número de factura');
-  if(!v('fFecha'))falta.push('fecha');
-  if(!g.eNom)falta.push('tu nombre o empresa');
-  if(!g.eNif)falta.push('tu NIF');
-  if(!g.eDir)falta.push('tu dirección');
-  if(!v('cNom'))falta.push('nombre del cliente');
-  if(emp&&!v('cNif'))falta.push('NIF del cliente');
-  if(emp&&!v('cDir'))falta.push('dirección del cliente');
-  if(!ls.some(l=>l.c&&l.i))falta.push('concepto con su importe');
-  if(iva===0&&!g.fExento)falta.push('motivo de no llevar IVA');
-  const borr=falta.length>0;
+  const v=id=>$(id).value.trim();
+  return {num:v('fNum'),fecha:v('fFecha'),venc:v('fVenc'),em:{nom:g.eNom,nif:g.eNif,dir:g.eDir,iban:g.eIban},
+    cl:{nom:v('cNom'),nif:v('cNif'),dir:v('cDir')},
+    ls:[...$('lineas').children].map(d=>({c:d.children[0].value.trim(),i:num(d.children[1].value)})).filter(l=>l.c||l.i),
+    iva,irpf:IR(),cli,exento:iva===0?g.fExento:''}}
+const fes=iso=>iso?new Date(iso+'T12:00').toLocaleDateString('es-ES'):'';
+function importes(D){const b=r2(D.ls.reduce((a,l)=>a+l.i,0)),i=r2(b*D.iva/100),p=r2(b*D.irpf/100);return {b,i,p,t:r2(b+i-p)}}
+function faltan(D){const f=[],emp=D.cli!=='part';
+  if(!D.num)f.push('número de factura');if(!D.fecha)f.push('fecha');
+  if(!D.em.nom)f.push('tu nombre o empresa');if(!D.em.nif)f.push('tu NIF');if(!D.em.dir)f.push('tu dirección');
+  if(!D.cl.nom)f.push('nombre del cliente');if(emp&&!D.cl.nif)f.push('NIF del cliente');if(emp&&!D.cl.dir)f.push('dirección del cliente');
+  if(!D.ls.some(l=>l.c&&l.i))f.push('concepto con su importe');if(D.iva===0&&!D.exento)f.push('motivo de no llevar IVA');return f}
+let FAC=null;
+function mostrar(D,guardar){
+  const {b,i,p,t}=importes(D),f=fes(D.fecha),br=s=>esc(s).replace(/\n/g,'<br>'),falta=faltan(D),borr=falta.length>0;
   $('falta').hidden=!borr;
   $('falta').innerHTML=borr?'<b>Borrador: '+(falta.length>1?'faltan '+falta.length+' datos':'falta 1 dato')+'</b>'+esc(falta.join(', '))+'.':'';
-  $('hoja').innerHTML=(borr?'<div class="marca" aria-hidden="true"><span>BORRADOR</span></div>':'')+`<div class="cab"><div><h1>${borr?'Borrador de factura':'Factura'}</h1>${$('fNum').value?'Nº '+esc($('fNum').value):''}${f?'<br>Fecha: '+f:''}</div></div>
-  <div class="cab"><div class="caja"><small>Emisor</small><b>${esc(g.eNom)}</b><br>${g.eNif?'NIF: '+esc(g.eNif)+'<br>':''}${br(g.eDir)}</div>
-  <div class="caja"><small>Cliente</small><b>${esc($('cNom').value)}</b><br>${$('cNif').value?'NIF: '+esc($('cNif').value)+'<br>':''}${br($('cDir').value)}</div></div>
-  <table><tr><th>Concepto</th><th class="d">Importe</th></tr>${ls.map(l=>`<tr><td>${esc(l.c)}</td><td class="d">${eur(l.i)}</td></tr>`).join('')}</table>
-  <div class="tot"><div><span>Base imponible</span><span>${eur(b)}</span></div>
-  <div><span>${iva?'IVA '+pf(iva)+' %':'IVA (exento)'}</span><span>${eur(i)}</span></div>
-  ${IR()?`<div><span>Retención IRPF ${pf(irpf)} %</span><span>−${eur(p)}</span></div>`:''}
+  const pies=[D.exento||'',D.em.iban?'Forma de pago: transferencia a '+D.em.iban:'',D.venc?'Vencimiento: '+fes(D.venc):''].filter(Boolean);
+  const tot=[['Base imponible',eur(b)],[D.iva?'IVA '+pf(D.iva)+' %':'IVA (exento)',eur(i)]].concat(D.irpf?[['Retención IRPF '+pf(D.irpf)+' %','-'+eur(p)]]:[]);
+  $('hoja').innerHTML=(borr?'<div class="marca" aria-hidden="true"><span>BORRADOR</span></div>':'')+`<div class="cab"><div><h1>${borr?'Borrador de factura':'Factura'}</h1>${D.num?'Nº '+esc(D.num):''}${f?'<br>Fecha: '+f:''}</div></div>
+  <div class="cab"><div class="caja"><small>Emisor</small><b>${esc(D.em.nom)}</b><br>${D.em.nif?'NIF: '+esc(D.em.nif)+'<br>':''}${br(D.em.dir)}</div>
+  <div class="caja"><small>Cliente</small><b>${esc(D.cl.nom)}</b><br>${D.cl.nif?'NIF: '+esc(D.cl.nif)+'<br>':''}${br(D.cl.dir)}</div></div>
+  <table><tr><th>Concepto</th><th class="d">Importe</th></tr>${D.ls.map(l=>`<tr><td>${esc(l.c)}</td><td class="d">${eur(l.i)}</td></tr>`).join('')}</table>
+  <div class="tot">${tot.map(([x,y])=>`<div><span>${esc(x)}</span><span>${esc(y).replace(/^-/,'−')}</span></div>`).join('')}
   <div class="g"><span>Total</span><span>${eur(t)}</span></div></div>
-  ${iva===0&&g.fExento?`<div class="pie">${esc(g.fExento)}</div>`:''}
-  ${g.eIban?`<div class="pie">Forma de pago: transferencia a ${esc(g.eIban)}</div>`:''}`;
-  ls_('ffN',(+ls_('ffN')||0)+1);FAC={titulo:borr?'Borrador de factura':'Factura',num:v('fNum'),fecha:f,borr,
-    em:{nom:g.eNom,nif:g.eNif,dir:g.eDir},cl:{nom:v('cNom'),nif:v('cNif'),dir:v('cDir')},ls,
-    tot:[['Base imponible',eur(b)],[iva?'IVA '+pf(iva)+' %':'IVA (exento)',eur(i)]].concat(IR()?[['Retención IRPF '+pf(irpf)+' %','-'+eur(p)]]:[]),
-    total:eur(t),pies:[iva===0&&g.fExento?g.fExento:'',g.eIban?'Forma de pago: transferencia a '+g.eIban:''].filter(Boolean)};
-  $('vista').classList.add('on');$('vista').scrollTop=0;document.body.style.overflow='hidden'};
+  ${pies.map(x=>`<div class="pie">${esc(x)}</div>`).join('')}`;
+  FAC={titulo:borr?'Borrador de factura':'Factura',num:D.num,fecha:f,borr,em:D.em,cl:D.cl,ls:D.ls,tot,total:eur(t),pies};
+  $('vista').classList.add('on');$('vista').scrollTop=0;document.body.style.overflow='hidden';
+  if(guardar){ls_('ffN',(+ls_('ffN')||0)+1);if(PREM()&&!borr){guardarFactura(D,t);aviso('✓ Guardada en Mis facturas')}}}
+$('imprimir').onclick=()=>mostrar(leerForm(),true);
 // ---- Valorar (solo en Windows, tras 3 facturas) ----
 const ls_=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
 function verValora(){if(/Windows/.test(navigator.userAgent)&&!ls_('ffValora')&&(+ls_('ffN')||0)>=3)$('valora').hidden=false}
 $('valoraNo').onclick=()=>{$('valora').hidden=true;ls_('ffValora','no')};
 $('valoraSi').onclick=()=>{$('valora').hidden=true;ls_('ffValora','si')};
 verValora();
-$('cerrarVista').onclick=()=>{$('vista').classList.remove('on');document.body.style.overflow='';verValora()};
-let FAC=null;
+$('cerrarVista').onclick=()=>{$('vista').classList.remove('on');if(!document.querySelector('.capa.on'))document.body.style.overflow='';verValora()};
 const APP=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
 const MOVIL=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
 $('imprimir2').onclick=()=>{if(MOVIL&&APP){$('enviar').onclick();return}const tt=document.title;document.title=($('falta').hidden?'Factura ':'Borrador factura ')+($('fNum').value||'');window.print();setTimeout(()=>document.title=tt,1000)};
@@ -323,6 +387,105 @@ $('enviar').onclick=async()=>{if(!FAC)return;
   else if(MOVIL&&APP){alert('Este iPhone no deja crear el PDF desde la app. Prueba desde Safari.');return}
   const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),60000)};
+
+// ================= PREMIUM =================
+const PRODUCTO='premium';
+const PREM=()=>ls_('ffPrem')==='1';
+function dbL(){try{const d=JSON.parse(localStorage.getItem('ffDB')||'{}');return {clientes:d.clientes||[],facturas:d.facturas||[],serie:d.serie!=null?d.serie:String(new Date().getFullYear())+'-',sig:d.sig||1}}catch(e){return {clientes:[],facturas:[],serie:new Date().getFullYear()+'-',sig:1}}}
+function dbG(d){try{localStorage.setItem('ffDB',JSON.stringify(d));return true}catch(e){aviso('No se ha podido guardar: memoria llena');return false}}
+const numero=(d,n)=>d.serie+String(n).padStart(3,'0');
+let tAv;function aviso(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(tAv);tAv=setTimeout(()=>e.hidden=true,2200)}
+function abrirHoja(id){$('velo').classList.add('on');$(id).classList.add('on')}
+function cerrarHojas(){$('velo').classList.remove('on');['hojaAcc','hojaPrem'].forEach(i=>$(i).classList.remove('on'))}
+$('velo').onclick=cerrarHojas;
+function abrirCapa(id){$(id).classList.add('on');$(id).scrollTop=0;document.body.style.overflow='hidden'}
+function cerrarCapa(id){$(id).classList.remove('on');if(!document.querySelector('.capa.on')&&!$('vista').classList.contains('on'))document.body.style.overflow=''}
+function pedirPrem(){$('premMsg').hidden=true;abrirHoja('hojaPrem')}
+// Preparar el formulario de factura
+function prepPrem(){const p=PREM();$('vencWrap').hidden=!p;
+  if(!p)return;const d=dbL(),cur=$('fNum').value.trim();
+  if(!cur||d.facturas.some(f=>f.num===cur)){ // factura nueva
+    $('fNum').value=numero(d,d.sig);['cNom','cNif','cDir','fVenc'].forEach(k=>$(k).value='');$('lineas').innerHTML=''}}
+// Guardar factura y cliente
+function guardarFactura(D,total){const d=dbL();const i=d.facturas.findIndex(f=>f.num===D.num);
+  const reg={num:D.num,fecha:D.fecha,venc:D.venc,cliente:D.cl.nom,total,D,cobrada:i>=0?d.facturas[i].cobrada:false,guardada:new Date().toISOString()};
+  if(i>=0)d.facturas[i]=reg;else d.facturas.push(reg);
+  if(D.num===numero(d,d.sig))d.sig++;
+  if(D.cl.nom){const k=d.clientes.findIndex(c=>(D.cl.nif&&c.nif===D.cl.nif)||(!D.cl.nif&&c.nom===D.cl.nom));
+    const c={nom:D.cl.nom,nif:D.cl.nif,dir:D.cl.dir,cli:D.cli};if(k>=0)d.clientes[k]=c;else d.clientes.push(c)}
+  dbG(d)}
+// ---- Mis facturas ----
+let filtro='todas',sel=null;
+const hoyISO=()=>{const x=new Date();return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+function estado(f){if(f.cobrada)return ['c','Cobrada'];if(f.venc&&f.venc<hoyISO())return ['v','Vencida'];return ['p','Por cobrar']}
+function pintarMis(){const d=dbL(),hoy=hoyISO(),mes=hoy.slice(0,7),ano=hoy.slice(0,4);
+  let m=0,a=0,pend=0,venc=0;d.facturas.forEach(f=>{if((f.fecha||'').startsWith(mes))m+=f.total;if((f.fecha||'').startsWith(ano))a+=f.total;if(!f.cobrada){pend+=f.total;if(f.venc&&f.venc<hoy)venc++}});
+  $('rMes').textContent=eur(r2(m));$('rAno').textContent=eur(r2(a));$('rPend').textContent=eur(r2(pend));
+  $('rVenc').hidden=!venc;$('rVenc').textContent=venc+(venc>1?' vencidas':' vencida');$('rPendBox').className=venc?'rojo':'';
+  const L=d.facturas.slice().sort((x,y)=>(y.fecha||'').localeCompare(x.fecha||'')||y.num.localeCompare(x.num))
+    .filter(f=>filtro==='todas'||(filtro==='cob'?f.cobrada:!f.cobrada));
+  $('lista').innerHTML=L.length?L.map(f=>{const [c,t]=estado(f);return `<button class="item" data-n="${esc(f.num)}"><div class="ii"><b>${esc(f.cliente||'Sin cliente')}</b><small>Nº ${esc(f.num)} · ${fes(f.fecha)}</small></div><div class="im"><b>${eur(f.total)}</b><br><span class="est ${c}">${t}</span></div></button>`}).join('')
+    :`<div class="vacio">${d.facturas.length?'No hay facturas aquí.':'Aún no hay facturas guardadas.<br>Se guardan solas al tocar «Ver factura» cuando están completas.'}</div>`;
+  $('lista').querySelectorAll('.item').forEach(b=>b.onclick=()=>abrirAcc(b.dataset.n));
+  $('nSerie').value=d.serie;$('nSig').value=d.sig}
+$('misFac').onclick=()=>{if(!PREM())return pedirPrem();pintarMis();abrirCapa('capaFac')};
+$('cerrarMis').onclick=()=>cerrarCapa('capaFac');
+$('filt').querySelectorAll('button').forEach(b=>b.onclick=()=>{filtro=b.dataset.f;$('filt').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));pintarMis()});
+$('nSerie').onchange=()=>{const d=dbL();d.serie=$('nSerie').value.trim();dbG(d)};
+$('nSig').onchange=()=>{const d=dbL(),n=parseInt($('nSig').value,10);if(n>0){d.sig=n;dbG(d)}else $('nSig').value=d.sig};
+function abrirAcc(n){const f=dbL().facturas.find(x=>x.num===n);if(!f)return;sel=n;
+  $('accT').textContent=(f.cliente||'Sin cliente')+' · '+eur(f.total);$('accS').textContent='Nº '+f.num+' · '+fes(f.fecha)+(f.venc?' · vence '+fes(f.venc):'');
+  $('accCob').textContent=f.cobrada?'↩️ Marcar como por cobrar':'✅ Marcar como cobrada';abrirHoja('hojaAcc')}
+$('accNo').onclick=cerrarHojas;
+$('accCob').onclick=()=>{const d=dbL(),f=d.facturas.find(x=>x.num===sel);if(f){f.cobrada=!f.cobrada;dbG(d)}cerrarHojas();pintarMis()};
+$('accVer').onclick=()=>{const f=dbL().facturas.find(x=>x.num===sel);cerrarHojas();if(f)mostrar(f.D,false)};
+$('accDup').onclick=()=>{const d=dbL(),f=d.facturas.find(x=>x.num===sel);cerrarHojas();if(!f)return;const D=f.D;
+  $('fNum').value=numero(d,d.sig);$('fFecha').value=hoyISO();$('fVenc').value='';
+  $('cNom').value=D.cl.nom||'';$('cNif').value=D.cl.nif||'';$('cDir').value=D.cl.dir||'';
+  $('lineas').innerHTML='';D.ls.forEach(l=>linea(l.c,l.i?n2(l.i):''));if(!D.ls.length)linea();
+  iva=D.iva;marcar('iva',iva);setCli(D.cli||'emp');if(D.cli!=='part'&&D.irpf){irpf=D.irpf;marcar('irpf',irpf)}calc();
+  $('vencWrap').hidden=false;$('fac').classList.add('on');cerrarCapa('capaFac');setTimeout(()=>$('fac').scrollIntoView({behavior:'smooth'}),50);aviso('Copia lista con el nº '+$('fNum').value)};
+// ---- Exportar y copia de seguridad ----
+function descargar(nombre,contenido,tipo){const bl=new Blob([contenido],{type:tipo}),u=URL.createObjectURL(bl),a=document.createElement('a');a.href=u;a.download=nombre;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
+$('expCsv').onclick=()=>{const d=dbL(),q=x=>'"'+String(x==null?'':x).replace(/"/g,'""')+'"',n=x=>r2(x).toFixed(2).replace('.',',');
+  const rows=[['Número','Fecha','Vencimiento','Cliente','NIF cliente','Base','IVA %','IVA','IRPF %','IRPF','Total','Estado']];
+  d.facturas.slice().sort((x,y)=>(x.fecha||'').localeCompare(y.fecha||'')).forEach(f=>{const D=f.D,m=importes(D);
+    rows.push([f.num,fes(f.fecha),fes(f.venc),D.cl.nom,D.cl.nif,n(m.b),pf(D.iva),n(m.i),pf(D.irpf),n(m.p),n(m.t),f.cobrada?'Cobrada':'Por cobrar'])});
+  descargar('Facturas '+hoyISO()+'.csv','﻿'+rows.map(r=>r.map(q).join(';')).join('\r\n'),'text/csv;charset=utf-8')};
+$('copiaSeg').onclick=()=>{const d=dbL();let e={};try{e=JSON.parse(localStorage.getItem('ffe')||'{}')}catch(x){}
+  descargar('Copia Factura Facil '+hoyISO()+'.json',JSON.stringify({app:'facturafacil',v:1,fecha:new Date().toISOString(),db:d,emisor:e}),'application/json');aviso('Copia descargada')};
+$('restaurar').onchange=async ev=>{const fl=ev.target.files[0];ev.target.value='';if(!fl)return;
+  try{const j=JSON.parse(await fl.text());if(j.app!=='facturafacil'||!j.db)throw 0;
+    const d=dbL(),nums=new Set(d.facturas.map(f=>f.num));(j.db.facturas||[]).forEach(f=>{if(f&&f.num&&f.D&&!nums.has(f.num))d.facturas.push(f)});
+    (j.db.clientes||[]).forEach(c=>{if(c&&c.nom&&!d.clientes.some(x=>x.nom===c.nom&&x.nif===c.nif))d.clientes.push(c)});
+    d.sig=Math.max(d.sig,j.db.sig||1);if(dbG(d)){pintarMis();aviso('Copia recuperada')}}catch(e){aviso('Ese archivo no es una copia válida')}};
+// ---- Clientes guardados ----
+function pintarCli(){const d=dbL(),q=$('buscaCli').value.trim().toLowerCase();
+  const L=d.clientes.filter(c=>!q||(c.nom+' '+(c.nif||'')).toLowerCase().includes(q)).sort((a,b)=>a.nom.localeCompare(b.nom));
+  $('listaCli').innerHTML=L.length?L.map((c,k)=>`<button class="item" data-k="${d.clientes.indexOf(c)}"><div class="ii"><b>${esc(c.nom)}</b><small>${esc(c.nif||'')}${c.nif&&c.dir?' · ':''}${esc(c.dir||'')}</small></div></button>`).join('')
+    :`<div class="vacio">${d.clientes.length?'Ningún cliente coincide.':'Aún no hay clientes.<br>Se guardan solos al hacer una factura completa.'}</div>`;
+  $('listaCli').querySelectorAll('.item').forEach(b=>b.onclick=()=>{const c=dbL().clientes[+b.dataset.k];if(!c)return;
+    $('cNom').value=c.nom||'';$('cNif').value=c.nif||'';$('cDir').value=c.dir||'';if(c.cli)setCli(c.cli);cerrarCapa('capaCli');aviso('Cliente puesto')})}
+$('elegirCli').onclick=()=>{if(!PREM())return pedirPrem();$('buscaCli').value='';pintarCli();abrirCapa('capaCli')};
+$('buscaCli').oninput=pintarCli;
+$('cerrarCli').onclick=()=>cerrarCapa('capaCli');
+// ---- Compra en Microsoft Store (pendiente de probar en la app de Windows) ----
+async function tienda(){try{if(!('getDigitalGoodsService' in window))return null;return await window.getDigitalGoodsService('https://store.microsoft.com/billing')}catch(e){return null}}
+async function comprobarCompra(){const s=await tienda();if(!s)return;try{const c=await s.listPurchases();ls_('ffPrem',c.some(p=>p.itemId===PRODUCTO)?'1':'0');if(typeof verPrem==='function')verPrem()}catch(e){}}
+$('comprar').onclick=async()=>{const s=await tienda(),msg=$('premMsg');
+  if(!s||!window.PaymentRequest){msg.textContent='La compra se hace desde la app de Windows (Microsoft Store). Muy pronto también aquí.';msg.hidden=false;return}
+  try{const req=new PaymentRequest([{supportedMethods:'https://store.microsoft.com/billing',data:{sku:PRODUCTO}}],{total:{label:'Total',amount:{currency:'EUR',value:'0'}}});
+    const r=await req.show();await r.complete('success');await comprobarCompra();
+    if(PREM()){cerrarHojas();aviso('⭐ ¡Premium activado!');verPrem();prepPrem()}else{msg.textContent='No se ha completado la compra.';msg.hidden=false}}
+  catch(e){msg.textContent='No se ha completado la compra.';msg.hidden=false}};
+$('premNo').onclick=cerrarHojas;
+// Desbloqueo de PRUEBA para Ivan (quitar antes de vender): ?premium=prueba-ivan  /  ?premium=quitar
+(()=>{const q=new URLSearchParams(location.search).get('premium');if(q==='prueba-ivan'){ls_('ffPrem','1');aviso('Premium de prueba activado')}if(q==='quitar'){ls_('ffPrem','0');aviso('Premium de prueba quitado')}if(q)history.replaceState(null,'',location.pathname)})();
+comprobarCompra();
+// Mientras la compra no esté lista (VENTA=false), el Premium solo se ve en modo prueba
+const VENTA=false;
+function verPrem(){const v=VENTA||PREM();$('misFac').hidden=!v;$('elegirCli').hidden=!v}
+verPrem();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
