@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0F5C4D">
+<title>Factura Fácil · Facturas e IVA para autónomos</title>
+<meta name="description" content="Calcula IVA e IRPF y haz tus facturas en PDF en un minuto. Gratis, en español, desde el móvil o el PC.">
+<link rel="icon" href="../icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F8F7;--card:#fff;--txt:#10201B;--sub:#55665F;--line:#E3E9E6;--acc:#0F5C4D;--acc-h:#0B4A3E;--soft:#E5F2EE;--glow:#3FB896;--hero1:#0F5C4D;--hero2:#0A3F35}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1513;--card:#17201D;--txt:#EEF4F1;--sub:#A3B4AD;--line:#26322E;--acc:#3FB896;--acc-h:#5CCBAA;--soft:#1B2C27;--hero1:#0D3D33;--hero2:#08231E}}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+/* Barra */
+.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.3px}
+.logo img{width:34px;height:34px;border-radius:9px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;border-radius:14px;padding:13px 20px;font-size:16px;transition:transform .15s,background .15s}
+.btn:active{transform:scale(.97)}
+.btn-dark{background:var(--txt);color:var(--bg)}
+.btn-main{background:#fff;color:#0F5C4D;font-size:18px;padding:17px 28px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.btn-acc{background:var(--acc);color:#fff;font-size:18px;padding:17px 28px}
+@media (prefers-color-scheme:dark){.btn-acc{color:#08231E}}
+/* Hero */
+.hero{background:radial-gradient(1200px 500px at 80% -10%,rgba(63,184,150,.45),transparent 60%),linear-gradient(160deg,var(--hero1),var(--hero2));color:#fff;padding:56px 0 64px;overflow:hidden}
+.hero .wrap{display:grid;gap:40px;align-items:center}
+@media(min-width:860px){.hero .wrap{grid-template-columns:1.1fr .9fr}.hero{padding:88px 0}}
+.pill{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:7px 14px;border-radius:99px;font-weight:600;font-size:15px;margin-bottom:20px}
+h1{font-size:clamp(34px,8vw,56px);line-height:1.08;letter-spacing:-1.2px;font-weight:800;margin-bottom:18px}
+h1 em{font-style:normal;color:#8FE3C9}
+.hero p.lead{font-size:19px;color:rgba(255,255,255,.85);max-width:30em;margin-bottom:28px}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.hero .note{color:rgba(255,255,255,.8);font-weight:600;font-size:16px}
+/* Móvil de muestra */
+.phone{justify-self:center;width:280px;max-width:100%;background:#fff;color:#10201B;border-radius:34px;padding:22px 18px;box-shadow:0 30px 70px rgba(0,0,0,.35),0 0 0 8px rgba(255,255,255,.08);transform:rotate(2deg)}
+.phone .ph-t{font-weight:800;font-size:18px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.phone .ph-t img{width:26px;height:26px;border-radius:7px}
+.ph-in{background:#F4F6F5;border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.ph-in small{display:block;color:#55665F;font-size:14px;font-weight:600}
+.ph-in b{font-size:24px}
+.ph-row{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid #E3E9E6;font-size:16px}
+.ph-row span:first-child{color:#55665F}
+.ph-tot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;background:#0F5C4D;color:#fff;border-radius:14px;padding:13px 14px;font-weight:800;font-size:18px}
+.ph-btn{margin-top:12px;text-align:center;border:2px solid #0F5C4D;color:#0F5C4D;border-radius:14px;padding:10px;font-weight:700}
+/* Secciones */
+section{padding:64px 0}
+h2{font-size:clamp(28px,6vw,40px);line-height:1.15;letter-spacing:-.8px;font-weight:800;margin-bottom:12px;text-align:center}
+.sub{color:var(--sub);text-align:center;font-size:18px;max-width:34em;margin:0 auto 36px}
+.grid{display:grid;gap:16px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1000px){.grid.four{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px}
+.ico{width:48px;height:48px;border-radius:14px;background:var(--soft);color:var(--acc);display:grid;place-items:center;margin-bottom:14px}
+.ico svg{width:26px;height:26px}
+.card h3{font-size:20px;font-weight:800;margin-bottom:6px;letter-spacing:-.3px}
+.card p{color:var(--sub)}
+/* Pasos */
+.steps{counter-reset:s;display:grid;gap:16px}
+@media(min-width:800px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;position:relative}
+.step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--acc);color:#fff;font-weight:800;margin-bottom:14px}
+@media (prefers-color-scheme:dark){.step::before{color:#08231E}}
+.step h3{font-size:19px;font-weight:800;margin-bottom:4px}
+.step p{color:var(--sub)}
+/* Precios */
+.prices{display:grid;gap:16px;max-width:780px;margin:0 auto}
+@media(min-width:700px){.prices{grid-template-columns:1fr 1fr}}
+.price{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:28px}
+.price.best{border:2px solid var(--acc);position:relative}
+.price .tag{position:absolute;top:-14px;left:24px;background:var(--acc);color:#fff;font-weight:700;font-size:15px;padding:5px 12px;border-radius:99px}
+@media (prefers-color-scheme:dark){.price .tag{color:#08231E}}
+.price h3{font-size:22px;font-weight:800}
+.amount{font-size:44px;font-weight:800;letter-spacing:-1px;margin:6px 0 2px}
+.amount span{font-size:18px;color:var(--sub);font-weight:600;letter-spacing:0}
+.price .iva{color:var(--sub);margin-bottom:18px}
+.price ul{list-style:none;display:grid;gap:10px}
+.price li{display:flex;gap:10px;align-items:flex-start}
+.price li::before{content:"";flex:0 0 22px;height:22px;margin-top:2px;border-radius:50%;background:var(--soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233FB896' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/14px no-repeat}
+.compare{max-width:780px;margin:20px auto 0;text-align:center;background:var(--soft);border-radius:18px;padding:18px;font-weight:600}
+/* Preguntas */
+.faq{max-width:760px;margin:0 auto;display:grid;gap:12px}
+details{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+summary{font-weight:700;font-size:18px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:24px;line-height:1;color:var(--acc);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--sub);margin-top:10px}
+/* Final */
+.final{background:linear-gradient(160deg,var(--hero1),var(--hero2));color:#fff;border-radius:28px;padding:44px 24px;text-align:center}
+.final h2{color:#fff}
+.final p{color:rgba(255,255,255,.85);font-size:18px;margin-bottom:24px}
+footer{padding:32px 0 48px;color:var(--sub);text-align:center}
+footer a{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <a class="logo" href="#"><img src="../icon-192.png" alt="">Factura Fácil</a>
+  <a class="btn btn-dark" href="../">Abrir la app</a>
+</div></header>
+
+<div class="hero"><div class="wrap">
+  <div>
+    <span class="pill">Para autónomos en España</span>
+    <h1>Tus facturas, <em>en un minuto</em>.</h1>
+    <p class="lead">Calcula el IVA y el IRPF, haz la factura y envíala en PDF desde el móvil o el ordenador. Sin instalar nada.</p>
+    <div class="ctas">
+      <a class="btn btn-main" href="../">Empezar gratis →</a>
+      <span class="note">Sin registro · Sin tarjeta</span>
+    </div>
+  </div>
+  <div class="phone" aria-hidden="true">
+    <div class="ph-t"><img src="../icon-192.png" alt="">Factura Fácil</div>
+    <div class="ph-in"><small>Mi precio</small><b>1.000,00 €</b></div>
+    <div class="ph-row"><span>IVA 21 %</span><span>+210,00 €</span></div>
+    <div class="ph-row"><span>IRPF 15 %</span><span>−150,00 €</span></div>
+    <div class="ph-tot"><span>Total</span><span>1.060,00 €</span></div>
+    <div class="ph-btn">🧾 Hacer factura</div>
+  </div>
+</div></div>
+
+<section><div class="wrap">
+  <h2>Todo lo que necesitas, nada más</h2>
+  <p class="sub">Pensada para quien no quiere perder tiempo con programas complicados.</p>
+  <div class="grid four">
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h3M14 14h2M8 18h3M14 18h2"/></svg></div><h3>IVA e IRPF al momento</h3><p>Pon tu precio o lo que quieres cobrar y te sale el total exacto.</p></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></div><h3>Factura en PDF</h3><p>Rellenas tus datos y los del cliente, y la envías por WhatsApp o correo.</p></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.3A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></div><h3>En el móvil y en el PC</h3><p>Guarda tus facturas en la nube y ábrelas desde cualquier dispositivo.</p></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div><h3>Control de cobros</h3><p>Ve qué te han pagado, qué falta y qué está vencido. Excel por trimestre.</p></div>
+  </div>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <h2>Así de fácil</h2>
+  <p class="sub">Tres pasos y la factura está enviada.</p>
+  <div class="steps">
+    <div class="step"><h3>Pon el importe</h3><p>Elige el IVA y el IRPF que te toca.</p></div>
+    <div class="step"><h3>Rellena la factura</h3><p>Tus datos se guardan para la próxima vez.</p></div>
+    <div class="step"><h3>Envíala</h3><p>En PDF, por WhatsApp, correo o descargada.</p></div>
+  </div>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <h2>Precio claro</h2>
+  <p class="sub">Empieza gratis. Pásate a Premium solo si lo necesitas.</p>
+  <div class="prices">
+    <div class="price">
+      <h3>Gratis</h3>
+      <div class="amount">0 €</div>
+      <div class="iva">Para siempre</div>
+      <ul><li>Calculadora de IVA e IRPF</li><li>Facturas en PDF</li><li>Varios conceptos por factura</li><li>Enviar por WhatsApp o correo</li></ul>
+    </div>
+    <div class="price best">
+      <span class="tag">Más completo</span>
+      <h3>Premium</h3>
+      <div class="amount">4,99 €<span> /mes</span></div>
+      <div class="iva">IVA incluido · Cancela cuando quieras</div>
+      <ul><li>Todo lo de Gratis</li><li>Mis facturas, cobros y vencidas</li><li>Numeración automática</li><li>Clientes guardados y tu logo</li><li>Excel por trimestre</li><li>Nube en todos tus dispositivos</li></ul>
+    </div>
+  </div>
+  <div class="compare">Otros programas de facturación cuestan desde unos 18 € al mes.</div>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <h2>Preguntas frecuentes</h2>
+  <p class="sub">Lo que más nos preguntan.</p>
+  <div class="faq">
+    <details><summary>¿De verdad es gratis?</summary><p>Sí. La calculadora y las facturas en PDF son gratis para siempre, sin registro y sin tarjeta.</p></details>
+    <details><summary>¿Tengo que instalar algo?</summary><p>No. Funciona en el navegador del móvil o del PC. Si quieres, puedes añadirla a la pantalla de inicio. En Windows también está en Microsoft Store.</p></details>
+    <details><summary>¿Dónde se guardan mis facturas?</summary><p>En tu dispositivo. Con Premium, además, en la nube para verlas desde cualquier sitio.</p></details>
+    <details><summary>¿Si dejo de pagar Premium pierdo mis facturas?</summary><p>No. Puedes seguir viéndolas, descargarlas y exportarlas.</p></details>
+    <details><summary>¿Sirve si no soy autónomo?</summary><p>Está pensada para autónomos en España, pero la calculadora de IVA e IRPF sirve a cualquiera.</p></details>
+  </div>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <div class="final">
+    <h2>Haz tu primera factura ahora</h2>
+    <p>Gratis, en español y sin complicaciones.</p>
+    <a class="btn btn-main" href="../">Empezar gratis →</a>
+  </div>
+</div></section>
+
+<footer><div class="wrap">Factura Fácil · <a href="../privacidad.html">Privacidad</a></div></footer>
+</body>
+</html>
