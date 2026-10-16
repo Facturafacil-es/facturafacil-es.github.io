@@ -232,7 +232,7 @@ footer a{color:var(--sub)}
 
 <div class="capa" id="capaPanel">
   <div class="cbar"><button class="cerrar" id="cerrarPanel" aria-label="Volver">✕</button><h2>Panel</h2></div>
-  <div class="cin"><div class="res"><div><small>Usuarios</small><b id="pUs">–</b></div><div><small>Nuevos 7 días</small><b id="pNu">–</b></div><div><small>Con regalo</small><b id="pRe">–</b></div></div>
+  <div class="cin"><div class="res"><div><small>Usuarios</small><b id="pUs">–</b></div><div><small>Nuevos 7 días</small><b id="pNu">–</b></div><div><small>Gratis (VIP)</small><b id="pRe">–</b></div></div>
     <div id="pIng"></div>
     <div id="pLista"><div class="vacio">Cargando…</div></div></div>
 </div>
@@ -258,9 +258,6 @@ footer a{color:var(--sub)}
   <div id="nP3" hidden><p>Conectado con <b id="nYo"></b><br><span id="nEst"></span></p><div class="acc"><button class="copiar" id="nAct" style="margin:0">🔄 Actualizar ahora</button><button id="nSusc" hidden>⚙️ Gestionar mi suscripción</button><button id="nPanel" hidden>📊 Panel del propietario</button><button id="nSalir">Salir de la cuenta</button></div></div>
   <p id="nMsg" style="margin:10px 0 0" hidden></p></div>
 <div class="hoja2" id="hojaExp" role="dialog" aria-modal="true"><h3>⬇️ Exportar a Excel</h3><p>¿Qué periodo?</p><div id="expOps"></div><div class="acc"><button id="expNo">Cancelar</button></div></div>
-<div class="hoja2 prem" id="hojaRegalo" role="dialog" aria-modal="true"><h3>🎁 Tienes Premium gratis para siempre</h3>
-  <p>Por ser de los primeros. Esto es lo que incluye:</p><ul class="plista"></ul>
-  <div class="acc"><button class="copiar" id="regOk" style="margin:0">¡Genial!</button></div></div>
 <div class="hoja2" id="hojaInst" role="dialog" aria-modal="true"><h3>📲 Instala Factura Fácil</h3>
   <p>Tendrás su icono en la pantalla de inicio, como una app.</p><ol class="pasos" id="instPasos"></ol>
   <div class="acc"><button class="copiar" id="instOk" style="margin:0">Entendido</button></div></div>
@@ -525,10 +522,9 @@ $('enviar').onclick=async()=>{if(!FAC)return;
 
 // ================= PREMIUM =================
 const PRODUCTO='premium';
-// Regalo de lanzamiento: quien abra la app antes del 20-10-2026 (hora España) se queda el Premium gratis para siempre
-const FIN_REGALO=Date.parse('2026-10-20T00:00:00+02:00');
-if(ls_('ffRegalo')!=='1'&&Date.now()<FIN_REGALO){ls_('ffRegalo','1');ls_('ffRegaloAviso','1')}
-const PREM=()=>ls_('ffPrem')==='1'||ls_('ffRegalo')==='1'||ls_('ffPremCuenta')==='1';
+// El regalo de lanzamiento se quitó el 17-10-2026. Premium gratis: lista VIP por correo (tabla vip en Supabase)
+try{localStorage.removeItem('ffRegalo');localStorage.removeItem('ffRegaloAviso')}catch(e){}
+const PREM=()=>ls_('ffPrem')==='1'||ls_('ffPremCuenta')==='1';
 // Versión beta (facturafacil-es.github.io/beta/): prueba de la venta con pago web antes de pasarlo a la app normal
 const BETA=/\/beta\//.test(location.pathname);
 const CHECKOUT='https://buy.stripe.com/test_cNifZgeTBbOJ8YndJP5os00';
@@ -546,7 +542,7 @@ function dbG(d){d.t=new Date().toISOString();try{localStorage.setItem('ffDB',JSO
 const numero=(d,n)=>d.serie+String(n).padStart(3,'0'),numeroP=(d,n)=>d.pserie+String(n).padStart(3,'0');
 let tAv;function aviso(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(tAv);tAv=setTimeout(()=>e.hidden=true,2200)}
 function abrirHoja(id){$('velo').classList.add('on');$(id).classList.add('on')}
-function cerrarHojas(){$('velo').classList.remove('on');['hojaAcc','hojaPrem','hojaNube','hojaExp','hojaRegalo','hojaInst'].forEach(i=>$(i).classList.remove('on'))}
+function cerrarHojas(){$('velo').classList.remove('on');['hojaAcc','hojaPrem','hojaNube','hojaExp','hojaInst'].forEach(i=>$(i).classList.remove('on'))}
 $('velo').onclick=cerrarHojas;
 function abrirCapa(id){$(id).classList.add('on');$(id).scrollTop=0;document.body.style.overflow='hidden'}
 function cerrarCapa(id){$(id).classList.remove('on');if(!document.querySelector('.capa.on')&&!$('vista').classList.contains('on'))document.body.style.overflow=''}
@@ -695,7 +691,7 @@ const sesDe=j=>({at:j.access_token,rt:j.refresh_token,exp:Date.now()+((j.expires
 async function tokenOk(){if(!ses)throw new Error('sin sesión');if(Date.now()<ses.exp)return ses.at;
   try{guardaSes(sesDe(await sbF('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:JSON.stringify({refresh_token:ses.rt})})));return ses.at}
   catch(e){if(e.st===400||e.st===401){guardaSes(null);pintarNube();aviso('Vuelve a entrar en tu cuenta')}throw e}}
-function local(){let e={};try{e=JSON.parse(localStorage.getItem('ffe')||'{}')}catch(x){}return {app:'facturafacil',v:1,db:dbL(),emisor:e,emisorT:ls_('ffeT')||'',regalo:ls_('ffRegalo')==='1'}}
+function local(){let e={};try{e=JSON.parse(localStorage.getItem('ffe')||'{}')}catch(x){}return {app:'facturafacil',v:1,db:dbL(),emisor:e,emisorT:ls_('ffeT')||''}}
 function mezclar(L,R){const a=L.db,b=R.db||{},F=new Map();
   [...(b.facturas||[]),...a.facturas].forEach(f=>{if(!f||!f.num)return;const o=F.get(f.num);if(!o||(f.mod||f.guardada||'')>=(o.mod||o.guardada||''))F.set(f.num,f)});
   const P=new Map();[...(b.presupuestos||[]),...(a.presupuestos||[])].forEach(f=>{if(!f||!f.num)return;const o=P.get(f.num);if(!o||(f.mod||f.guardada||'')>=(o.mod||o.guardada||''))P.set(f.num,f)});
@@ -703,10 +699,10 @@ function mezclar(L,R){const a=L.db,b=R.db||{},F=new Map();
   const lNuevo=(a.t||'')>=(b.t||''),eL=Object.values(L.emisor||{}).some(Boolean),eR=Object.values(R.emisor||{}).some(Boolean);
   const usaL=eL&&(!eR||(L.emisorT||'')>=(R.emisorT||''));
   return {app:'facturafacil',v:1,db:{facturas:[...F.values()],clientes:C,serie:lNuevo||b.serie==null?a.serie:b.serie,sig:Math.max(a.sig||1,b.sig||1),presupuestos:[...P.values()],pserie:lNuevo||b.pserie==null?a.pserie:b.pserie,psig:Math.max(a.psig||1,b.psig||1),t:(a.t||'')>(b.t||'')?a.t:(b.t||a.t)},
-    emisor:usaL?L.emisor:(R.emisor||{}),emisorT:usaL?L.emisorT:(R.emisorT||''),regalo:!!(L.regalo||R.regalo)}}
+    emisor:usaL?L.emisor:(R.emisor||{}),emisorT:usaL?L.emisorT:(R.emisorT||'')}}
 function aplicar(M){try{localStorage.setItem('ffDB',JSON.stringify(M.db));localStorage.setItem('ffe',JSON.stringify(M.emisor||{}));if(M.emisorT)localStorage.setItem('ffeT',M.emisorT)}catch(e){}
   E.forEach(k=>{if(M.emisor&&M.emisor[k]&&!$(k).value)$(k).value=M.emisor[k]});cargarLogo();
-  if(M.regalo&&ls_('ffRegalo')!=='1')ls_('ffRegalo','1');verPrem();if($('capaFac').classList.contains('on'))pintarMis()}
+  verPrem();if($('capaFac').classList.contains('on'))pintarMis()}
 let syncVa=false,syncOtra=false,syncT=null,syncOk='';
 function pedirSync(){if(!ses)return;clearTimeout(syncT);syncT=setTimeout(sync,1500)}
 async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true;syncOtra=false;
@@ -715,7 +711,7 @@ async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true
     const L=local(),M=R?mezclar(L,R):L;aplicar(M);
     if(!R||JSON.stringify(M)!==JSON.stringify(R))await sbF('/rest/v1/copias',{method:'POST',headers:{...H,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:ses.uid,data:M})});
     if(BETA&&!finPrueba()){try{const u=await sbF('/auth/v1/user',{headers:H});const t0=Date.parse(u&&u.created_at);if(t0){ls_('ffPruebaFin',ses.uid+':'+(t0+PRUEBA_DIAS*864e5));verPrem();prepPrem()}}catch(e){}}
-    try{const c=await sbF('/rest/v1/suscripciones?select=estado&estado=in.(active,trialing,past_due)&limit=1',{headers:H});const t=Array.isArray(c)&&c.length>0;if(t!==(ls_('ffPremCuenta')==='1')){ls_('ffPremCuenta',t?'1':'0');verPrem();prepPrem()}}catch(e){}
+    try{const c=await sbF('/rest/v1/suscripciones?select=estado&estado=in.(active,trialing,past_due)&limit=1',{headers:H});let t=Array.isArray(c)&&c.length>0;if(!t){const v=await sbF('/rest/v1/vip?select=email&limit=1',{headers:H});t=Array.isArray(v)&&v.length>0}if(t!==(ls_('ffPremCuenta')==='1')){ls_('ffPremCuenta',t?'1':'0');verPrem();prepPrem()}}catch(e){}
     syncOk=new Date().toLocaleString('es-ES',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'});ls_('ffSyncPend','0')}
   catch(e){ls_('ffSyncPend','1')}
   finally{syncVa=false;pintarNube();if(syncOtra)pedirSync()}}
@@ -763,7 +759,7 @@ async function abrirPanel(){cerrarHojas();abrirCapa('capaPanel');$('pLista').inn
       I.map(x=>`<div class="item" style="cursor:default;display:block"><b>${esc(x.mes)} · ${x.ventas} ${x.ventas==1?'venta':'ventas'}</b><br><small>Cobrado ${eur(+x.bruto)} · IVA ${eur(+x.iva)} · comisión aprox. ${eur(+x.comision)} · para ti aprox. ${eur(+x.neto)}</small></div>`).join('')
       :'<div class="vacio" style="padding:10px">Aún no hay ventas.'+(j.pruebas?' ('+j.pruebas+' de prueba)':'')+'</div>');
     const fd=x=>x?new Date(x).toLocaleDateString('es-ES'):'—';
-    $('pLista').innerHTML=(j.lista||[]).length?j.lista.map(u=>`<div class="item" style="cursor:default"><div class="ii"><b>${esc(u.email)}</b><small>Alta ${fd(u.alta)} · última vez ${fd(u.ultima)}${u.regalo?' · 🎁':''}${u.pagado?' · ⭐':''} · ${u.facturas} facturas</small></div></div>`).join(''):'<div class="vacio">Aún no hay usuarios.</div>'}
+    $('pLista').innerHTML=(j.lista||[]).length?j.lista.map(u=>`<div class="item" style="cursor:default"><div class="ii"><b>${esc(u.email)}</b><small>Alta ${fd(u.alta)} · última vez ${fd(u.ultima)}${u.regalo?' · VIP':''}${u.pagado?' · ⭐':''} · ${u.facturas} facturas</small></div></div>`).join(''):'<div class="vacio">Aún no hay usuarios.</div>'}
   catch(e){$('pLista').innerHTML='<div class="vacio">No se ha podido cargar el panel.</div>'}}
 $('nPanel').onclick=abrirPanel;
 $('nSusc').onclick=()=>{location.href=PORTAL+'?prefilled_email='+encodeURIComponent(ses?ses.email:'')};$('cerrarPanel').onclick=()=>cerrarCapa('capaPanel');
@@ -775,8 +771,7 @@ if(new URLSearchParams(location.search).get('pagado')==='1'){history.replaceStat
 // Lista de lo que incluye Premium (una sola lista para todas las pantallas)
 const PLISTA=['📁 Todas tus facturas guardadas, para volver a descargarlas','📊 Lo facturado este mes y este año, y lo que te deben','✅ Cobradas, por cobrar y vencidas','🔢 Numeración automática, sin saltos','👥 Clientes guardados: elegir con un toque','📝 Presupuestos guardados: conviértelos en factura con un toque','🎨 Tu logo y tu color en facturas y presupuestos, sin publicidad','📄 Duplicar una factura en otra nueva','⬇️ Excel por trimestre para tu gestor','☁️ En la nube: en cualquier dispositivo, sin perderlas'];
 document.querySelectorAll('.plista').forEach(u=>u.innerHTML=PLISTA.map(t=>'<li>'+esc(t)+'</li>').join(''));
-$('regOk').onclick=cerrarHojas;
-if(ls_('ffRegaloAviso')==='1'){ls_('ffRegaloAviso','0');setTimeout(()=>abrirHoja('hojaRegalo'),600)}
+
 // ---- Botón Instalar app (de momento solo en la beta) ----
 let instEv=null;const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
 const verInst=()=>{$('instalar').hidden=!BETA||APP};verInst();
