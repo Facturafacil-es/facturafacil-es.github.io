@@ -390,7 +390,10 @@ $('enviar').onclick=async()=>{if(!FAC)return;
 
 // ================= PREMIUM =================
 const PRODUCTO='premium';
-const PREM=()=>ls_('ffPrem')==='1';
+// Regalo de lanzamiento: quien abra la app antes del 20-10-2026 (hora España) se queda el Premium gratis para siempre
+const FIN_REGALO=Date.parse('2026-10-20T00:00:00+02:00');
+if(ls_('ffRegalo')!=='1'&&Date.now()<FIN_REGALO){ls_('ffRegalo','1');ls_('ffRegaloAviso','1')}
+const PREM=()=>ls_('ffPrem')==='1'||ls_('ffRegalo')==='1';
 function dbL(){try{const d=JSON.parse(localStorage.getItem('ffDB')||'{}');return {clientes:d.clientes||[],facturas:d.facturas||[],serie:d.serie!=null?d.serie:String(new Date().getFullYear())+'-',sig:d.sig||1}}catch(e){return {clientes:[],facturas:[],serie:new Date().getFullYear()+'-',sig:1}}}
 function dbG(d){try{localStorage.setItem('ffDB',JSON.stringify(d));return true}catch(e){aviso('No se ha podido guardar: memoria llena');return false}}
 const numero=(d,n)=>d.serie+String(n).padStart(3,'0');
@@ -486,6 +489,7 @@ comprobarCompra();
 const VENTA=false;
 function verPrem(){const v=VENTA||PREM();$('misFac').hidden=!v;$('elegirCli').hidden=!v}
 verPrem();
+if(ls_('ffRegaloAviso')==='1'){ls_('ffRegaloAviso','0');setTimeout(()=>{const e=$('toast');aviso('🎁 Regalo de lanzamiento: Premium gratis para siempre');clearTimeout(tAv);tAv=setTimeout(()=>e.hidden=true,5000)},600)}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
