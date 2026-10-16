@@ -111,7 +111,8 @@ footer a{color:var(--sub)}
 @media print{body{background:#fff;color:#000;padding:0;display:block}main,.vbar,.falta{display:none!important}#vista{display:block!important;position:static;background:#fff;padding:0;overflow:visible}.papel{box-shadow:none;margin:0;width:auto;max-width:none}#hoja{padding:16mm!important;font-size:12pt!important}#hoja h1{font-size:26pt!important}#hoja .tot{width:60%!important;min-width:280px!important}#hoja .tot .g{font-size:15pt!important}}
 #hoja{font:12pt/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:#000;padding:16mm;max-width:190mm;margin:0 auto}
 #hoja h1{font-size:26pt;color:#0F5C4D;margin:0 0 4px}
-#hoja .cab{display:flex;justify-content:space-between;gap:20px;margin-bottom:22px}
+#hoja .cab{display:flex;justify-content:space-between;gap:20px;margin-bottom:22px}#hoja .logo{max-width:170px;max-height:64px;object-fit:contain}
+#logoTiene{display:flex;align-items:center;gap:14px;margin:0 0 8px}#logoPrev{max-width:120px;max-height:48px;object-fit:contain;background:#fff;border-radius:6px;padding:4px;border:1px solid var(--line)}
 #hoja .caja{flex:1}#hoja .caja small{display:block;color:#666;font-size:9pt;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
 #hoja table{width:100%;border-collapse:collapse;margin:14px 0}
 #hoja th{text-align:left;font-size:9pt;color:#666;text-transform:uppercase;border-bottom:2px solid #0F5C4D;padding:6px 0}
@@ -166,6 +167,7 @@ footer a{color:var(--sub)}
   <input id="eNif" placeholder="NIF">
   <input id="eDir" placeholder="Dirección">
   <input id="eIban" placeholder="IBAN para el pago (opcional)">
+  <div id="logoWrap" hidden><button class="pbtn" id="logoBtn">🖼️ Añadir el logo de tu empresa</button><div id="logoTiene" hidden><img id="logoPrev" alt="Tu logo"><button class="mas" id="logoCambiar">Cambiar</button><button class="mas" id="logoQuitar">Quitar</button></div><input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp" hidden></div>
   <h3>Cliente</h3>
   <button class="pbtn" id="elegirCli">👥 Elegir cliente guardado</button>
   <input id="cNom" placeholder="Nombre o empresa">
@@ -247,25 +249,28 @@ function wch(code,bold){const t=bold?BW:HW;if(code>=32&&code<=126)return t[code-
 function width(s,size,bold){const e=enc(s);let w=0;for(let i=0;i<e.length;i++)w+=wch(e.charCodeAt(i),bold);return w*size/1000}
 function esc(e){return e.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')}
 function wrap(s,size,bold,max){const out=[];String(s||'').split('\n').forEach(par=>{let line='';par.split(/\s+/).filter(Boolean).forEach(w=>{const t=line?line+' '+w:w;if(width(t,size,bold)<=max||!line)line=t;else{out.push(line);line=w}});out.push(line)});return out}
-function Doc(){const H=841.89;let c='';const col=(r,g,b)=>(r/255).toFixed(3)+' '+(g/255).toFixed(3)+' '+(b/255).toFixed(3);
+function Doc(){const H=841.89;let c='',im=null;const col=(r,g,b)=>(r/255).toFixed(3)+' '+(g/255).toFixed(3)+' '+(b/255).toFixed(3);
   return{H,
     text(s,x,y,o={}){const size=o.size||11,bold=!!o.bold,e=enc(s);let xx=x;if(o.align==='right')xx=x-width(s,size,bold);
       c+='BT '+col(...(o.color||[20,32,28]))+' rg /'+(bold?'F2':'F1')+' '+size+' Tf '+xx.toFixed(2)+' '+(H-y).toFixed(2)+' Td ('+esc(e)+') Tj ET\n'},
     rot(s,cx,cy,size,deg,color){const a=deg*Math.PI/180,co=Math.cos(a),si=Math.sin(a),w=width(s,size,true),hh=size*0.35;
       const px=cx-(w/2*co-hh*si),py=(H-cy)-(w/2*si+hh*co);
       c+='BT '+col(...color)+' rg /F2 '+size+' Tf '+[co,si,-si,co,px,py].map(n=>n.toFixed(3)).join(' ')+' Tm ('+esc(enc(s))+') Tj ET\n'},
+    img(bin,w,h,x,y,dw,dh){im={bin,w,h};c+='q '+dw.toFixed(2)+' 0 0 '+dh.toFixed(2)+' '+x.toFixed(2)+' '+(H-y-dh).toFixed(2)+' cm /Im1 Do Q\n'},
     line(x1,y1,x2,y2,w,color){c+=col(...color)+' RG '+w+' w '+x1.toFixed(2)+' '+(H-y1).toFixed(2)+' m '+x2.toFixed(2)+' '+(H-y2).toFixed(2)+' l S\n'},
     out(){const objs=['<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>',
+      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 5 0 R /F2 6 0 R >>'+(im?' /XObject << /Im1 7 0 R >>':'')+' >> /Contents 4 0 R >>',
       '<< /Length '+c.length+' >>\nstream\n'+c+'endstream',
       '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
       '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>'];
+      if(im)objs.push('<< /Type /XObject /Subtype /Image /Width '+im.w+' /Height '+im.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.bin.length+' >>\nstream\n'+im.bin+'\nendstream');
       let s='%PDF-1.4\n%\xe2\xe3\xcf\xd3\n';const off=[];objs.forEach((o,i)=>{off.push(s.length);s+=(i+1)+' 0 obj\n'+o+'\nendobj\n'});
       const x=s.length;s+='xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n'+off.map(n=>String(n).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size '+(objs.length+1)+' /Root 1 0 R >>\nstartxref\n'+x+'\n%%EOF';
       const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i)&255;return u}}}
 // F = {titulo,num,fecha,em:{nom,nif,dir},cl:{nom,nif,dir},ls:[{c,q,p,i}],det,fq,tot:[[etiqueta,valor]],total,pies:[],borr}
 window.facturaPDF=function(F,eur){const d=Doc(),G=[15,92,77],GR=[102,102,102],L=50,R=545;
   if(F.borr)d.rot('BORRADOR',297,421,96,30,[246,218,214]);
+  if(F.logo&&F.logo.d){try{const b=atob(F.logo.d.split(',')[1]),k=Math.min(170/F.logo.w,64/F.logo.h);d.img(b,F.logo.w,F.logo.h,R-F.logo.w*k,52,F.logo.w*k,F.logo.h*k)}catch(e){}}
   d.text(F.titulo,L,82,{size:26,bold:true,color:G});let y=108;
   if(F.num){d.text('Nº '+F.num,L,y);y+=16}if(F.fecha){d.text('Fecha: '+F.fecha,L,y);y+=16}
   y+=26;const col=(lab,p,x)=>{let yy=y;d.text(lab,x,yy,{size:8,color:GR});yy+=16;
@@ -349,6 +354,20 @@ calc();$('imp').focus();
 const num=aNum;
 const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const E=['eNom','eNif','eDir','eIban','fExento'];
+// Logo de la empresa (Premium): {d: imagen JPEG en texto, w, h}
+let LOGO=null;
+function cargarLogo(){try{const g=JSON.parse(localStorage.getItem('ffe')||'{}');LOGO=g.eLogo&&g.eLogo.d?g.eLogo:null}catch(e){LOGO=null}pintarLogo()}
+function pintarLogo(){if(!$('logoWrap'))return;const ok=typeof PUEDE==='function'&&(PUEDE()||VENTA);$('logoWrap').hidden=!ok;
+  $('logoBtn').hidden=!!LOGO;$('logoTiene').hidden=!LOGO;if(LOGO)$('logoPrev').src=LOGO.d}
+function guardarLogo(){try{const g=JSON.parse(localStorage.getItem('ffe')||'{}');if(LOGO)g.eLogo=LOGO;else delete g.eLogo;localStorage.setItem('ffe',JSON.stringify(g));localStorage.setItem('ffeT',new Date().toISOString());if(typeof pedirSync==='function')pedirSync()}catch(e){aviso('No se ha podido guardar el logo')}}
+function elegirLogo(){if(!PUEDE())return pedirPrem(BETA&&!!ses);$('logoFile').click()}
+$('logoBtn').onclick=elegirLogo;$('logoCambiar').onclick=elegirLogo;
+$('logoQuitar').onclick=()=>{LOGO=null;guardarLogo();pintarLogo()};
+$('logoFile').onchange=ev=>{const f=ev.target.files[0];ev.target.value='';if(!f)return;if(f.size>8e6)return aviso('La imagen es demasiado grande');
+  const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{const k=Math.min(1,400/im.width,160/im.height),w=Math.max(1,Math.round(im.width*k)),h=Math.max(1,Math.round(im.height*k));
+    const cv=document.createElement('canvas');cv.width=w;cv.height=h;const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(im,0,0,w,h);
+    LOGO={d:cv.toDataURL('image/jpeg',0.85),w,h};URL.revokeObjectURL(u);guardarLogo();pintarLogo();aviso('✓ Logo añadido a tus facturas')};
+  im.onerror=()=>{URL.revokeObjectURL(u);aviso('Esa imagen no se puede usar')};im.src=u};
 const fq=q=>String(r2(q)).replace('.',',');
 function linImp(d){const q=d.querySelector('.lq').value.trim(),qq=q===''?1:num(q),pp=num(d.querySelector('.lp').value);const i=r2(qq*pp);d.querySelector('.li').textContent=pp?eur(i):'';return {q:qq,p:pp,i}}
 function linea(c='',pr='',q='1'){const d=document.createElement('div');d.className='lin';
@@ -370,16 +389,16 @@ $('verVarios').onclick=()=>{setVarios(true);setTimeout(()=>{const L=$('lineas').
 $('masLin').onclick=()=>{linea().querySelector('.lc').focus()};
 $('irConc').onclick=()=>$('varios').scrollIntoView({behavior:'smooth',block:'center'});
 $('abrirFac').onclick=()=>{
-  prepPrem();
+  prepPrem();cargarLogo();
   try{const g=JSON.parse(localStorage.getItem('ffe')||'{}');E.forEach(k=>{if(g[k]&&!$(k).value)$(k).value=g[k]})}catch(e){}
   if(!$('fFecha').value){const d=new Date();$('fFecha').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
   $('fac').classList.add('on');$('fac').scrollIntoView({behavior:'smooth'})};
 $('cerrarFac').onclick=()=>{$('fac').classList.remove('on');window.scrollTo({top:0,behavior:'smooth'})};
 // ---- Leer formulario y mostrar factura ----
 function leerForm(){
-  const g={};E.forEach(k=>g[k]=$(k).value.trim());try{const o=localStorage.getItem('ffe');const n=JSON.stringify(g);if(o!==n){localStorage.setItem('ffe',n);localStorage.setItem('ffeT',new Date().toISOString());if(typeof pedirSync==='function')pedirSync()}}catch(e){}
+  const g={};E.forEach(k=>g[k]=$(k).value.trim());if(LOGO)g.eLogo=LOGO;try{const o=localStorage.getItem('ffe');const n=JSON.stringify(g);if(o!==n){localStorage.setItem('ffe',n);localStorage.setItem('ffeT',new Date().toISOString());if(typeof pedirSync==='function')pedirSync()}}catch(e){}
   const v=id=>$(id).value.trim();
-  return {num:v('fNum'),fecha:v('fFecha'),venc:v('fVenc'),em:{nom:g.eNom,nif:g.eNif,dir:g.eDir,iban:g.eIban},
+  return {num:v('fNum'),fecha:v('fFecha'),venc:v('fVenc'),em:{nom:g.eNom,nif:g.eNif,dir:g.eDir,iban:g.eIban,logo:LOGO&&PUEDE()?LOGO:null},
     cl:{nom:v('cNom'),nif:v('cNif'),dir:v('cDir')},
     ls:varios?[...$('lineas').children].map(d=>({c:d.querySelector('.lc').value.trim(),...linImp(d)})).filter(l=>l.c||l.i):(()=>{const b=calc().b,c=v('fConc');return b||c?[{c,q:1,p:b,i:b}]:[]})(),
     iva,irpf:IR(),cli,exento:iva===0?g.fExento:''}}
@@ -397,14 +416,14 @@ function mostrar(D,guardar){
   $('falta').innerHTML=borr?'<b>Borrador: '+(falta.length>1?'faltan '+falta.length+' datos':'falta 1 dato')+'</b>'+esc(falta.join(', '))+'.':'';
   const pies=[D.exento||'',D.em.iban?'Forma de pago: transferencia a '+D.em.iban:'',D.venc?'Vencimiento: '+fes(D.venc):''].filter(Boolean);
   const tot=[['Base imponible',eur(b)],[D.iva?'IVA '+pf(D.iva)+' %':'IVA (exento)',eur(i)]].concat(D.irpf?[['Retención IRPF '+pf(D.irpf)+' %','-'+eur(p)]]:[]);
-  $('hoja').innerHTML=(borr?'<div class="marca" aria-hidden="true"><span>BORRADOR</span></div>':'')+`<div class="cab"><div><h1>${borr?'Borrador de factura':'Factura'}</h1>${D.num?'Nº '+esc(D.num):''}${f?'<br>Fecha: '+f:''}</div></div>
+  $('hoja').innerHTML=(borr?'<div class="marca" aria-hidden="true"><span>BORRADOR</span></div>':'')+`<div class="cab"><div><h1>${borr?'Borrador de factura':'Factura'}</h1>${D.num?'Nº '+esc(D.num):''}${f?'<br>Fecha: '+f:''}</div>${D.em.logo&&D.em.logo.d&&/^data:image\/jpeg;base64,/.test(D.em.logo.d)?'<img class="logo" alt="" src="'+D.em.logo.d+'">':''}</div>
   <div class="cab"><div class="caja"><small>Emisor</small><b>${esc(D.em.nom)}</b><br>${D.em.nif?'NIF: '+esc(D.em.nif)+'<br>':''}${br(D.em.dir)}</div>
   <div class="caja"><small>Cliente</small><b>${esc(D.cl.nom)}</b><br>${D.cl.nif?'NIF: '+esc(D.cl.nif)+'<br>':''}${br(D.cl.dir)}</div></div>
   <table>${det?'<tr><th>Concepto</th><th class="d">Cant.</th><th class="d">Precio</th><th class="d">Importe</th></tr>':'<tr><th>Concepto</th><th class="d">Importe</th></tr>'}${D.ls.map(l=>`<tr><td>${esc(l.c)}</td>${det?`<td class="d">${fq(l.q!=null?l.q:1)}</td><td class="d">${eur(l.p!=null?l.p:l.i)}</td>`:''}<td class="d">${eur(l.i)}</td></tr>`).join('')}</table>
   <div class="tot">${tot.map(([x,y])=>`<div><span>${esc(x)}</span><span>${esc(y).replace(/^-/,'−')}</span></div>`).join('')}
   <div class="g"><span>Total</span><span>${eur(t)}</span></div></div>
   ${pies.map(x=>`<div class="pie">${esc(x)}</div>`).join('')}`;
-  FAC={titulo:borr?'Borrador de factura':'Factura',num:D.num,fecha:f,borr,em:D.em,cl:D.cl,ls:D.ls,det,fq,tot,total:eur(t),pies};
+  FAC={logo:D.em.logo||null,titulo:borr?'Borrador de factura':'Factura',num:D.num,fecha:f,borr,em:D.em,cl:D.cl,ls:D.ls,det,fq,tot,total:eur(t),pies};
   $('vista').classList.add('on');$('vista').scrollTop=0;document.body.style.overflow='hidden';
   if(guardar){ls_('ffN',(+ls_('ffN')||0)+1);if(!borr&&BETA&&!PUEDE(D.num)&&ses&&!PREM()){avisoFin=true}
   if(!borr&&BETA&&!ses&&!PREM()&&ls_('ffNubeAv1')!=='1')avisoNube=1;
@@ -456,7 +475,7 @@ function pedirPrem(fin){$('premMsg').hidden=true;
   $('premSub').textContent=BETA?(fin===true?'Has usado tus '+PRUEBA_N+' facturas de prueba. Sigue con Premium por 4,99 € al mes. Cancela cuando quieras; tus facturas guardadas no se pierden.':'4,99 € al mes · cancela cuando quieras.'):'Para quien factura a menudo.';
   $('premProbar').hidden=!(BETA&&!ses);abrirHoja('hojaPrem')}
 // Preparar el formulario de factura
-function prepPrem(){const p=PUEDE();$('vencWrap').hidden=!p;
+function prepPrem(){const p=PUEDE();pintarLogo();$('vencWrap').hidden=!p;
   if(!p){if(BETA&&ses){const cur=$('fNum').value.trim();if(cur&&dbL().facturas.some(f=>f.num===cur)){['fNum','cNom','cNif','cDir','fVenc','fConc'].forEach(k=>$(k).value='')}}return}const d=dbL(),cur=$('fNum').value.trim();
   if(!cur||d.facturas.some(f=>f.num===cur)){ // factura nueva
     $('fNum').value=numero(d,d.sig);['cNom','cNif','cDir','fVenc','fConc'].forEach(k=>$(k).value='')}}
@@ -575,7 +594,7 @@ function mezclar(L,R){const a=L.db,b=R.db||{},F=new Map();
   return {app:'facturafacil',v:1,db:{facturas:[...F.values()],clientes:C,serie:lNuevo||b.serie==null?a.serie:b.serie,sig:Math.max(a.sig||1,b.sig||1),t:(a.t||'')>(b.t||'')?a.t:(b.t||a.t)},
     emisor:usaL?L.emisor:(R.emisor||{}),emisorT:usaL?L.emisorT:(R.emisorT||''),regalo:!!(L.regalo||R.regalo)}}
 function aplicar(M){try{localStorage.setItem('ffDB',JSON.stringify(M.db));localStorage.setItem('ffe',JSON.stringify(M.emisor||{}));if(M.emisorT)localStorage.setItem('ffeT',M.emisorT)}catch(e){}
-  E.forEach(k=>{if(M.emisor&&M.emisor[k]&&!$(k).value)$(k).value=M.emisor[k]});
+  E.forEach(k=>{if(M.emisor&&M.emisor[k]&&!$(k).value)$(k).value=M.emisor[k]});cargarLogo();
   if(M.regalo&&ls_('ffRegalo')!=='1')ls_('ffRegalo','1');verPrem();if($('capaFac').classList.contains('on'))pintarMis()}
 let syncVa=false,syncOtra=false,syncT=null,syncOk='';
 function pedirSync(){if(!ses)return;clearTimeout(syncT);syncT=setTimeout(sync,1500)}
@@ -641,7 +660,7 @@ if(new URLSearchParams(location.search).get('pagado')==='1'){history.replaceStat
   (async()=>{aviso('Comprobando el pago…');for(let k=0;k<10&&ses;k++){await sync();if(ls_('ffPremCuenta')==='1'){aviso('⭐ ¡Premium activado! Gracias');return}await new Promise(r=>setTimeout(r,3000))}
     aviso('El pago tarda en confirmarse. Vuelve a abrir la app en un rato.')})()}
 // Lista de lo que incluye Premium (una sola lista para todas las pantallas)
-const PLISTA=['📁 Todas tus facturas guardadas, para volver a descargarlas','📊 Lo facturado este mes y este año, y lo que te deben','✅ Cobradas, por cobrar y vencidas','🔢 Numeración automática, sin saltos','👥 Clientes guardados: elegir con un toque','📄 Duplicar una factura en otra nueva','⬇️ Excel por trimestre para tu gestor','☁️ En la nube: en cualquier dispositivo, sin perderlas'];
+const PLISTA=['📁 Todas tus facturas guardadas, para volver a descargarlas','📊 Lo facturado este mes y este año, y lo que te deben','✅ Cobradas, por cobrar y vencidas','🔢 Numeración automática, sin saltos','👥 Clientes guardados: elegir con un toque','🖼️ El logo de tu empresa en tus facturas','📄 Duplicar una factura en otra nueva','⬇️ Excel por trimestre para tu gestor','☁️ En la nube: en cualquier dispositivo, sin perderlas'];
 document.querySelectorAll('.plista').forEach(u=>u.innerHTML=PLISTA.map(t=>'<li>'+esc(t)+'</li>').join(''));
 $('regOk').onclick=cerrarHojas;
 if(ls_('ffRegaloAviso')==='1'){ls_('ffRegaloAviso','0');setTimeout(()=>abrirHoja('hojaRegalo'),600)}
