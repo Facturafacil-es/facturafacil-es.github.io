@@ -219,7 +219,7 @@ addEventListener('appinstalled',()=>{b.hidden=true});
 b.onclick=async()=>{
   if(/Windows/.test(navigator.userAgent)){open('https://apps.microsoft.com/detail/9PNWP85KLVJN','_blank');return}
   if(ev){ev.prompt();try{const r=await ev.userChoice;if(r.outcome==='accepted')b.hidden=true}catch(e){}ev=null;return}
-  $('instPasos').innerHTML=(IOS?['Pulsa el botón ··· de Safari (abajo a la derecha).','Pulsa «Compartir» ⬆️.','Baja y pulsa «Añadir a pantalla de inicio» y luego «Añadir».']
+  $('instPasos').innerHTML=(IOS?['Pulsa el botón de menú de Safari ☰, abajo junto a la dirección.','Pulsa «Compartir» ⬆️.','Baja y pulsa «Añadir a pantalla de inicio» y luego «Añadir».']
     :['Abre el menú del navegador (⋮).','Pulsa «Instalar app» o «Añadir a pantalla de inicio».','Confirma. ¡Listo!']).map(t=>'<li>'+t+'</li>').join('');
   $('hojaInst').hidden=false};
 $('instOk').onclick=()=>{$('hojaInst').hidden=true};$('hojaInst').onclick=e=>{if(e.target.id==='hojaInst')$('hojaInst').hidden=true};
