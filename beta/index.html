@@ -438,7 +438,7 @@ if(ls_('ffRegalo')!=='1'&&Date.now()<FIN_REGALO){ls_('ffRegalo','1');ls_('ffRega
 const PREM=()=>ls_('ffPrem')==='1'||ls_('ffRegalo')==='1'||ls_('ffPremCuenta')==='1';
 // Versión beta (facturafacil-es.github.io/beta/): prueba de la venta con pago web antes de pasarlo a la app normal
 const BETA=/\/beta\//.test(location.pathname);
-const CHECKOUT='';// enlace de pago de Stripe (modo prueba)
+const CHECKOUT='https://buy.stripe.com/test_cNifZgeTBbOJ8YndJP5os00';// enlace de pago de Stripe (modo prueba)
 // Prueba gratis en la beta: con cuenta, 2 facturas Premium guardadas sin pagar
 const PRUEBA_N=2;
 const PRUEBA=num=>BETA&&!!ses&&!PREM()&&(dbL().facturas.length<PRUEBA_N||(num!=null&&dbL().facturas.some(f=>f.num===num)));
@@ -584,7 +584,7 @@ async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true
     const rows=await sbF('/rest/v1/copias?select=data',{headers:H});const R=rows&&rows[0]&&rows[0].data;
     const L=local(),M=R?mezclar(L,R):L;aplicar(M);
     if(!R||JSON.stringify(M)!==JSON.stringify(R))await sbF('/rest/v1/copias',{method:'POST',headers:{...H,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:ses.uid,data:M})});
-    try{const c=await sbF('/rest/v1/compras?select=estado&estado=eq.pagado&limit=1',{headers:H});const t=Array.isArray(c)&&c.length>0;if(t!==(ls_('ffPremCuenta')==='1')){ls_('ffPremCuenta',t?'1':'0');verPrem();prepPrem()}}catch(e){}
+    try{const c=await sbF('/rest/v1/suscripciones?select=estado&estado=in.(active,trialing,past_due)&limit=1',{headers:H});const t=Array.isArray(c)&&c.length>0;if(t!==(ls_('ffPremCuenta')==='1')){ls_('ffPremCuenta',t?'1':'0');verPrem();prepPrem()}}catch(e){}
     syncOk=new Date().toLocaleString('es-ES',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'});ls_('ffSyncPend','0')}
   catch(e){ls_('ffSyncPend','1')}
   finally{syncVa=false;pintarNube();if(syncOtra)pedirSync()}}
