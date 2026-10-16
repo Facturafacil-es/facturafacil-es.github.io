@@ -224,7 +224,7 @@ footer a{color:var(--sub)}
 <div class="hoja2 prem" id="hojaPrem" role="dialog" aria-modal="true"><h3>⭐ Factura Fácil Premium</h3>
   <p id="premSub">Para quien factura a menudo.</p>
   <ul class="plista"></ul>
-  <div class="acc"><button class="copiar" id="comprar" style="margin:0">Desbloquear Premium</button><button id="premProbar" hidden>Probar gratis: 2 facturas</button><button id="premNo">Ahora no</button></div>
+  <div class="acc"><button class="copiar" id="comprar" style="margin:0">Desbloquear Premium</button><button class="copiar" id="comprarAnual" style="margin:0" hidden>Anual · 39,99 € (ahorras 33 %)</button><button id="premProbar" hidden>Probar Premium gratis 14 días</button><button id="premNo">Ahora no</button></div>
   <p id="premMsg" style="margin-top:10px" hidden></p></div>
 <div class="hoja2" id="hojaNube" role="dialog" aria-modal="true"><h3 id="nTit">☁️ Tus facturas en la nube</h3>
   <div id="nP1"><p id="nTxt"></p><input id="nEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"><div class="acc"><button class="copiar" id="nEnviar" style="margin:0">Guardar en la nube</button><button id="nNo">Ahora no</button></div></div>
@@ -427,7 +427,7 @@ function mostrar(D,guardar){
   $('vista').classList.add('on');$('vista').scrollTop=0;document.body.style.overflow='hidden';
   if(guardar){ls_('ffN',(+ls_('ffN')||0)+1);if(!borr&&BETA&&!PUEDE(D.num)&&ses&&!PREM()){avisoFin=true}
   if(!borr&&BETA&&!ses&&!PREM()&&ls_('ffNubeAv1')!=='1')avisoNube=1;
-  if(PUEDE(D.num)&&!borr){const prueba=!PREM();guardarFactura(D,t);aviso(prueba?'✓ Factura de prueba '+Math.min(dbL().facturas.length,PRUEBA_N)+' de '+PRUEBA_N+' guardada':'✓ Guardada en Mis facturas');if(!ses){const n=dbL().facturas.length;if((n>=1&&ls_('ffNubeAv1')!=='1')||(n>=5&&ls_('ffNubeAv5')!=='1'))avisoNube=n>=5?5:1}}}}
+  if(PUEDE(D.num)&&!borr){const prueba=!PREM();guardarFactura(D,t);aviso(prueba&&enPrueba()?'✓ Guardada · Prueba Premium: '+(diasPrueba()===1?'queda 1 día':'quedan '+diasPrueba()+' días'):'✓ Guardada en Mis facturas');if(!ses){const n=dbL().facturas.length;if((n>=1&&ls_('ffNubeAv1')!=='1')||(n>=5&&ls_('ffNubeAv5')!=='1'))avisoNube=n>=5?5:1}}}}
 $('imprimir').onclick=()=>mostrar(leerForm(),true);
 // ---- Valorar (solo en Windows, tras 3 facturas) ----
 const ls_=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
@@ -458,10 +458,14 @@ const PREM=()=>ls_('ffPrem')==='1'||ls_('ffRegalo')==='1'||ls_('ffPremCuenta')==
 // Versión beta (facturafacil-es.github.io/beta/): prueba de la venta con pago web antes de pasarlo a la app normal
 const BETA=/\/beta\//.test(location.pathname);
 const CHECKOUT='https://buy.stripe.com/test_cNifZgeTBbOJ8YndJP5os00';
+const CHECKOUT_ANUAL='https://buy.stripe.com/test_aFa14m8vddWR8YnaxD5os01';// 39,99 €/año (modo prueba)
 const PORTAL='https://billing.stripe.com/p/login/test_cNifZgeTBbOJ8YndJP5os00';// cancelar o cambiar tarjeta// enlace de pago de Stripe (modo prueba)
-// Prueba gratis en la beta: con cuenta, 2 facturas Premium guardadas sin pagar
-const PRUEBA_N=2;
-const PRUEBA=num=>BETA&&!!ses&&!PREM()&&(dbL().facturas.length<PRUEBA_N||(num!=null&&dbL().facturas.some(f=>f.num===num)));
+// Prueba gratis en la beta: con cuenta, 14 días de Premium desde que se crea la cuenta; luego sigue con la versión gratis
+const PRUEBA_DIAS=14;
+const finPrueba=()=>{const v=(ls_('ffPruebaFin')||'').split(':');return ses&&v[0]===ses.uid?(+v[1]||0):0};
+const diasPrueba=()=>Math.max(0,Math.ceil((finPrueba()-Date.now())/864e5));
+const enPrueba=()=>BETA&&!!ses&&!PREM()&&finPrueba()>Date.now();
+const PRUEBA=num=>BETA&&!!ses&&!PREM()&&(finPrueba()>Date.now()||(num!=null&&dbL().facturas.some(f=>f.num===num)));
 const PUEDE=num=>PREM()||PRUEBA(num);
 function dbL(){try{const d=JSON.parse(localStorage.getItem('ffDB')||'{}');return {clientes:d.clientes||[],facturas:d.facturas||[],serie:d.serie!=null?d.serie:String(new Date().getFullYear())+'-',sig:d.sig||1}}catch(e){return {clientes:[],facturas:[],serie:new Date().getFullYear()+'-',sig:1}}}
 function dbG(d){d.t=new Date().toISOString();try{localStorage.setItem('ffDB',JSON.stringify(d));if(typeof pedirSync==='function')pedirSync();return true}catch(e){aviso('No se ha podido guardar: memoria llena');return false}}
@@ -473,7 +477,8 @@ $('velo').onclick=cerrarHojas;
 function abrirCapa(id){$(id).classList.add('on');$(id).scrollTop=0;document.body.style.overflow='hidden'}
 function cerrarCapa(id){$(id).classList.remove('on');if(!document.querySelector('.capa.on')&&!$('vista').classList.contains('on'))document.body.style.overflow=''}
 function pedirPrem(fin){$('premMsg').hidden=true;
-  $('premSub').textContent=BETA?(fin===true?'Has usado tus '+PRUEBA_N+' facturas de prueba. Sigue con Premium por 4,99 € al mes. Cancela cuando quieras; tus facturas guardadas no se pierden.':'4,99 € al mes · cancela cuando quieras.'):'Para quien factura a menudo.';
+  $('premSub').textContent=BETA?(enPrueba()?'Estás probando Premium gratis: '+(diasPrueba()===1?'queda 1 día':'quedan '+diasPrueba()+' días')+'. Después, si no pagas, sigues con la versión gratis.':fin===true?'Tu prueba gratis de '+PRUEBA_DIAS+' días ha terminado. Puedes seguir con la versión gratis (calculadora y facturas en PDF) o pasarte a Premium. Tus facturas guardadas no se pierden.':'Cancela cuando quieras. Si no pagas, sigues con la versión gratis.'):'Para quien factura a menudo.';
+  $('comprar').textContent=BETA?'Mensual · 4,99 € al mes':'Desbloquear Premium';$('comprarAnual').hidden=!BETA;
   $('premProbar').hidden=!(BETA&&!ses);abrirHoja('hojaPrem')}
 // Preparar el formulario de factura
 function prepPrem(){const p=PUEDE();pintarLogo();$('vencWrap').hidden=!p;
@@ -557,11 +562,13 @@ $('cerrarCli').onclick=()=>cerrarCapa('capaCli');
 // ---- Compra en Microsoft Store (pendiente de probar en la app de Windows) ----
 async function tienda(){try{if(!('getDigitalGoodsService' in window))return null;return await window.getDigitalGoodsService('https://store.microsoft.com/billing')}catch(e){return null}}
 async function comprobarCompra(){const s=await tienda();if(!s)return;try{const c=await s.listPurchases();ls_('ffPrem',c.some(p=>p.itemId===PRODUCTO)?'1':'0');if(typeof verPrem==='function')verPrem()}catch(e){}}
-$('comprar').onclick=async()=>{const msg=$('premMsg');
-  if(BETA){if(!CHECKOUT){msg.textContent='El pago aún no está configurado.';msg.hidden=false;return}
+function pagar(url){const msg=$('premMsg');if(!url){msg.textContent='El pago aún no está configurado.';msg.hidden=false;return}
     if(!ses){cerrarHojas();setTimeout(()=>{abrirNube();nMsg('Primero entra con tu correo: el Premium quedará en tu cuenta y lo tendrás en todos tus dispositivos.')},250);return}
     msg.textContent='Abriendo el pago…';msg.hidden=false;
-    location.href=CHECKOUT+(CHECKOUT.includes('?')?'&':'?')+'client_reference_id='+encodeURIComponent(ses.uid)+'&prefilled_email='+encodeURIComponent(ses.email);return}
+    location.href=url+(url.includes('?')?'&':'?')+'client_reference_id='+encodeURIComponent(ses.uid)+'&prefilled_email='+encodeURIComponent(ses.email)}
+$('comprarAnual').onclick=()=>pagar(CHECKOUT_ANUAL);
+$('comprar').onclick=async()=>{const msg=$('premMsg');
+  if(BETA){pagar(CHECKOUT);return}
   const s=await tienda();
   if(!s||!window.PaymentRequest){msg.textContent='La compra se hace desde la app de Windows (Microsoft Store). Muy pronto también aquí.';msg.hidden=false;return}
   try{const req=new PaymentRequest([{supportedMethods:'https://store.microsoft.com/billing',data:{sku:PRODUCTO}}],{total:{label:'Total',amount:{currency:'EUR',value:'0'}}});
@@ -569,7 +576,7 @@ $('comprar').onclick=async()=>{const msg=$('premMsg');
     if(PREM()){cerrarHojas();aviso('⭐ ¡Premium activado!');verPrem();prepPrem()}else{msg.textContent='No se ha completado la compra.';msg.hidden=false}}
   catch(e){msg.textContent='No se ha completado la compra.';msg.hidden=false}};
 $('premNo').onclick=cerrarHojas;
-$('premProbar').onclick=()=>{cerrarHojas();setTimeout(()=>{abrirNube();nMsg('Entra con tu correo y prueba Premium gratis con '+PRUEBA_N+' facturas.')},250)};
+$('premProbar').onclick=()=>{cerrarHojas();setTimeout(()=>{abrirNube();nMsg('Entra con tu correo y prueba Premium gratis '+PRUEBA_DIAS+' días, sin tarjeta. Después, si no pagas, sigues con la versión gratis.')},250)};
 // Desbloqueo de PRUEBA para Ivan (quitar antes de vender): ?premium=prueba-ivan  /  ?premium=quitar
 (()=>{const q=new URLSearchParams(location.search).get('premium');if(q==='prueba-ivan'){ls_('ffPrem','1');aviso('Premium de prueba activado')}if(q==='quitar'){ls_('ffPrem','0');aviso('Premium de prueba quitado')}if(q)history.replaceState(null,'',location.pathname)})();
 comprobarCompra();
@@ -604,6 +611,7 @@ async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true
     const rows=await sbF('/rest/v1/copias?select=data',{headers:H});const R=rows&&rows[0]&&rows[0].data;
     const L=local(),M=R?mezclar(L,R):L;aplicar(M);
     if(!R||JSON.stringify(M)!==JSON.stringify(R))await sbF('/rest/v1/copias',{method:'POST',headers:{...H,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:ses.uid,data:M})});
+    if(BETA&&!finPrueba()){try{const u=await sbF('/auth/v1/user',{headers:H});const t0=Date.parse(u&&u.created_at);if(t0){ls_('ffPruebaFin',ses.uid+':'+(t0+PRUEBA_DIAS*864e5));verPrem();prepPrem()}}catch(e){}}
     try{const c=await sbF('/rest/v1/suscripciones?select=estado&estado=in.(active,trialing,past_due)&limit=1',{headers:H});const t=Array.isArray(c)&&c.length>0;if(t!==(ls_('ffPremCuenta')==='1')){ls_('ffPremCuenta',t?'1':'0');verPrem();prepPrem()}}catch(e){}
     syncOk=new Date().toLocaleString('es-ES',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'});ls_('ffSyncPend','0')}
   catch(e){ls_('ffSyncPend','1')}
@@ -615,7 +623,7 @@ function pintarNube(){const b=$('nubeBtn'),pend=ls_('ffSyncPend')==='1';
 function abrirNube(aviso){$('nTit').textContent=aviso===true?'Tu factura está guardada solo en este dispositivo':'☁️ Tus facturas en la nube';
   const pb=aviso===true&&BETA&&!PREM();if(pb)$('nTit').textContent='⭐ Prueba Premium gratis';
   $('nTxt').textContent=aviso===true?'Si cambias de móvil o se borra, la pierdes. Guárdala en la nube: solo tu correo, sin contraseñas.':'Guárdalas en la nube y tendrás tus facturas en cualquier dispositivo, sin perderlas. Solo tu correo, sin contraseñas.';
-  if(pb)$('nTxt').textContent='Entra con tu correo y tus próximas '+PRUEBA_N+' facturas se guardarán en la nube, con numeración automática y clientes guardados. Sin contraseñas.';
+  if(pb)$('nTxt').textContent='Entra con tu correo y prueba Premium gratis '+PRUEBA_DIAS+' días: Mis facturas, numeración, clientes, logo y nube. Sin tarjeta. Después, si no pagas, sigues con la versión gratis.';
   $('nMsg').hidden=true;['nP1','nP2','nP3'].forEach(i=>$(i).hidden=true);$(ses?'nP3':'nP1').hidden=false;pintarNube();abrirHoja('hojaNube')}
 const nMsg=t=>{$('nMsg').textContent=t;$('nMsg').hidden=!t};
 $('nubeBtn').onclick=abrirNube;$('ftEntrar').onclick=e=>{e.preventDefault();abrirNube()};$('nNo').onclick=cerrarHojas;
