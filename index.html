@@ -84,14 +84,14 @@ footer a{color:var(--sub)}
 .numer input{width:90px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:16px system-ui,-apple-system,"Segoe UI",sans-serif;padding:8px;border-radius:8px}
 .numer span{color:var(--sub);font-size:14px}
 .hoja2{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-radius:20px 20px 0 0;box-shadow:0 -6px 30px #0004;padding:18px 16px max(18px,env(safe-area-inset-bottom));max-width:480px;margin:0 auto;transform:translateY(120%);visibility:hidden;transition:transform .25s,visibility .25s}
-.hoja2.on{transform:none;visibility:visible}
+.hoja2.on{transform:none;visibility:visible}.hoja2{max-height:92vh;max-height:92dvh;overflow-y:auto}@media(max-height:600px){.prem li{margin:3px 0;font-size:15px}}
 .hoja2 h3{margin:0 0 4px;font-size:18px}.hoja2 p{color:var(--sub);margin:0 0 12px;font-size:15px}
 .hoja2 .acc{margin-top:8px}
 .velo{position:fixed;inset:0;background:#0006;z-index:19;display:none}.velo.on{display:block}
 .hoja2 input{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:17px system-ui,-apple-system,'Segoe UI',sans-serif;padding:12px;border-radius:12px;margin:0 0 4px;outline:0}.hoja2 input:focus{border-color:var(--acc)}
 .nube{display:block;width:100%;margin:0 0 12px;border:1px solid var(--acc);background:var(--acc2);color:var(--acc);font:600 15px system-ui,-apple-system,'Segoe UI',sans-serif;padding:12px;border-radius:12px;cursor:pointer;text-align:center}.nube.ok{border-color:var(--line);background:var(--card);color:var(--sub);font-weight:500}
 .expG{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin:0 0 10px}.expG button{border:1px solid var(--line);background:var(--card);color:var(--txt);font:600 15px system-ui,-apple-system,'Segoe UI',sans-serif;padding:12px 6px;border-radius:12px;cursor:pointer}.expG button.an{grid-column:1/-1;background:var(--acc);border-color:var(--acc);color:#fff}.expY{font-weight:600;color:var(--sub);margin:4px 0 6px}
-.prem li{margin:6px 0}.prem ul{padding-left:20px;margin:8px 0 14px}
+.prem li{margin:6px 0}.prem ul{padding-left:0;list-style:none;margin:8px 0 14px}
 .toast{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top));transform:translateX(-50%);background:#14201C;color:#fff;padding:12px 18px;border-radius:24px;font-size:15px;z-index:30;box-shadow:0 6px 20px #0005}
 .pbtn{display:block;width:100%;margin:0 0 8px;border:1px dashed var(--acc);background:none;color:var(--acc);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px;border-radius:10px;cursor:pointer}
 #vista{display:none;position:fixed;inset:0;background:#5f6b67;overflow:auto;z-index:9;padding:0 0 32px}
@@ -220,7 +220,7 @@ footer a{color:var(--sub)}
   <button id="accVer">👁️ Ver / PDF</button><button id="accCob"></button><button id="accDup">📄 Duplicar en una nueva</button><button id="accNo">Cancelar</button></div></div>
 <div class="hoja2 prem" id="hojaPrem" role="dialog" aria-modal="true"><h3>⭐ Factura Fácil Premium</h3>
   <p>Para quien factura a menudo.</p>
-  <ul><li>Numeración automática, sin saltos</li><li>Todas tus facturas guardadas para volver a descargarlas</li><li>Clientes guardados: elegir con un toque</li><li>Saber qué te deben: cobradas y por cobrar</li><li>Resumen del mes y del año, y exportar a Excel</li></ul>
+  <ul class="plista"></ul>
   <div class="acc"><button class="copiar" id="comprar" style="margin:0">Desbloquear Premium</button><button id="premNo">Ahora no</button></div>
   <p id="premMsg" style="margin-top:10px" hidden></p></div>
 <div class="hoja2" id="hojaNube" role="dialog" aria-modal="true"><h3 id="nTit">☁️ Tus facturas en la nube</h3>
@@ -229,6 +229,9 @@ footer a{color:var(--sub)}
   <div id="nP3" hidden><p>Conectado con <b id="nYo"></b><br><span id="nEst"></span></p><div class="acc"><button class="copiar" id="nAct" style="margin:0">🔄 Actualizar ahora</button><button id="nPanel" hidden>📊 Panel del propietario</button><button id="nSalir">Salir de la cuenta</button></div></div>
   <p id="nMsg" style="margin:10px 0 0" hidden></p></div>
 <div class="hoja2" id="hojaExp" role="dialog" aria-modal="true"><h3>⬇️ Exportar a Excel</h3><p>¿Qué periodo?</p><div id="expOps"></div><div class="acc"><button id="expNo">Cancelar</button></div></div>
+<div class="hoja2 prem" id="hojaRegalo" role="dialog" aria-modal="true"><h3>🎁 Tienes Premium gratis para siempre</h3>
+  <p>Por ser de los primeros. Esto es lo que incluye:</p><ul class="plista"></ul>
+  <div class="acc"><button class="copiar" id="regOk" style="margin:0">¡Genial!</button></div></div>
 <div class="toast" id="toast" hidden></div>
 <div id="vista"><div class="vbar"><button class="cerrar" id="cerrarVista" aria-label="Volver">✕</button><button class="copiar" id="imprimir2">🖨️ Imprimir / PDF</button><button class="copiar enviar" id="enviar">📤 Enviar</button></div><div class="falta" id="falta" hidden></div><div class="papel"><div id="hoja"></div></div></div>
 <script>
@@ -435,7 +438,7 @@ function dbG(d){d.t=new Date().toISOString();try{localStorage.setItem('ffDB',JSO
 const numero=(d,n)=>d.serie+String(n).padStart(3,'0');
 let tAv;function aviso(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(tAv);tAv=setTimeout(()=>e.hidden=true,2200)}
 function abrirHoja(id){$('velo').classList.add('on');$(id).classList.add('on')}
-function cerrarHojas(){$('velo').classList.remove('on');['hojaAcc','hojaPrem','hojaNube','hojaExp'].forEach(i=>$(i).classList.remove('on'))}
+function cerrarHojas(){$('velo').classList.remove('on');['hojaAcc','hojaPrem','hojaNube','hojaExp','hojaRegalo'].forEach(i=>$(i).classList.remove('on'))}
 $('velo').onclick=cerrarHojas;
 function abrirCapa(id){$(id).classList.add('on');$(id).scrollTop=0;document.body.style.overflow='hidden'}
 function cerrarCapa(id){$(id).classList.remove('on');if(!document.querySelector('.capa.on')&&!$('vista').classList.contains('on'))document.body.style.overflow=''}
@@ -607,7 +610,11 @@ async function abrirPanel(){cerrarHojas();abrirCapa('capaPanel');$('pLista').inn
   catch(e){$('pLista').innerHTML='<div class="vacio">No se ha podido cargar el panel.</div>'}}
 $('nPanel').onclick=abrirPanel;$('cerrarPanel').onclick=()=>cerrarCapa('capaPanel');
 verPrem();pintarNube();if(ses)sync();
-if(ls_('ffRegaloAviso')==='1'){ls_('ffRegaloAviso','0');setTimeout(()=>{const e=$('toast');aviso('🎁 Regalo de lanzamiento: Premium gratis para siempre');clearTimeout(tAv);tAv=setTimeout(()=>e.hidden=true,5000)},600)}
+// Lista de lo que incluye Premium (una sola lista para todas las pantallas)
+const PLISTA=['📁 Todas tus facturas guardadas, para volver a descargarlas','📊 Lo facturado este mes y este año, y lo que te deben','✅ Cobradas, por cobrar y vencidas','🔢 Numeración automática, sin saltos','👥 Clientes guardados: elegir con un toque','📄 Duplicar una factura en otra nueva','⬇️ Excel por trimestre para tu gestor','☁️ En la nube: en cualquier dispositivo, sin perderlas'];
+document.querySelectorAll('.plista').forEach(u=>u.innerHTML=PLISTA.map(t=>'<li>'+esc(t)+'</li>').join(''));
+$('regOk').onclick=cerrarHojas;
+if(ls_('ffRegaloAviso')==='1'){ls_('ffRegaloAviso','0');setTimeout(()=>abrirHoja('hojaRegalo'),600)}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
