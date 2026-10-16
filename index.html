@@ -53,7 +53,8 @@ footer a{color:var(--sub)}
 .fac input:focus{border-color:var(--acc)}
 .dos{display:flex;gap:8px}.dos input{flex:1;min-width:0}
 .lin{border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:10px}.lin .l1,.lin .l2{display:flex;gap:8px;align-items:center}.lin .l1 input{flex:1;min-width:0}
-.lin .l2 input{margin-bottom:0}.lin .lq{width:62px;flex:none;text-align:center;padding-left:4px;padding-right:4px}.lin .lp{flex:1;min-width:0;text-align:right}.lin .op{color:var(--sub);font-size:16px}.lin .li{min-width:84px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}@media(max-width:360px){.lin .l2{gap:5px}.lin .lq{width:46px}.lin .li{min-width:0;font-size:15px}.lin .lp{padding-left:8px;padding-right:8px}}
+.lin .l2 input{margin-bottom:0}.lin .lq{width:62px;flex:none;text-align:center;padding-left:4px;padding-right:4px}.lin .lp{flex:1;min-width:0;text-align:right}.lin .op{color:var(--sub);font-size:16px}.lin .li{min-width:84px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}#verVarios{margin-top:8px}#varios{margin-top:12px}#varios input{min-width:0;box-sizing:border-box;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:16px system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px 12px;border-radius:10px;margin-bottom:8px;outline:0}#varios input:focus{border-color:var(--acc)}#varios .l2 input{margin-bottom:0}#varios .lq{padding-left:4px;padding-right:4px}#varios .lp{padding-left:8px;padding-right:8px}.imp input[readonly]{color:var(--acc)}
+@media(max-width:360px){.lin .l2{gap:5px}.lin .lq{width:46px}.lin .li{min-width:0;font-size:15px}.lin .lp{padding-left:8px;padding-right:8px}}
 .lin .x{border:0;background:none;color:var(--sub);font-size:20px;padding:0 4px 8px;cursor:pointer}
 .mas{border:0;background:none;color:var(--acc);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:4px 0;cursor:pointer}
 .cerrar{float:right;border:0;background:none;color:var(--sub);font-size:24px;line-height:1;cursor:pointer}
@@ -131,6 +132,8 @@ footer a{color:var(--sub)}
   </div>
   <label id="lbl">¿Cuánto cobras por el trabajo? (sin impuestos)</label>
   <div class="imp"><input id="imp" inputmode="decimal" placeholder="0" autocomplete="off"><span>€</span></div>
+  <button class="mas" id="verVarios">＋ Sumar varios conceptos</button>
+  <div id="varios" hidden><div id="lineas"></div><button class="mas" id="masLin">＋ Añadir concepto</button></div>
 
   <div class="fila"><label>IVA</label>
     <div class="chips" id="iva"><button data-v="21" class="on">21 %</button><button data-v="10">10 %</button><button data-v="4">4 %</button><button data-v="0">Sin IVA</button><button data-v="otro">Otro</button></div>
@@ -168,9 +171,9 @@ footer a{color:var(--sub)}
   <input id="cNom" placeholder="Nombre o empresa">
   <input id="cNif" placeholder="NIF">
   <input id="cDir" placeholder="Dirección">
-  <h3>Conceptos (sin impuestos)</h3>
-  <div id="lineas"></div>
-  <button class="mas" id="masLin">＋ Añadir línea</button>
+  <h3>Concepto</h3>
+  <input id="fConc" placeholder="Ej.: Reparación de persiana">
+  <button class="mas" id="irConc" hidden></button>
   <div id="exWrap" hidden><h3>Motivo de no llevar IVA</h3>
   <input id="fExento" placeholder="Ej.: Operación exenta de IVA (art. 20 Ley 37/1992)"></div>
   <button class="copiar" id="imprimir">👁️ Ver factura</button>
@@ -279,7 +282,7 @@ window.facturaPDF=function(F,eur){const d=Doc(),G=[15,92,77],GR=[102,102,102],L=
 </script>
 <script>
 const $=id=>document.getElementById(id);
-let modo='base',iva=21,irpf=15,cli='emp';
+let modo='base',iva=21,irpf=15,cli='emp',varios=false;
 const IR=()=>cli==='part'?0:irpf;
 const n2=n=>{const t=Math.abs(n).toFixed(2).split('.');return (n<0?'-':'')+t[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.')+','+t[1]};
 const eur=n=>n2(n)+' €';
@@ -301,7 +304,7 @@ function calc(){
   $('filaIrpf').hidden=$('rIrpf').hidden=cli==='part';
   try{localStorage.setItem('ff',JSON.stringify({iva,irpf,modo,cli}))}catch(e){}
   if($('exWrap'))$('exWrap').hidden=iva!==0;
-  const L=$('lineas')&&$('lineas').children;if(L&&L.length===1&&L[0].dataset.auto){L[0].querySelector('.lq').value='1';L[0].querySelector('.lp').value=b?n2(b):'';linImp(L[0])}
+  if(typeof pintarIrConc==='function')pintarIrConc(b);
   return {b,i,p,t};
 }
 const pct=v=>{const n=parseFloat(String(v||'').replace(',','.'));return isNaN(n)?0:Math.min(Math.max(n,0),100)};
@@ -312,7 +315,7 @@ function chips(id,set){const inp=$(id+'Otro');
 function marcar(id,v){let ok=false;$(id).querySelectorAll('button').forEach(b=>{const m=b.dataset.v!=='otro'&&+b.dataset.v===v;b.classList.toggle('on',m);if(m)ok=true});
   if(!ok){$(id).querySelector('[data-v="otro"]').classList.add('on');$(id+'Otro').hidden=false;$(id+'Otro').value=String(v).replace('.',',')}}
 chips('iva',v=>iva=v);chips('irpf',v=>irpf=v);
-function setModo(m){modo=m;$('mBase').classList.toggle('on',m==='base');$('mTotal').classList.toggle('on',m!=='base');$('lbl').textContent=m==='base'?'¿Cuánto cobras por el trabajo? (sin impuestos)':'¿Cuánto quieres que te llegue?';calc()}
+function setModo(m){if(m!=='base'&&varios)setVarios(false);modo=m;$('mBase').classList.toggle('on',m==='base');$('mTotal').classList.toggle('on',m!=='base');$('lbl').textContent=m==='base'?'¿Cuánto cobras por el trabajo? (sin impuestos)':'¿Cuánto quieres que te llegue?';$('verVarios').hidden=m!=='base';calc()}
 function setCli(c){cli=c;$('cli').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.c===c));calc()}
 $('cli').querySelectorAll('button').forEach(b=>b.onclick=()=>setCli(b.dataset.c));
 $('mBase').onclick=()=>setModo('base');$('mTotal').onclick=()=>setModo('total');
@@ -347,15 +350,25 @@ function linImp(d){const q=d.querySelector('.lq').value.trim(),qq=q===''?1:num(q
 function linea(c='',pr='',q='1'){const d=document.createElement('div');d.className='lin';
   d.innerHTML='<div class="l1"><input class="lc" placeholder="Concepto"><button class="x" aria-label="Quitar">✕</button></div><div class="l2"><input class="lq" inputmode="decimal" placeholder="Cant." aria-label="Cantidad"><span class="op">×</span><input class="lp" inputmode="decimal" placeholder="Precio €" aria-label="Precio por unidad"><span class="op">=</span><span class="li"></span></div>';
   d.querySelector('.lc').value=c;d.querySelector('.lq').value=q;d.querySelector('.lp').value=pr;linImp(d);
-  ['.lq','.lp'].forEach(k=>d.querySelector(k).addEventListener('input',()=>{delete d.dataset.auto;linImp(d)}));
-  d.querySelector('.x').onclick=()=>{d.remove();if(!$('lineas').children.length)linea()};
-  $('lineas').appendChild(d)}
-$('masLin').onclick=()=>linea();
+  ['.lq','.lp'].forEach(k=>d.querySelector(k).addEventListener('input',()=>{linImp(d);sumar()}));
+  d.querySelector('.lc').addEventListener('input',()=>pintarIrConc());
+  d.querySelector('.x').onclick=()=>{d.remove();if(!$('lineas').children.length)setVarios(false,true);else sumar()};
+  $('lineas').appendChild(d);return d}
+// Varios conceptos: el importe de arriba es la suma de las líneas
+function sumar(){const t=r2([...$('lineas').children].reduce((a,d)=>a+linImp(d).i,0));$('imp').value=t?n2(t):'';impAnt=$('imp').value;calc()}
+function setVarios(on,vaciar){varios=on;$('varios').hidden=!on;$('verVarios').hidden=on||modo!=='base';$('imp').readOnly=on;
+  $('lbl').textContent=on?'Total de los conceptos (sin impuestos)':'¿Cuánto cobras por el trabajo? (sin impuestos)';
+  if(on){if(!$('lineas').children.length){const b=leer();linea($('fConc').value.trim(),b?n2(b):'','1')}sumar()}
+  else{const L=[...$('lineas').children];if(L.length&&!vaciar){$('fConc').value=L[0].querySelector('.lc').value;sumar()}else if(vaciar){$('imp').value='';impAnt=''}$('lineas').innerHTML='';calc()}
+  $('fConc').hidden=on;pintarIrConc()}
+function pintarIrConc(b){const n=$('lineas').children.length;$('irConc').hidden=!varios;if(varios)$('irConc').textContent='✏️ '+n+(n===1?' concepto':' conceptos')+' arriba · '+eur(b!=null?b:leer())}
+$('verVarios').onclick=()=>{setVarios(true);setTimeout(()=>{const L=$('lineas').children,x=L.length&&L[L.length-1].querySelector('.lc');if(x&&!x.value)x.focus()},50)};
+$('masLin').onclick=()=>{linea().querySelector('.lc').focus()};
+$('irConc').onclick=()=>$('varios').scrollIntoView({behavior:'smooth',block:'center'});
 $('abrirFac').onclick=()=>{
   prepPrem();
   try{const g=JSON.parse(localStorage.getItem('ffe')||'{}');E.forEach(k=>{if(g[k]&&!$(k).value)$(k).value=g[k]})}catch(e){}
   if(!$('fFecha').value){const d=new Date();$('fFecha').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
-  if(!$('lineas').children.length){linea();$('lineas').children[0].dataset.auto='1';calc()}
   $('fac').classList.add('on');$('fac').scrollIntoView({behavior:'smooth'})};
 $('cerrarFac').onclick=()=>{$('fac').classList.remove('on');window.scrollTo({top:0,behavior:'smooth'})};
 // ---- Leer formulario y mostrar factura ----
@@ -364,7 +377,7 @@ function leerForm(){
   const v=id=>$(id).value.trim();
   return {num:v('fNum'),fecha:v('fFecha'),venc:v('fVenc'),em:{nom:g.eNom,nif:g.eNif,dir:g.eDir,iban:g.eIban},
     cl:{nom:v('cNom'),nif:v('cNif'),dir:v('cDir')},
-    ls:[...$('lineas').children].map(d=>({c:d.querySelector('.lc').value.trim(),...linImp(d)})).filter(l=>l.c||l.i),
+    ls:varios?[...$('lineas').children].map(d=>({c:d.querySelector('.lc').value.trim(),...linImp(d)})).filter(l=>l.c||l.i):(()=>{const b=calc().b,c=v('fConc');return b||c?[{c,q:1,p:b,i:b}]:[]})(),
     iva,irpf:IR(),cli,exento:iva===0?g.fExento:''}}
 const fes=iso=>iso?new Date(iso+'T12:00').toLocaleDateString('es-ES'):'';
 function importes(D){const b=r2(D.ls.reduce((a,l)=>a+l.i,0)),i=r2(b*D.iva/100),p=r2(b*D.irpf/100);return {b,i,p,t:r2(b+i-p)}}
@@ -431,7 +444,7 @@ function pedirPrem(){$('premMsg').hidden=true;abrirHoja('hojaPrem')}
 function prepPrem(){const p=PREM();$('vencWrap').hidden=!p;
   if(!p)return;const d=dbL(),cur=$('fNum').value.trim();
   if(!cur||d.facturas.some(f=>f.num===cur)){ // factura nueva
-    $('fNum').value=numero(d,d.sig);['cNom','cNif','cDir','fVenc'].forEach(k=>$(k).value='');$('lineas').innerHTML=''}}
+    $('fNum').value=numero(d,d.sig);['cNom','cNif','cDir','fVenc','fConc'].forEach(k=>$(k).value='')}}
 // Guardar factura y cliente
 function guardarFactura(D,total){const d=dbL();const i=d.facturas.findIndex(f=>f.num===D.num);
   const reg={mod:new Date().toISOString(),num:D.num,fecha:D.fecha,venc:D.venc,cliente:D.cl.nom,total,D,cobrada:i>=0?d.facturas[i].cobrada:false,guardada:new Date().toISOString()};
@@ -468,7 +481,9 @@ $('accVer').onclick=()=>{const f=dbL().facturas.find(x=>x.num===sel);cerrarHojas
 $('accDup').onclick=()=>{const d=dbL(),f=d.facturas.find(x=>x.num===sel);cerrarHojas();if(!f)return;const D=f.D;
   $('fNum').value=numero(d,d.sig);$('fFecha').value=hoyISO();$('fVenc').value='';
   $('cNom').value=D.cl.nom||'';$('cNif').value=D.cl.nif||'';$('cDir').value=D.cl.dir||'';
-  $('lineas').innerHTML='';D.ls.forEach(l=>linea(l.c,l.p!=null?(l.p?n2(l.p):''):(l.i?n2(l.i):''),l.q!=null?fq(l.q):'1'));if(!D.ls.length)linea();
+  setModo('base');$('lineas').innerHTML='';const una=D.ls.length<=1&&(!D.ls[0]||D.ls[0].q==null||D.ls[0].q===1);
+  if(una){if(varios)setVarios(false,true);const l=D.ls[0]||{c:'',i:0};$('fConc').value=l.c||'';$('imp').value=l.i?n2(l.i):'';impAnt=$('imp').value}
+  else{D.ls.forEach(l=>linea(l.c,l.p!=null?(l.p?n2(l.p):''):(l.i?n2(l.i):''),l.q!=null?fq(l.q):'1'));setVarios(true)}
   iva=D.iva;marcar('iva',iva);setCli(D.cli||'emp');if(D.cli!=='part'&&D.irpf){irpf=D.irpf;marcar('irpf',irpf)}calc();
   $('vencWrap').hidden=false;$('fac').classList.add('on');cerrarCapa('capaFac');setTimeout(()=>$('fac').scrollIntoView({behavior:'smooth'}),50);aviso('Copia lista con el nº '+$('fNum').value)};
 // ---- Exportar y copia de seguridad ----
