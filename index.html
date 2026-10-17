@@ -113,7 +113,11 @@ footer a{color:var(--sub)}
 .vbar .enviar{flex:0 0 auto;padding:13px 12px;background:#fff;color:#0F5C4D}
 .vbar{gap:8px!important;padding-left:10px!important;padding-right:10px!important}
 .falta{background:#FFF4D6;color:#5C3D00;margin:16px auto 0;max-width:210mm;width:calc(100% - 32px);box-sizing:border-box;border-radius:10px;padding:12px 14px;font-size:15px;line-height:1.4}
-.falta b{display:block;margin-bottom:2px}
+.falta b{display:block;margin-bottom:6px}
+.irfalta{display:inline-block;margin:0 6px 6px 0;border:1px solid #E9C46A;background:#fff;color:#5C3D00;font:600 14px system-ui,-apple-system,"Segoe UI",sans-serif;padding:6px 10px;border-radius:16px;cursor:pointer;text-decoration:underline}
+.irtodo{display:block;width:100%;margin-top:6px;border:0;background:#5C3D00;color:#fff;font:700 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:11px;border-radius:10px;cursor:pointer}
+input.malo,.malo{border:2px solid #D33A2C!important;background:#FFF1EF!important}
+@media (prefers-color-scheme:dark){input.malo,.malo{background:#3A1F1C!important}}
 .papel{position:relative;overflow:hidden}
 .marca{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .marca span{transform:rotate(-30deg);font:800 72px system-ui,-apple-system,"Segoe UI",sans-serif;color:rgba(179,38,30,.16);letter-spacing:.08em;white-space:nowrap}
@@ -480,7 +484,16 @@ function faltan(D){const f=[],emp=D.cli!=='part';
   if(!D.em.nom)f.push('tu nombre o empresa');if(!D.em.nif)f.push('tu NIF');if(!D.em.dir)f.push('tu dirección');
   if(!D.cl.nom)f.push('nombre del cliente');if(emp&&!D.cl.nif)f.push('NIF del cliente');if(emp&&!D.cl.dir)f.push('dirección del cliente');
   if(!D.ls.some(l=>l.c&&l.i))f.push('concepto con su importe');if(D.iva===0&&!D.exento)f.push('motivo de no llevar IVA');return f}
-let FAC=null;
+let FAC=null,FALTA=[];
+// Ir a la casilla que falta y marcar en rojo todas las que faltan
+const CAMPO={'número de factura':'fNum','fecha':'fFecha','tu nombre o empresa':'eNom','tu NIF':'eNif','tu dirección':'eDir','nombre del cliente':'cNom','NIF del cliente':'cNif','dirección del cliente':'cDir','motivo de no llevar IVA':'fExento'};
+function campoDe(n){if(CAMPO[n])return $(CAMPO[n]);if(n==='concepto con su importe'){if(varios){const L=[...$('lineas').children];const d=L.find(x=>!x.querySelector('.lc').value.trim()||!num(x.querySelector('.lp').value))||L[0];return d?(!d.querySelector('.lc').value.trim()?d.querySelector('.lc'):d.querySelector('.lp')):$('imp')}return !calc().b?$('imp'):$('fConc')}return null}
+function irFalta(primero){document.querySelectorAll('.malo').forEach(e=>e.classList.remove('malo'));
+  const els=FALTA.map(campoDe).filter(Boolean);els.forEach(e=>e.classList.add('malo'));
+  $('cerrarVista').onclick();const e=campoDe(primero)||els[0];
+  if(e){$('fac').classList.add('on');setTimeout(()=>{e.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{try{e.focus({preventScroll:true})}catch(_){}},350)},120)}}
+$('falta').onclick=ev=>{const b=ev.target.closest('button');if(!b)return;irFalta(b.dataset.n||FALTA[0])};
+document.addEventListener('input',ev=>{if(ev.target.classList&&ev.target.classList.contains('malo'))ev.target.classList.remove('malo')});
 // La factura en pantalla es la hoja A4 tal cual (igual que el PDF), encogida al ancho disponible
 function ajustarHoja(){const h=$('hoja'),p=h.parentElement;if(!h||!p)return;h.style.transform='';p.style.height='';
   const W=h.offsetWidth,k=Math.min(1,p.clientWidth/W);if(k<1){h.style.transform='scale('+k+')';p.style.height=Math.ceil(h.offsetHeight*k)+'px'}}
@@ -488,7 +501,7 @@ addEventListener('resize',()=>{if($('vista').classList.contains('on'))ajustarHoj
 function mostrar(D,guardar){
   const {b,i,p,t}=importes(D),det=D.ls.some(l=>l.q!=null&&l.q!==1),f=fes(D.fecha),br=s=>esc(s).replace(/\n/g,'<br>'),falta=faltan(D),borr=falta.length>0;
   $('falta').hidden=!borr;
-  const PR=D.tipo==='pres';$('falta').innerHTML=borr?'<b>Borrador: '+(falta.length>1?'faltan '+falta.length+' datos':'falta 1 dato')+'</b>'+esc(falta.join(', '))+'.':'';
+  const PR=D.tipo==='pres';$('falta').innerHTML=borr?'<b>Borrador: '+(falta.length>1?'faltan '+falta.length+' datos':'falta 1 dato')+'</b>'+falta.map(x=>'<button type="button" class="irfalta" data-n="'+esc(x)+'">'+esc(x)+'</button>').join('')+'<button type="button" class="irtodo">✏️ Completar lo que falta</button>':'';FALTA=falta;
   const tot=[['Base imponible',eur(b)],[D.iva?'IVA '+pf(D.iva)+' %':'IVA (exento)',eur(i)]].concat(D.irpf?[['Retención IRPF '+pf(D.irpf)+' %','-'+eur(p)]]:[]);
   const C=/^#[0-9A-F]{6}$/i.test(D.color||'')?D.color:COLORES[0],mx=(k)=>{const n=parseInt(C.slice(1),16),c=[n>>16,(n>>8)&255,n&255];return 'rgb('+c.map(v=>Math.round(v+(255-v)*k)).join(',')+')'};
   const vc=D.venc?fes(D.venc):'',ini=String(D.em.nom||'').trim().split(/\s+/).filter(w=>/^[A-Za-zÀ-ÿ]/.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join(''),marca=!PUEDE();
