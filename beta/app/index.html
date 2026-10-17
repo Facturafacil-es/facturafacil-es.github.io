@@ -562,7 +562,7 @@ const PREM=()=>ls_('ffPrem')==='1'||ls_('ffPremCuenta')==='1';
 // Versión beta (mifacturafacil.app/beta/): prueba de la venta con pago web antes de pasarlo a la app normal
 const BETA=/\/beta\//.test(location.pathname);
 // LANZAMIENTO: Premium gratis para quien entra con su correo, hasta nuevo aviso (en la app normal). Para activarlo: true
-const LANZ=false;const LZ=()=>LANZ&&!BETA;
+const LANZ=true;const LZ=()=>LANZ&&!BETA;
 const CHECKOUT='https://buy.stripe.com/test_cNifZgeTBbOJ8YndJP5os00';
 const CHECKOUT_ANUAL='https://buy.stripe.com/test_aFa14m8vddWR8YnaxD5os01';// 39,99 €/año (modo prueba)
 const PORTAL='https://billing.stripe.com/p/login/test_cNifZgeTBbOJ8YndJP5os00';// cancelar o cambiar tarjeta// enlace de pago de Stripe (modo prueba)
