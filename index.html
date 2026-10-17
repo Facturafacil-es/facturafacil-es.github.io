@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script>/* Portada: la primera vez en el navegador se ve la portada; instalada, desde Microsoft o si ya se usa, va directa a la app */
+(function(){try{var L=localStorage;if(/(^|[?&])app=1/.test(location.search)){L.setItem('ffVisto','1');history.replaceState(null,'',location.pathname);return}
+if(/\/beta\//.test(location.pathname)||navigator.standalone===true||matchMedia('(display-mode: standalone)').matches)return;
+if(L.getItem('ffVisto')||L.getItem('ffDB')||L.getItem('ffe')||L.getItem('ffSes')||L.getItem('ffN'))return;location.replace('inicio/')}catch(e){}})()</script>
 <title>Factura Fácil · Calculadora de IVA e IRPF</title>
 <meta name="description" content="Calcula al momento el IVA, el IRPF y el total de tus facturas de autónomo. Gratis, en español y sin internet.">
 <meta name="theme-color" content="#0F5C4D">
