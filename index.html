@@ -22,6 +22,7 @@ body{background:var(--bg);color:var(--txt);font:17px/1.4 system-ui,-apple-system
 main{width:100%;max-width:440px}
 h1{font-size:22px;margin:4px 0 16px;display:flex;align-items:center;gap:10px}
 .cabe{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 16px}.cabe h1{margin:0}
+#cuenta.ok{width:38px;height:38px;padding:0;border-radius:50%;background:var(--acc);color:#fff;border:0;font-weight:800;font-size:17px;flex:none}
 .top{border:1px solid var(--line);background:var(--card);color:var(--txt);font:600 14px system-ui,-apple-system,"Segoe UI",sans-serif;padding:9px 12px;border-radius:20px;cursor:pointer;white-space:nowrap}
 h1 img{width:34px;height:34px;border-radius:9px}
 .card{background:var(--card);border-radius:18px;padding:18px;border:1px solid var(--line);margin-bottom:14px}
@@ -94,6 +95,9 @@ footer a{color:var(--sub)}
 .hoja2{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-radius:20px 20px 0 0;box-shadow:0 -6px 30px #0004;padding:18px 16px max(18px,env(safe-area-inset-bottom));max-width:480px;margin:0 auto;transform:translateY(120%);visibility:hidden;transition:transform .25s,visibility .25s}
 @media(max-width:429px){.cabe:has(#instalar:not([hidden])) h1{font-size:20px}.cabe:has(#instalar:not([hidden])) .top{padding:8px 9px}.cabe>span{gap:4px!important}#instalar{font-size:0;padding:8px 10px}#instalar::before{content:"📲";font-size:16px}}
 @media(min-width:375px){.cabe:has(#instalar:not([hidden])) h1{white-space:nowrap}}
+@media(max-width:429px){.cabe:has(#instalar:not([hidden])) #misFac{font-size:0;padding:8px 10px}.cabe:has(#instalar:not([hidden])) #misFac::before{content:"📁";font-size:16px}.cabe h1{min-width:0}.cabe>span{flex:none}}
+@media(max-width:374px){#misFac{font-size:0;padding:8px 10px}#misFac::before{content:"📁";font-size:16px}}
+@media(max-width:359px){.cabe:has(#misFac:not([hidden])) h1{font-size:19px}.cabe h1 img{width:30px;height:30px}}
 .pasos{margin:12px 0 16px;padding-left:22px}.pasos li{margin:8px 0;font-size:17px}
 .hoja2.on{transform:none;visibility:visible}.hoja2{max-height:92vh;max-height:92dvh;overflow-y:auto}@media(max-height:600px){.prem li{margin:3px 0;font-size:15px}}
 .hoja2 h3{margin:0 0 4px;font-size:18px}.hoja2 p{color:var(--sub);margin:0 0 12px;font-size:15px}
@@ -158,7 +162,7 @@ input.malo,.malo{border:2px solid #D33A2C!important;background:#FFF1EF!important
 <button id="nuevaV" hidden>✨ Nueva versión · <u>Actualizar</u></button>
 
 <main>
-<div class="cabe"><h1><img src="icon-192.png" alt="">Factura Fácil</h1><span style="display:flex;gap:6px"><button class="top" id="instalar" hidden>📲 App</button><button class="top" id="misFac">📁 Mis facturas</button></span></div>
+<div class="cabe"><h1><img src="icon-192.png" alt="">Factura Fácil</h1><span style="display:flex;gap:6px"><button class="top" id="instalar" hidden>📲 App</button><button class="top" id="misFac">📁 Mis facturas</button><button class="top" id="cuenta">Entrar</button></span></div>
 
 <div class="card">
   <div class="modo">
@@ -191,7 +195,6 @@ input.malo,.malo{border:2px solid #D33A2C!important;background:#FFF1EF!important
   <button class="btn2" id="abrirFac">🧾 Hacer factura</button>
   <button class="btn2" id="abrirPres">📝 Hacer presupuesto</button>
   <button class="avis" id="verPremBtn" hidden>⭐ Premium muy pronto · <u>Apúntate: −25 %</u></button>
-  <button class="avis" id="yaPrem" style="margin-top:0" hidden>¿Ya tienes Premium? <u>Entra con tu correo</u></button>
 </div>
 
 <div class="card fac" id="fac">
@@ -755,7 +758,7 @@ async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true
   finally{syncVa=false;pintarNube();if(syncOtra)pedirSync()}}
 function pintarNube(){const b=$('nubeBtn'),pend=ls_('ffSyncPend')==='1';
   b.className='nube'+(ses?' ok':'');b.textContent=ses?('☁️ En la nube · '+ses.email+(pend?' · pendiente de subir':'')):'⚠️ Solo en este dispositivo · Guardar en la nube';
-  const vis=!$('misFac').hidden;$('yaPrem').hidden=vis||!!ses;$('ftCuenta').hidden=vis||!$('yaPrem').hidden;$('ftEntrar').textContent=ses?'Mi cuenta':'Ya tengo cuenta';
+  const vis=!$('misFac').hidden;$('ftCuenta').hidden=true;const cu=$('cuenta');cu.className='top'+(ses?' ok':'');cu.textContent=ses?(ses.email||'?')[0].toUpperCase():'Entrar';cu.setAttribute('aria-label',ses?'Mi cuenta':'Entrar');cu.title=ses?'Mi cuenta':'';$('ftEntrar').textContent=ses?'Mi cuenta':'Ya tengo cuenta';
   $('nPanel').hidden=!(ses&&DUENOS.includes(ses.email));$('nSusc').hidden=!(BETA&&ses&&ls_('ffPremCuenta')==='1');if(ses){$('nYo').textContent=ses.email;$('nEst').textContent=pend?'Hay cambios sin subir (sin conexión). Se subirán solos.':(syncOk?'Todo guardado ('+syncOk+')':'')}}
 function abrirNube(aviso){$('nTit').textContent=aviso===true?'Tu factura está guardada solo en este dispositivo':'☁️ Tus facturas en la nube';
   const pb=aviso===true&&BETA&&!PREM();if(pb)$('nTit').textContent='⭐ Prueba Premium gratis';
@@ -763,7 +766,7 @@ function abrirNube(aviso){$('nTit').textContent=aviso===true?'Tu factura está g
   if(pb)$('nTxt').textContent='Entra con tu correo y prueba Premium gratis '+PRUEBA_DIAS+' días: Mis facturas, numeración, clientes, logo y nube. Sin tarjeta. Después, si no pagas, sigues con la versión gratis.';
   $('nMsg').hidden=true;['nP1','nP2','nP3'].forEach(i=>$(i).hidden=true);$(ses?'nP3':'nP1').hidden=false;pintarNube();abrirHoja('hojaNube')}
 const nMsg=t=>{$('nMsg').textContent=t;$('nMsg').hidden=!t};
-$('nubeBtn').onclick=abrirNube;$('yaPrem').onclick=()=>{abrirNube();$('nTit').textContent='⭐ Entra en tu Premium';nMsg('Entra con el correo de tu Premium. Se activa solo al entrar.')};$('ftEntrar').onclick=e=>{e.preventDefault();abrirNube()};$('nNo').onclick=cerrarHojas;
+$('nubeBtn').onclick=abrirNube;$('cuenta').onclick=()=>{abrirNube();if(!ses){$('nTit').textContent='Entrar';nMsg('Entra con tu correo, sin contraseñas. Si tienes Premium, se activa solo.')}else $('nTit').textContent='Mi cuenta'};$('ftEntrar').onclick=e=>{e.preventDefault();abrirNube()};$('nNo').onclick=cerrarHojas;
 $('nOtro').onclick=()=>{$('nP2').hidden=true;$('nP1').hidden=false;nMsg('')};
 $('nEnviar').onclick=async()=>{const em=$('nEmail').value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return nMsg('Escribe bien tu correo.');
   const b=$('nEnviar');b.disabled=true;nMsg('Enviando…');
