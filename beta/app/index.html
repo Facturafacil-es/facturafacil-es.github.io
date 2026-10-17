@@ -269,7 +269,7 @@ input.malo,.malo{border:2px solid #D33A2C!important;background:#FFF1EF!important
   <ul class="plista"></ul>
   <input id="premMail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" hidden>
   <div class="acc"><button class="copiar" id="premAvis" style="margin:0" hidden>⭐ Apuntarme con 25 % de descuento</button><button class="copiar" id="comprar" style="margin:0">Desbloquear Premium</button><button class="copiar" id="comprarAnual" style="margin:0" hidden>Anual · 39,99 € (ahorras 33 %)</button><button id="premProbar" hidden>Probar Premium gratis 14 días</button><button id="premNo">Ahora no</button></div>
-  <p id="premMsg" style="margin-top:10px" hidden></p></div>
+  <p id="premLeg" style="margin:10px 0 0;font-size:14px;line-height:1.45;color:var(--sub,#5B6B65)" hidden></p><p id="premMsg" style="margin-top:10px" hidden></p></div>
 <div class="hoja2" id="hojaNube" role="dialog" aria-modal="true"><h3 id="nTit">☁️ Tus facturas en la nube</h3>
   <div id="nP1"><p id="nTxt"></p><input id="nEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"><div class="acc"><button class="copiar" id="nEnviar" style="margin:0">Guardar en la nube</button><button id="nNo">Ahora no</button></div></div>
   <div id="nP2" hidden><p>Te hemos enviado un código a <b id="nEmailTxt"></b>. Escríbelo aquí. Si no lo ves, mira en spam.</p><input id="nCod" inputmode="numeric" autocomplete="one-time-code" placeholder="Código" maxlength="10"><div class="acc"><button class="copiar" id="nEntrar" style="margin:0">Entrar</button><button id="nOtro">Cambiar correo</button></div></div>
@@ -585,7 +585,7 @@ function pedirPrem(fin){$('premMsg').hidden=true;
   $('comprar').textContent=BETA?'Mensual · 4,99 € al mes':'Desbloquear Premium';$('comprarAnual').hidden=!BETA;
   const av=!VENTA;$('comprar').hidden=av;$('premAvis').hidden=!av;$('premMail').hidden=!av||ls_('ffAvisame')==='1';
   if(av){$('premSub').textContent=ls_('ffAvisame')==='1'?'¡Ya estás apuntado! Te avisaremos el primer día y tendrás un 25 % de descuento el primer año.':'Muy pronto, por 4,99 € al mes o 39,99 € al año. Apúntate ahora y tendrás un 25 % de descuento el primer año. Esto es lo que incluye:';$('premAvis').hidden=ls_('ffAvisame')==='1';if(!$('premMail').value&&ses)$('premMail').value=ses.email}
-  $('premProbar').hidden=!(BETA&&!ses);abrirHoja('hojaPrem')}
+  {const L=$('premLeg'),apuntado=ls_('ffAvisame')==='1';if(av){L.innerHTML=apuntado?'':'Solo usaremos tu correo para avisarte cuando salga Premium. Puedes pedir que lo borremos cuando quieras. <a href="../../privacidad.html">Privacidad</a>';L.hidden=apuntado}else{L.innerHTML='Precio final con IVA incluido. Se renueva sola cada mes o cada año hasta que la canceles, cuando quieras, desde tu cuenta. Tienes 14 días desde el primer pago para pedir la devolución. Al pagar aceptas los <a href="../../terminos.html">Términos</a> y la <a href="../../privacidad.html">Privacidad</a>.';L.hidden=false}}$('premProbar').hidden=!(BETA&&!ses);abrirHoja('hojaPrem')}
 // Preparar el formulario de factura
 function prepPrem(){const p=PUEDE(),pr=TIPO==='pres';pintarLogo();$('vencWrap').hidden=!p&&!pr;
   if(!p){if(BETA&&ses&&!pr){const cur=$('fNum').value.trim();if(cur&&dbL().facturas.some(f=>f.num===cur)){['fNum','cNom','cNif','cDir','fVenc','fConc'].forEach(k=>$(k).value='')}}return}const d=dbL(),cur=$('fNum').value.trim();
