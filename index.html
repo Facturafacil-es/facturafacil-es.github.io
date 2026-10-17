@@ -526,17 +526,20 @@ function mostrar(D,guardar){
 $('imprimir').onclick=()=>mostrar(leerForm(),true);
 // ---- Valorar (solo en Windows, tras 3 facturas) ----
 const ls_=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
-function verValora(){if(/Windows/.test(navigator.userAgent)&&!ls_('ffValora')&&(+ls_('ffN')||0)>=3)$('valora').hidden=false}
+// Sale al cerrar la vista después de enviar o imprimir un PDF (no borrador), a partir del 2º
+function verValora(){if(/Windows/.test(navigator.userAgent)&&!ls_('ffValora')&&(+ls_('ffPDF')||0)>=2)$('valora').hidden=false}
+const pdfHecho=()=>{if(FAC&&!FAC.borr)ls_('ffPDF',(+ls_('ffPDF')||0)+1)};
 $('valoraNo').onclick=()=>{$('valora').hidden=true;ls_('ffValora','no')};
 $('valoraSi').onclick=()=>{$('valora').hidden=true;ls_('ffValora','si')};
 verValora();
 $('cerrarVista').onclick=()=>{$('vista').classList.remove('on');if(!document.querySelector('.capa.on'))document.body.style.overflow='';if(avisoFin){avisoFin=false;setTimeout(()=>pedirPrem(true),250);return}if(avisoNube&&!ses){ls_('ffNubeAv1','1');if(avisoNube===5)ls_('ffNubeAv5','1');avisoNube=0;setTimeout(()=>abrirNube(true),250)}else verValora()};
 const APP=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
 const MOVIL=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
-$('imprimir2').onclick=()=>{if(MOVIL&&APP){$('enviar').onclick();return}const tt=document.title;document.title=((FAC&&FAC.borr?'Borrador ':'')+(FAC&&FAC.tipo==='pres'?'Presupuesto ':'Factura ')+((FAC&&FAC.num)||'')).trim();window.print();setTimeout(()=>document.title=tt,1000)};
+$('imprimir2').onclick=()=>{if(MOVIL&&APP){$('enviar').onclick();return}pdfHecho();const tt=document.title;document.title=((FAC&&FAC.borr?'Borrador ':'')+(FAC&&FAC.tipo==='pres'?'Presupuesto ':'Factura ')+((FAC&&FAC.num)||'')).trim();window.print();setTimeout(()=>document.title=tt,1000)};
 $('enviar').onclick=async()=>{if(!FAC)return;
   const name=((FAC.borr?'Borrador ':'')+(FAC.tipo==='pres'?'Presupuesto ':'Factura ')+(FAC.num||'')).trim().replace(/[\\/:*?"<>|]/g,'-')+'.pdf';
   const blob=facturaPDF(FAC,eur);
+  pdfHecho();
   let file=null;try{file=new File([blob],name,{type:'application/pdf'})}catch(e){}
   if(MOVIL&&file&&navigator.canShare&&navigator.canShare({files:[file]})){
     try{await navigator.share({files:[file],title:name});return}catch(e){if(e&&e.name==='AbortError')return;if(APP){alert('No se ha podido crear el PDF ('+(e&&e.name)+'). Prueba desde Safari.');return}}}
