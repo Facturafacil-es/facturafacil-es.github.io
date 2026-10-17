@@ -249,7 +249,7 @@ footer a{color:var(--sub)}
   <div class="cin"><input id="buscaCli" placeholder="Buscar cliente" style="width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--card);color:var(--txt);font:16px system-ui,-apple-system,'Segoe UI',sans-serif;padding:11px 12px;border-radius:12px;margin-bottom:10px"><div id="listaCli"></div></div>
 </div>
 
-<footer><a href="../../aviso-legal.html">Aviso legal</a> · <a href="../../privacidad.html">Privacidad</a> · <a href="../../terminos.html">Términos</a><span id="ftCuenta" hidden> · <a href="#" id="ftEntrar"></a></span></footer>
+<footer><a href="../">Inicio</a> · <a href="../../aviso-legal.html">Aviso legal</a> · <a href="../../privacidad.html">Privacidad</a> · <a href="../../terminos.html">Términos</a><span id="ftCuenta" hidden> · <a href="#" id="ftEntrar"></a></span></footer>
 </main>
 <div class="velo" id="velo"></div>
 <div class="hoja2" id="hojaAcc" role="dialog" aria-modal="true"><h3 id="accT"></h3><p id="accS"></p><div class="acc">
@@ -692,8 +692,6 @@ $('premAvis').onclick=async()=>{const m=$('premMail').value.trim().toLowerCase()
   catch(e){if(e.st===409)ok();else{msg.textContent=navigator.onLine?'No se ha podido apuntar. Prueba otra vez.':'Sin conexión a internet.'}}
   function ok(){ls_('ffAvisame','1');msg.hidden=true;cerrarHojas();verPrem();aviso('⭐ ¡Apuntado! Te avisaremos')}};
 $('premProbar').onclick=()=>{cerrarHojas();setTimeout(()=>{abrirNube();nMsg('Entra con tu correo y prueba Premium gratis '+PRUEBA_DIAS+' días, sin tarjeta. Después, si no pagas, sigues con la versión gratis.')},250)};
-// Desbloqueo de PRUEBA para Ivan (quitar antes de vender): ?premium=prueba-ivan  /  ?premium=quitar
-(()=>{const q=new URLSearchParams(location.search).get('premium');if(q==='prueba-ivan'){ls_('ffPrem','1');aviso('Premium de prueba activado')}if(q==='quitar'){ls_('ffPrem','0');aviso('Premium de prueba quitado')}if(q)history.replaceState(null,'',location.pathname)})();
 comprobarCompra();
 // Mientras la compra no esté lista (VENTA=false), el Premium solo se ve en modo prueba
 const VENTA=BETA;
