@@ -417,7 +417,7 @@ calc();$('imp').focus();
 const num=aNum;
 const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const E=['eNom','eNif','eDir','eMail','eTel','eIban','eColor','fExento'];
-const COLORES=['#0F5C4D','#1E4E8C','#5B3C8C','#8C1E3A','#B4532A','#2B2F36'],WEB='facturafacil-es.github.io';
+const COLORES=['#0F5C4D','#1E4E8C','#5B3C8C','#8C1E3A','#B4532A','#2B2F36'],WEB='mifacturafacil.app';
 function pintarColores(){const c=$('eColor').value||COLORES[0];$('colores').innerHTML=COLORES.map(x=>'<button type="button" aria-label="Color" data-c="'+x+'" style="background:'+x+'"'+(x===c?' class="on"':'')+'></button>').join('')}
 $('colores').onclick=e=>{const c=e.target.dataset&&e.target.dataset.c;if(!c)return;if(!PUEDE())return pedirPrem(BETA&&!!ses);$('eColor').value=c;pintarColores()};
 // Logo de la empresa (Premium): {d: imagen JPEG en texto, w, h}
@@ -536,7 +536,7 @@ const PRODUCTO='premium';
 // El regalo de lanzamiento se quitó el 17-10-2026. Premium gratis: lista VIP por correo (tabla vip en Supabase)
 try{localStorage.removeItem('ffRegalo');localStorage.removeItem('ffRegaloAviso')}catch(e){}
 const PREM=()=>ls_('ffPrem')==='1'||ls_('ffPremCuenta')==='1';
-// Versión beta (facturafacil-es.github.io/beta/): prueba de la venta con pago web antes de pasarlo a la app normal
+// Versión beta (mifacturafacil.app/beta/): prueba de la venta con pago web antes de pasarlo a la app normal
 const BETA=/\/beta\//.test(location.pathname);
 const CHECKOUT='https://buy.stripe.com/test_cNifZgeTBbOJ8YndJP5os00';
 const CHECKOUT_ANUAL='https://buy.stripe.com/test_aFa14m8vddWR8YnaxD5os01';// 39,99 €/año (modo prueba)
