@@ -117,10 +117,10 @@ footer a{color:var(--sub)}
 .papel{position:relative;overflow:hidden}
 .marca{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .marca span{transform:rotate(-30deg);font:800 72px system-ui,-apple-system,"Segoe UI",sans-serif;color:rgba(179,38,30,.16);letter-spacing:.08em;white-space:nowrap}
-.papel{background:#fff;margin:16px auto 0;max-width:210mm;width:calc(100% - 32px);box-shadow:0 4px 20px #0005;border-radius:4px}
-@media print{body{background:#fff;color:#000;padding:0;display:block}main,.vbar,.falta,.hoja2,.velo,.toast{display:none!important}#vista{display:block!important;position:static;background:#fff;padding:0;overflow:visible}.papel{box-shadow:none;margin:0;width:auto;max-width:none;border-radius:0}#hoja{font-size:10.5pt!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-#hoja{--c:#0F5C4D;--t:#F1F6F4;--t2:#FAFCFB;--t3:#CFE1DA;font:10.5pt/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#17241f;padding:12mm 14mm 9mm;max-width:190mm;margin:0 auto;position:relative}
-#hoja .fband{position:absolute;left:-20mm;right:-20mm;top:0;height:8px;background:var(--c)}
+.papel{background:#fff;margin:16px auto 24px;width:210mm;max-width:calc(100% - 32px);box-shadow:0 4px 20px #0005;border-radius:4px}
+@media print{body{background:#fff;color:#000;padding:0;display:block}main,.vbar,.falta,.hoja2,.velo,.toast{display:none!important}#hoja{transform:none!important;width:auto!important;min-height:0!important}.papel{height:auto!important}#vista{display:block!important;position:static;background:#fff;padding:0;overflow:visible}.papel{box-shadow:none;margin:0;width:auto;max-width:none;border-radius:0}#hoja{font-size:10.5pt!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+#hoja{--c:#0F5C4D;--t:#F1F6F4;--t2:#FAFCFB;--t3:#CFE1DA;font:10.5pt/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#17241f;padding:12mm 14mm 9mm;width:210mm;min-height:297mm;box-sizing:border-box;margin:0;position:relative;display:flex;flex-direction:column;transform-origin:0 0}
+#hoja .fband{position:absolute;left:0;right:0;top:0;height:8px;background:var(--c)}
 #hoja .fhead{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap}
 #hoja .fem{display:flex;gap:12px;align-items:flex-start;flex:1 1 240px;min-width:0}
 #hoja .fmono{width:52px;height:52px;border-radius:12px;background:var(--c);color:#fff;font-weight:800;font-size:20px;display:grid;place-items:center;flex:none}
@@ -141,11 +141,10 @@ footer a{color:var(--sub)}
 #hoja .fg{margin-top:8px;background:var(--c);color:#fff;border-radius:10px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 #hoja .fg span{font-weight:600}#hoja .fg b{font-size:16pt;font-weight:800;white-space:nowrap}
 #hoja .fnota{margin-top:16px;font-size:.92em;color:#4d5d57}
-#hoja .fpay{margin-top:28px;display:flex;gap:14px;flex-wrap:wrap}
+#hoja .fpay{margin-top:auto;padding-top:28px;display:flex;gap:14px;flex-wrap:wrap}
 #hoja .fpb{flex:1 1 240px;background:var(--t);border-radius:12px;padding:12px 16px}#hoja .fpb b{overflow-wrap:anywhere}
 #hoja .fgr{flex:0 1 180px;margin-left:auto;display:flex;align-items:center;justify-content:center;text-align:center;border:2px dashed var(--t3);border-radius:12px;color:var(--c);font-weight:700;padding:10px;min-height:56px}
 #hoja .ffoot{margin-top:20px;padding-top:8px;border-top:1px solid #E6ECE9;font-size:8pt;color:#7a8a84;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-@media (max-width:600px){#hoja{padding:20px 16px 14px;font-size:12.5px}#hoja .fbox{flex:1 1 100%;min-width:0}#hoja .ft{font-size:22px}#hoja .fn{font-size:17px}#hoja th,#hoja td{padding:8px 6px}#hoja .fg b{font-size:19px}#hoja .fgr{flex:1 1 100%;margin:0}#hoja .fem{flex-wrap:wrap}#hoja .fem>div:not(.fmono){flex:1 1 170px;min-width:0}#hoja .fmono{flex:none;width:52px;height:52px}#hoja .flogo{max-width:110px}}
 .colores{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;color:var(--sub);font-size:15px}#colores{display:flex;gap:8px}#colores button{width:30px;height:30px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}#colores button.on{box-shadow:0 0 0 2px var(--txt)}
 #logoTiene{display:flex;align-items:center;gap:14px;margin:0 0 8px}#logoPrev{max-width:120px;max-height:48px;object-fit:contain;background:#fff;border-radius:6px;padding:4px;border:1px solid var(--line)}
 </style>
@@ -482,6 +481,10 @@ function faltan(D){const f=[],emp=D.cli!=='part';
   if(!D.cl.nom)f.push('nombre del cliente');if(emp&&!D.cl.nif)f.push('NIF del cliente');if(emp&&!D.cl.dir)f.push('dirección del cliente');
   if(!D.ls.some(l=>l.c&&l.i))f.push('concepto con su importe');if(D.iva===0&&!D.exento)f.push('motivo de no llevar IVA');return f}
 let FAC=null;
+// La factura en pantalla es la hoja A4 tal cual (igual que el PDF), encogida al ancho disponible
+function ajustarHoja(){const h=$('hoja'),p=h.parentElement;if(!h||!p)return;h.style.transform='';p.style.height='';
+  const W=h.offsetWidth,k=Math.min(1,p.clientWidth/W);if(k<1){h.style.transform='scale('+k+')';p.style.height=Math.ceil(h.offsetHeight*k)+'px'}}
+addEventListener('resize',()=>{if($('vista').classList.contains('on'))ajustarHoja()});
 function mostrar(D,guardar){
   const {b,i,p,t}=importes(D),det=D.ls.some(l=>l.q!=null&&l.q!==1),f=fes(D.fecha),br=s=>esc(s).replace(/\n/g,'<br>'),falta=faltan(D),borr=falta.length>0;
   $('falta').hidden=!borr;
@@ -502,7 +505,7 @@ function mostrar(D,guardar){
   <div class="fpay">${PR?(vc?'<div class="fpb"><div class="flab" style="margin:0 0 4px">VALIDEZ</div>Este presupuesto es válido hasta el <b>'+vc+'</b>.</div>':''):D.em.iban?'<div class="fpb"><div class="flab" style="margin:0 0 4px">FORMA DE PAGO</div>Transferencia bancaria'+(vc?' antes del '+vc:'')+'<br><b>IBAN '+esc(D.em.iban)+'</b></div>':''}<div class="fgr">¡Gracias por su confianza!</div></div>
   <div class="ffoot"><span>${esc([D.em.nom,D.em.nif?'NIF '+D.em.nif:''].filter(Boolean).join(' · '))}</span>${marca?'<span>Hecha con Factura Fácil · '+WEB+'</span>':''}</div>`;
   FAC={tipo:PR?'pres':'fac',logo:D.em.logo||null,borr,num:D.num,fecha:f,venc:vc,em:D.em,cl:D.cl,ls:D.ls,fq,tot,total:eur(t),nota:D.exento||'',color:C,ini,marca,web:WEB};
-  $('vista').classList.add('on');$('vista').scrollTop=0;document.body.style.overflow='hidden';
+  $('vista').classList.add('on');$('vista').scrollTop=0;document.body.style.overflow='hidden';ajustarHoja();
   if(guardar&&PR){if(!borr&&PUEDE()){guardarPres(D,t);aviso('✓ Presupuesto guardado')}return}
   if(guardar){ls_('ffN',(+ls_('ffN')||0)+1);if(!borr&&BETA&&!PUEDE(D.num)&&ses&&!PREM()){avisoFin=true}
   if(!borr&&BETA&&!ses&&!PREM()&&ls_('ffNubeAv1')!=='1')avisoNube=1;
