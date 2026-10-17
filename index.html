@@ -109,7 +109,7 @@ footer a{color:var(--sub)}
 .prem li{margin:6px 0}.prem ul{padding-left:0;list-style:none;margin:8px 0 14px}
 .toast{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top));transform:translateX(-50%);background:#14201C;color:#fff;padding:12px 18px;border-radius:24px;font-size:15px;z-index:30;box-shadow:0 6px 20px #0005}
 .pbtn{display:block;width:100%;margin:0 0 8px;border:1px dashed var(--acc);background:none;color:var(--acc);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px;border-radius:10px;cursor:pointer}
-#vista{display:none;position:fixed;inset:0;background:#5f6b67;overflow:auto;z-index:9;padding:0 0 32px}
+.vnota{margin:10px 16px 0;text-align:center;font-size:13px;color:#E8EEEB}#vista{display:none;position:fixed;inset:0;background:#5f6b67;overflow:auto;z-index:9;padding:0 0 32px}
 #vista.on{display:block}
 .vbar{position:sticky;top:0;display:flex;gap:10px;align-items:center;padding:max(12px,env(safe-area-inset-top)) 16px 12px;background:#2b3431}
 .vbar .cerrar{float:none;color:#fff;font-size:26px;padding:0 6px}
@@ -126,7 +126,7 @@ input.malo,.malo{border:2px solid #D33A2C!important;background:#FFF1EF!important
 .marca{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .marca span{transform:rotate(-30deg);font:800 72px system-ui,-apple-system,"Segoe UI",sans-serif;color:rgba(179,38,30,.16);letter-spacing:.08em;white-space:nowrap}
 .papel{background:#fff;margin:16px auto 24px;width:210mm;max-width:calc(100% - 32px);box-shadow:0 4px 20px #0005;border-radius:4px}
-@media print{body{background:#fff;color:#000;padding:0;display:block}main,.vbar,.falta,.hoja2,.velo,.toast{display:none!important}#hoja{transform:none!important;width:auto!important;min-height:0!important}.papel{height:auto!important}#vista{display:block!important;position:static;background:#fff;padding:0;overflow:visible}.papel{box-shadow:none;margin:0;width:auto;max-width:none;border-radius:0}#hoja{font-size:10.5pt!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media print{body{background:#fff;color:#000;padding:0;display:block}main,.vbar,.vnota,.falta,.hoja2,.velo,.toast{display:none!important}#hoja{transform:none!important;width:auto!important;min-height:0!important}.papel{height:auto!important}#vista{display:block!important;position:static;background:#fff;padding:0;overflow:visible}.papel{box-shadow:none;margin:0;width:auto;max-width:none;border-radius:0}#hoja{font-size:10.5pt!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 #hoja{--c:#0F5C4D;--t:#F1F6F4;--t2:#FAFCFB;--t3:#CFE1DA;font:10.5pt/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#17241f;padding:12mm 14mm 9mm;width:210mm;min-height:297mm;box-sizing:border-box;margin:0;position:relative;display:flex;flex-direction:column;transform-origin:0 0}
 #hoja .fband{position:absolute;left:0;right:0;top:0;height:8px;background:var(--c)}
 #hoja .fhead{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap}
@@ -280,7 +280,7 @@ input.malo,.malo{border:2px solid #D33A2C!important;background:#FFF1EF!important
   <p>Tendrás su icono en la pantalla de inicio, como una app.</p><ol class="pasos" id="instPasos"></ol>
   <div class="acc"><button class="copiar" id="instOk" style="margin:0">Entendido</button></div></div>
 <div class="toast" id="toast" hidden></div>
-<div id="vista"><div class="vbar"><button class="cerrar" id="cerrarVista" aria-label="Volver">✕</button><button class="copiar" id="imprimir2">🖨️ Imprimir / PDF</button><button class="copiar enviar" id="enviar">📤 Enviar</button></div><div class="falta" id="falta" hidden></div><div class="papel"><div id="hoja"></div></div></div>
+<div id="vista"><div class="vbar"><button class="cerrar" id="cerrarVista" aria-label="Volver">✕</button><button class="copiar" id="imprimir2">🖨️ Imprimir / PDF</button><button class="copiar enviar" id="enviar">📤 Enviar</button></div><div class="falta" id="falta" hidden></div><p class="vnota">💾 Guarda siempre el PDF: es tu copia.</p><div class="papel"><div id="hoja"></div></div></div>
 <script>
 // Mini generador de PDF propio (sin librerías). Factura Fácil.
 (function(){
