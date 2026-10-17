@@ -561,6 +561,8 @@ try{localStorage.removeItem('ffRegalo');localStorage.removeItem('ffRegaloAviso')
 const PREM=()=>ls_('ffPrem')==='1'||ls_('ffPremCuenta')==='1';
 // Versión beta (mifacturafacil.app/beta/): prueba de la venta con pago web antes de pasarlo a la app normal
 const BETA=/\/beta\//.test(location.pathname);
+// LANZAMIENTO: Premium gratis para quien entra con su correo, hasta nuevo aviso (en la app normal). Para activarlo: true
+const LANZ=false;const LZ=()=>LANZ&&!BETA;
 const CHECKOUT='https://buy.stripe.com/test_cNifZgeTBbOJ8YndJP5os00';
 const CHECKOUT_ANUAL='https://buy.stripe.com/test_aFa14m8vddWR8YnaxD5os01';// 39,99 €/año (modo prueba)
 const PORTAL='https://billing.stripe.com/p/login/test_cNifZgeTBbOJ8YndJP5os00';// cancelar o cambiar tarjeta// enlace de pago de Stripe (modo prueba)
@@ -569,7 +571,7 @@ const PRUEBA_DIAS=14;
 const finPrueba=()=>{const v=(ls_('ffPruebaFin')||'').split(':');return ses&&v[0]===ses.uid?(+v[1]||0):0};
 const diasPrueba=()=>Math.max(0,Math.ceil((finPrueba()-Date.now())/864e5));
 const enPrueba=()=>BETA&&!!ses&&!PREM()&&finPrueba()>Date.now();
-const PRUEBA=num=>BETA&&!!ses&&!PREM()&&(finPrueba()>Date.now()||(num!=null&&dbL().facturas.some(f=>f.num===num)));
+const PRUEBA=num=>(BETA||LZ())&&!!ses&&!PREM()&&(LZ()||finPrueba()>Date.now()||(num!=null&&dbL().facturas.some(f=>f.num===num)));
 const PUEDE=num=>PREM()||PRUEBA(num);
 function dbL(){try{const d=JSON.parse(localStorage.getItem('ffDB')||'{}');return {clientes:d.clientes||[],facturas:d.facturas||[],serie:d.serie!=null?d.serie:String(new Date().getFullYear())+'-',sig:d.sig||1,presupuestos:d.presupuestos||[],pserie:d.pserie!=null?d.pserie:'P'+new Date().getFullYear()+'-',psig:d.psig||1}}catch(e){return {clientes:[],facturas:[],serie:new Date().getFullYear()+'-',sig:1,presupuestos:[],pserie:'P'+new Date().getFullYear()+'-',psig:1}}}
 function dbG(d){d.t=new Date().toISOString();try{localStorage.setItem('ffDB',JSON.stringify(d));if(typeof pedirSync==='function')pedirSync();return true}catch(e){aviso('No se ha podido guardar: memoria llena');return false}}
@@ -585,7 +587,9 @@ function pedirPrem(fin){$('premMsg').hidden=true;
   $('comprar').textContent=BETA?'Mensual · 4,99 € al mes':'Desbloquear Premium';$('comprarAnual').hidden=!BETA;
   const av=!VENTA;$('comprar').hidden=av;$('premAvis').hidden=!av;$('premMail').hidden=!av||ls_('ffAvisame')==='1';
   if(av){$('premSub').textContent=ls_('ffAvisame')==='1'?'¡Ya estás apuntado! Te avisaremos el primer día y tendrás un 25 % de descuento el primer año.':'Muy pronto, por 4,99 € al mes o 39,99 € al año. Apúntate ahora y tendrás un 25 % de descuento el primer año. Esto es lo que incluye:';$('premAvis').hidden=ls_('ffAvisame')==='1';if(!$('premMail').value&&ses)$('premMail').value=ses.email}
-  {const L=$('premLeg'),apuntado=ls_('ffAvisame')==='1';if(av){L.innerHTML=apuntado?'':'Solo usaremos tu correo para avisarte cuando salga Premium. Puedes pedir que lo borremos cuando quieras. <a href="../../privacidad.html">Privacidad</a>';L.hidden=apuntado}else{L.innerHTML='Precio final con IVA incluido. Se renueva sola cada mes o cada año hasta que la canceles, cuando quieras, desde tu cuenta. Tienes 14 días desde el primer pago para pedir la devolución. Al pagar aceptas los <a href="../../terminos.html">Términos</a> y la <a href="../../privacidad.html">Privacidad</a>.';L.hidden=false}}$('premProbar').hidden=!(BETA&&!ses);abrirHoja('hojaPrem')}
+  {const L=$('premLeg'),apuntado=ls_('ffAvisame')==='1';if(av){L.innerHTML=apuntado?'':'Solo usaremos tu correo para avisarte cuando salga Premium. Puedes pedir que lo borremos cuando quieras. <a href="../../privacidad.html">Privacidad</a>';L.hidden=apuntado}else{L.innerHTML='Precio final con IVA incluido. Se renueva sola cada mes o cada año hasta que la canceles, cuando quieras, desde tu cuenta. Tienes 14 días desde el primer pago para pedir la devolución. Al pagar aceptas los <a href="../../terminos.html">Términos</a> y la <a href="../../privacidad.html">Privacidad</a>.';L.hidden=false}}$('premProbar').hidden=!(BETA&&!ses);$('premProbar').textContent='Probar Premium gratis '+PRUEBA_DIAS+' días';
+  if(LZ()){$('premSub').textContent='Gratis durante el lanzamiento. Te avisaremos 15 días antes de que sea de pago (4,99 €/mes o 39,99 €/año, con −25 % el primer año). Si no pagas, sigues con la versión gratis sin perder tus facturas.';$('premAvis').hidden=true;$('premMail').hidden=true;$('comprar').hidden=true;$('premLeg').hidden=true;$('premProbar').hidden=!!ses;$('premProbar').textContent='Entrar y usar Premium gratis'}
+  abrirHoja('hojaPrem')}
 // Preparar el formulario de factura
 function prepPrem(){const p=PUEDE(),pr=TIPO==='pres';pintarLogo();$('vencWrap').hidden=!p&&!pr;
   if(!p){if(BETA&&ses&&!pr){const cur=$('fNum').value.trim();if(cur&&dbL().facturas.some(f=>f.num===cur)){['fNum','cNom','cNif','cDir','fVenc','fConc'].forEach(k=>$(k).value='')}}return}const d=dbL(),cur=$('fNum').value.trim();
@@ -632,7 +636,7 @@ function pintarMis(){if(verMis==='pres')return pintarPres();document.querySelect
     :`<div class="vacio">${d.facturas.length?'No hay facturas aquí.':'Aún no hay facturas guardadas.<br>Se guardan solas al tocar «Ver factura» cuando están completas.'}</div>`;
   $('lista').querySelectorAll('.item').forEach(b=>b.onclick=()=>abrirAcc(b.dataset.n));
   $('nSerie').value=d.serie;$('nSig').value=d.sig}
-$('misFac').onclick=()=>{if(!PREM()&&!(BETA&&ses))return pedirPrem();pintarMis();abrirCapa('capaFac')};
+$('misFac').onclick=()=>{if(!PREM()&&!((BETA||LZ())&&ses))return pedirPrem();pintarMis();abrirCapa('capaFac')};
 $('cerrarMis').onclick=()=>cerrarCapa('capaFac');
 $('tipoMis').querySelectorAll('button').forEach(b=>b.onclick=()=>{verMis=b.dataset.t;filtro='todas';$('tipoMis').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('filt').querySelectorAll('button').forEach((x,k)=>x.classList.toggle('on',k===0));pintarMis()});
 $('filt').querySelectorAll('button').forEach(b=>b.onclick=()=>{filtro=b.dataset.f;$('filt').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));pintarMis()});
@@ -717,15 +721,16 @@ $('premAvis').onclick=async()=>{const m=$('premMail').value.trim().toLowerCase()
   try{await sbF('/rest/v1/interesados',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({email:m,origen:/Windows/.test(navigator.userAgent)?'windows':(MOVIL?'movil':'web')})});ok()}
   catch(e){if(e.st===409)ok();else{msg.textContent=navigator.onLine?'No se ha podido apuntar. Prueba otra vez.':'Sin conexión a internet.'}}
   function ok(){ls_('ffAvisame','1');msg.hidden=true;cerrarHojas();verPrem();aviso('⭐ ¡Apuntado! Tendrás un 25 % de descuento')}};
-$('premProbar').onclick=()=>{cerrarHojas();setTimeout(()=>{abrirNube();nMsg('Entra con tu correo y prueba Premium gratis '+PRUEBA_DIAS+' días, sin tarjeta. Después, si no pagas, sigues con la versión gratis.')},250)};
+$('premProbar').onclick=()=>{cerrarHojas();setTimeout(()=>{abrirNube();nMsg(LZ()?'Entra con tu correo y usa Premium gratis durante el lanzamiento, sin tarjeta.':'Entra con tu correo y prueba Premium gratis '+PRUEBA_DIAS+' días, sin tarjeta. Después, si no pagas, sigues con la versión gratis.')},250)};
 comprobarCompra();
 // Mientras la compra no esté lista (VENTA=false), el Premium solo se ve en modo prueba
 const VENTA=BETA;
-function verPrem(){const v=VENTA||PREM();$('misFac').hidden=!v;$('elegirCli').hidden=!v;$('verPremBtn').hidden=v;$('verPremBtn').innerHTML=ls_('ffAvisame')==='1'?'⭐ Premium muy pronto · <u>Ya estás apuntado</u>':'⭐ Premium muy pronto · <u>Apúntate: −25 %</u>';if(typeof pintarNube==='function'&&$('nubeBtn'))pintarNube()}
+function verPrem(){const v=VENTA||PREM()||LZ();$('misFac').hidden=!v;$('elegirCli').hidden=!v;$('verPremBtn').hidden=v&&!(LZ()&&!ses);$('verPremBtn').innerHTML=LZ()?'⭐ Premium gratis en el lanzamiento · <u>Entrar</u>':ls_('ffAvisame')==='1'?'⭐ Premium muy pronto · <u>Ya estás apuntado</u>':'⭐ Premium muy pronto · <u>Apúntate: −25 %</u>';if(typeof pintarNube==='function'&&$('nubeBtn'))pintarNube()}
 // ---- Nube: cuenta con correo + código (Supabase propio de Factura Fácil) ----
 const SB='https://iyhqopatmfnslnfsjdgq.supabase.co',SBK='sb_publishable_tXQ1D8XkIwPdc6-2fKaukg_T5Td1W7b';
 let ses=null;try{ses=JSON.parse(localStorage.getItem('ffSes')||'null')}catch(e){}
-const guardaSes=x=>{ses=x;try{x?localStorage.setItem('ffSes',JSON.stringify(x)):localStorage.removeItem('ffSes')}catch(e){}};
+const guardaSes=x=>{ses=x;try{x?localStorage.setItem('ffSes',JSON.stringify(x)):localStorage.removeItem('ffSes')}catch(e){};if(x&&x.email&&LZ()&&ls_('ffAvisame')!=='1')apuntarLanz(x.email)};
+async function apuntarLanz(m){try{await sbF('/rest/v1/interesados',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({email:String(m).toLowerCase(),origen:'lanzamiento'})});ls_('ffAvisame','1')}catch(e){if(e&&e.st===409)ls_('ffAvisame','1')}}
 async function sbF(ruta,op={}){const h={apikey:SBK,'Content-Type':'application/json',...(op.headers||{})};
   const r=await fetch(SB+ruta,{...op,headers:h});let j=null;try{j=await r.json()}catch(e){}if(!r.ok){const e=new Error((j&&(j.msg||j.message||j.error_description))||('Error '+r.status));e.st=r.status;e.code=j&&(j.error_code||j.code);throw e}return j}
 const sesDe=j=>({at:j.access_token,rt:j.refresh_token,exp:Date.now()+((j.expires_in||3600)-60)*1000,email:j.user&&j.user.email||(ses&&ses.email),uid:j.user&&j.user.id||(ses&&ses.uid)});
@@ -761,9 +766,9 @@ function pintarNube(){const b=$('nubeBtn'),pend=ls_('ffSyncPend')==='1';
   const vis=!$('misFac').hidden;$('ftCuenta').hidden=true;const cu=$('cuenta');cu.className='top'+(ses?' ok':'');cu.textContent=ses?(ses.email||'?')[0].toUpperCase():'Entrar';cu.setAttribute('aria-label',ses?'Mi cuenta':'Entrar');cu.title=ses?'Mi cuenta':'';$('ftEntrar').textContent=ses?'Mi cuenta':'Ya tengo cuenta';
   $('nPanel').hidden=!(ses&&DUENOS.includes(ses.email));$('nSusc').hidden=!(BETA&&ses&&ls_('ffPremCuenta')==='1');if(ses){$('nYo').textContent=ses.email;$('nEst').textContent=pend?'Hay cambios sin subir (sin conexión). Se subirán solos.':(syncOk?'Todo guardado ('+syncOk+')':'')}}
 function abrirNube(aviso){$('nTit').textContent=aviso===true?'Tu factura está guardada solo en este dispositivo':'☁️ Tus facturas en la nube';
-  const pb=aviso===true&&BETA&&!PREM();if(pb)$('nTit').textContent='⭐ Prueba Premium gratis';
+  const pb=aviso===true&&(BETA||LZ())&&!PREM()&&!ses;if(pb)$('nTit').textContent=LZ()?'⭐ Premium gratis en el lanzamiento':'⭐ Prueba Premium gratis';
   $('nTxt').textContent=aviso===true?'Si cambias de móvil o se borra, la pierdes. Guárdala en la nube: solo tu correo, sin contraseñas.':'Guárdalas en la nube y tendrás tus facturas en cualquier dispositivo, sin perderlas. Solo tu correo, sin contraseñas.';
-  if(pb)$('nTxt').textContent='Entra con tu correo y prueba Premium gratis '+PRUEBA_DIAS+' días: Mis facturas, numeración, clientes, logo y nube. Sin tarjeta. Después, si no pagas, sigues con la versión gratis.';
+  if(pb)$('nTxt').textContent=LZ()?'Entra con tu correo y usa Premium gratis durante el lanzamiento: Mis facturas, numeración, clientes, logo y nube. Sin tarjeta.':'Entra con tu correo y prueba Premium gratis '+PRUEBA_DIAS+' días: Mis facturas, numeración, clientes, logo y nube. Sin tarjeta. Después, si no pagas, sigues con la versión gratis.';
   $('nMsg').hidden=true;['nP1','nP2','nP3'].forEach(i=>$(i).hidden=true);$(ses?'nP3':'nP1').hidden=false;pintarNube();abrirHoja('hojaNube')}
 const nMsg=t=>{$('nMsg').textContent=t;$('nMsg').hidden=!t};
 $('nubeBtn').onclick=abrirNube;$('cuenta').onclick=()=>{abrirNube();if(!ses){$('nTit').textContent='Entrar';nMsg('Entra con tu correo, sin contraseñas. Si tienes Premium, se activa solo.')}else $('nTit').textContent='Mi cuenta'};$('ftEntrar').onclick=e=>{e.preventDefault();abrirNube()};$('nNo').onclick=cerrarHojas;
