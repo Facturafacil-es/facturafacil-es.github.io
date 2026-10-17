@@ -48,7 +48,8 @@ h1 em{font-style:normal;color:#8FE3C9}
 .hero p.lead{font-size:19px;color:rgba(255,255,255,.85);max-width:30em;margin-bottom:28px}
 .hero .ctas{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
 [hidden]{display:none!important}
-.ms{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin-top:20px}.ms a{display:inline-block;line-height:0;border-radius:8px}.ms img{height:56px;width:auto}.ms .msb{display:none;line-height:1.2;background:#fff;color:#10201B;font-weight:700;padding:14px 18px;border-radius:10px;text-decoration:none}.ms span{color:rgba(255,255,255,.9);font-size:15.5px;max-width:330px;line-height:1.45}
+.ms{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin-top:20px}.msbadge{display:inline-flex;align-items:center;gap:12px;background:#000;color:#fff;text-decoration:none;padding:10px 20px 10px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.35);box-shadow:0 6px 18px rgba(0,0,0,.25)}.msbadge span{display:flex;flex-direction:column;line-height:1.1;text-align:left}.msbadge small{font-size:12.5px;font-weight:500;opacity:.9}.msbadge b{font-size:20px;font-weight:700;letter-spacing:-.2px}ms-store-badge::part(img){max-height:58px}
+.ms>span{color:rgba(255,255,255,.9);font-size:15.5px;max-width:330px;line-height:1.45}
 .hero .note{color:rgba(255,255,255,.8);font-weight:600;font-size:16px}
 /* Móvil de muestra */
 .phone{justify-self:center;width:280px;max-width:100%;background:#fff;color:#10201B;border-radius:34px;padding:22px 18px;box-shadow:0 30px 70px rgba(0,0,0,.35),0 0 0 8px rgba(255,255,255,.08);transform:rotate(2deg)}
@@ -132,7 +133,7 @@ footer a{text-decoration:underline}
       <span class="note">Sin registro · Sin tarjeta</span>
     </div>
     <div class="ms" id="ms" hidden>
-      <a href="https://apps.microsoft.com/detail/9PNWP85KLVJN?mode=direct" target="_blank" rel="noopener"><img src="https://get.microsoft.com/images/es-es%20light.svg" alt="Descárgala de Microsoft" onerror="this.hidden=true;this.nextElementSibling.style.display='inline-block'"><b class="msb">⊞ Descárgala de Microsoft Store</b></a>
+      <ms-store-badge productid="9PNWP85KLVJN" language="es" theme="dark" window-mode="full" animation="on"></ms-store-badge><a class="msbadge" id="msRes" hidden href="https://apps.microsoft.com/detail/9PNWP85KLVJN?mode=direct" target="_blank" rel="noopener" aria-label="Descárgala de Microsoft Store"><svg viewBox="0 0 23 23" width="30" height="30" aria-hidden="true"><path fill="#F25022" d="M1 1h10v10H1z"/><path fill="#7FBA00" d="M12 1h10v10H12z"/><path fill="#00A4EF" d="M1 12h10v10H1z"/><path fill="#FFB900" d="M12 12h10v10H12z"/></svg><span><small>Descárgala de</small><b>Microsoft Store</b></span></a>
       <span id="msTxt">También en Microsoft Store, para ordenadores con Windows.</span>
     </div>
   </div>
@@ -219,7 +220,7 @@ footer a{text-decoration:underline}
 (()=>{const $=i=>document.getElementById(i),b=$('instalar');let ev=null;
 const APP=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
 const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
-b.hidden=APP;$('ms').hidden=APP;if(/Windows/.test(navigator.userAgent)){b.hidden=true;$('msTxt').textContent='Tenla en tu PC: se abre con un clic desde el escritorio, en su propia ventana, y funciona sin internet.'}
+b.hidden=APP;$('ms').hidden=APP&&/Windows/.test(navigator.userAgent);if(/Windows/.test(navigator.userAgent)){b.hidden=true;$('msTxt').textContent='Tenla en tu PC: se abre con un clic desde el escritorio, en su propia ventana, y funciona sin internet.'}
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e});
 addEventListener('appinstalled',()=>{b.hidden=true});
 b.onclick=async()=>{
@@ -231,5 +232,7 @@ b.onclick=async()=>{
 $('instOk').onclick=()=>{$('hojaInst').hidden=true};$('hojaInst').onclick=e=>{if(e.target.id==='hojaInst')$('hojaInst').hidden=true};
 })();
 </script>
+<script type="module" src="https://get.microsoft.com/badge/ms-store-badge.bundled.js"></script>
+<script>setTimeout(()=>{const b=document.querySelector('ms-store-badge');if(!customElements.get('ms-store-badge')||!b.shadowRoot||!b.shadowRoot.querySelector('img')){b.remove();document.getElementById('msRes').hidden=false}},4000)</script>
 </body>
 </html>
