@@ -50,7 +50,7 @@ label{display:block;font-size:14px;color:var(--sub);margin-bottom:6px}
 footer{text-align:center;font-size:14px;color:var(--sub);margin-top:6px}
 footer a{color:var(--sub)}
 #abrirFac{background:var(--acc);color:var(--bg)}
-.avis{display:block;width:100%;margin-top:12px;border:0;background:none;color:var(--sub);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:6px;cursor:pointer}.avis u{color:var(--acc)}
+.avis{display:block;width:100%;margin-top:12px;border:0;background:none;color:var(--sub);font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;padding:6px;cursor:pointer}.avis u{color:var(--acc);white-space:nowrap}
 #premMail{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:16px system-ui,-apple-system,"Segoe UI",sans-serif;padding:12px;border-radius:12px;margin:4px 0 10px}
 .btn2{width:100%;margin-top:10px;border:2px solid var(--acc);background:none;color:var(--acc);font:600 16px system-ui,-apple-system,"Segoe UI",sans-serif;padding:11px;border-radius:12px;cursor:pointer}
 #fac{display:none}#fac.on{display:block}
@@ -188,6 +188,7 @@ input.malo,.malo{border:2px solid #D33A2C!important;background:#FFF1EF!important
   <button class="btn2" id="abrirFac">🧾 Hacer factura</button>
   <button class="btn2" id="abrirPres">📝 Hacer presupuesto</button>
   <button class="avis" id="verPremBtn" hidden>⭐ Premium muy pronto · <u>Apúntate: −25 %</u></button>
+  <button class="avis" id="yaPrem" style="margin-top:0" hidden>¿Ya tienes Premium? <u>Entra con tu correo</u></button>
 </div>
 
 <div class="card fac" id="fac">
@@ -751,7 +752,7 @@ async function sync(){if(!ses)return;if(syncVa){syncOtra=true;return}syncVa=true
   finally{syncVa=false;pintarNube();if(syncOtra)pedirSync()}}
 function pintarNube(){const b=$('nubeBtn'),pend=ls_('ffSyncPend')==='1';
   b.className='nube'+(ses?' ok':'');b.textContent=ses?('☁️ En la nube · '+ses.email+(pend?' · pendiente de subir':'')):'⚠️ Solo en este dispositivo · Guardar en la nube';
-  const vis=!$('misFac').hidden;$('ftCuenta').hidden=vis;$('ftEntrar').textContent=ses?'Mi cuenta':'Ya tengo cuenta';
+  const vis=!$('misFac').hidden;$('yaPrem').hidden=vis||!!ses;$('ftCuenta').hidden=vis||!$('yaPrem').hidden;$('ftEntrar').textContent=ses?'Mi cuenta':'Ya tengo cuenta';
   $('nPanel').hidden=!(ses&&DUENOS.includes(ses.email));$('nSusc').hidden=!(BETA&&ses&&ls_('ffPremCuenta')==='1');if(ses){$('nYo').textContent=ses.email;$('nEst').textContent=pend?'Hay cambios sin subir (sin conexión). Se subirán solos.':(syncOk?'Todo guardado ('+syncOk+')':'')}}
 function abrirNube(aviso){$('nTit').textContent=aviso===true?'Tu factura está guardada solo en este dispositivo':'☁️ Tus facturas en la nube';
   const pb=aviso===true&&BETA&&!PREM();if(pb)$('nTit').textContent='⭐ Prueba Premium gratis';
@@ -759,7 +760,7 @@ function abrirNube(aviso){$('nTit').textContent=aviso===true?'Tu factura está g
   if(pb)$('nTxt').textContent='Entra con tu correo y prueba Premium gratis '+PRUEBA_DIAS+' días: Mis facturas, numeración, clientes, logo y nube. Sin tarjeta. Después, si no pagas, sigues con la versión gratis.';
   $('nMsg').hidden=true;['nP1','nP2','nP3'].forEach(i=>$(i).hidden=true);$(ses?'nP3':'nP1').hidden=false;pintarNube();abrirHoja('hojaNube')}
 const nMsg=t=>{$('nMsg').textContent=t;$('nMsg').hidden=!t};
-$('nubeBtn').onclick=abrirNube;$('ftEntrar').onclick=e=>{e.preventDefault();abrirNube()};$('nNo').onclick=cerrarHojas;
+$('nubeBtn').onclick=abrirNube;$('yaPrem').onclick=()=>{abrirNube();$('nTit').textContent='⭐ Entra en tu Premium';nMsg('Entra con el correo de tu Premium. Se activa solo al entrar.')};$('ftEntrar').onclick=e=>{e.preventDefault();abrirNube()};$('nNo').onclick=cerrarHojas;
 $('nOtro').onclick=()=>{$('nP2').hidden=true;$('nP1').hidden=false;nMsg('')};
 $('nEnviar').onclick=async()=>{const em=$('nEmail').value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return nMsg('Escribe bien tu correo.');
   const b=$('nEnviar');b.disabled=true;nMsg('Enviando…');
