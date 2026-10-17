@@ -184,7 +184,7 @@ footer a{color:var(--sub)}
   <div class="total"><span>Total factura</span><b id="oTot">0,00 €</b></div>
   <button class="btn2" id="abrirFac">🧾 Hacer factura</button>
   <button class="btn2" id="abrirPres">📝 Hacer presupuesto</button>
-  <button class="avis" id="verPremBtn" hidden>⭐ Premium llega pronto · <u>Avísame</u></button>
+  <button class="avis" id="verPremBtn" hidden>⭐ Premium muy pronto · <u>Apúntate: −25 %</u></button>
 </div>
 
 <div class="card fac" id="fac">
@@ -258,7 +258,7 @@ footer a{color:var(--sub)}
   <p id="premSub">Para quien factura a menudo.</p>
   <ul class="plista"></ul>
   <input id="premMail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" hidden>
-  <div class="acc"><button class="copiar" id="premAvis" style="margin:0" hidden>⭐ Avísame cuando salga</button><button class="copiar" id="comprar" style="margin:0">Desbloquear Premium</button><button class="copiar" id="comprarAnual" style="margin:0" hidden>Anual · 39,99 € (ahorras 33 %)</button><button id="premProbar" hidden>Probar Premium gratis 14 días</button><button id="premNo">Ahora no</button></div>
+  <div class="acc"><button class="copiar" id="premAvis" style="margin:0" hidden>⭐ Apuntarme con 25 % de descuento</button><button class="copiar" id="comprar" style="margin:0">Desbloquear Premium</button><button class="copiar" id="comprarAnual" style="margin:0" hidden>Anual · 39,99 € (ahorras 33 %)</button><button id="premProbar" hidden>Probar Premium gratis 14 días</button><button id="premNo">Ahora no</button></div>
   <p id="premMsg" style="margin-top:10px" hidden></p></div>
 <div class="hoja2" id="hojaNube" role="dialog" aria-modal="true"><h3 id="nTit">☁️ Tus facturas en la nube</h3>
   <div id="nP1"><p id="nTxt"></p><input id="nEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"><div class="acc"><button class="copiar" id="nEnviar" style="margin:0">Guardar en la nube</button><button id="nNo">Ahora no</button></div></div>
@@ -558,7 +558,7 @@ function pedirPrem(fin){$('premMsg').hidden=true;
   $('premSub').textContent=BETA?(enPrueba()?'Estás probando Premium gratis: '+(diasPrueba()===1?'queda 1 día':'quedan '+diasPrueba()+' días')+'. Después, si no pagas, sigues con la versión gratis.':fin===true?'Tu prueba gratis de '+PRUEBA_DIAS+' días ha terminado. Puedes seguir con la versión gratis (calculadora y facturas en PDF) o pasarte a Premium. Tus facturas guardadas no se pierden.':'Cancela cuando quieras. Si no pagas, sigues con la versión gratis.'):'Para quien factura a menudo.';
   $('comprar').textContent=BETA?'Mensual · 4,99 € al mes':'Desbloquear Premium';$('comprarAnual').hidden=!BETA;
   const av=!VENTA;$('comprar').hidden=av;$('premAvis').hidden=!av;$('premMail').hidden=!av||ls_('ffAvisame')==='1';
-  if(av){$('premSub').textContent=ls_('ffAvisame')==='1'?'¡Ya estás apuntado! Te avisaremos el primer día.':'Muy pronto. Déjanos tu correo y te avisamos el primer día. Esto es lo que incluye:';$('premAvis').hidden=ls_('ffAvisame')==='1';if(!$('premMail').value&&ses)$('premMail').value=ses.email}
+  if(av){$('premSub').textContent=ls_('ffAvisame')==='1'?'¡Ya estás apuntado! Te avisaremos el primer día y tendrás un 25 % de descuento el primer año.':'Muy pronto, por 4,99 € al mes o 39,99 € al año. Apúntate ahora y tendrás un 25 % de descuento el primer año. Esto es lo que incluye:';$('premAvis').hidden=ls_('ffAvisame')==='1';if(!$('premMail').value&&ses)$('premMail').value=ses.email}
   $('premProbar').hidden=!(BETA&&!ses);abrirHoja('hojaPrem')}
 // Preparar el formulario de factura
 function prepPrem(){const p=PUEDE(),pr=TIPO==='pres';pintarLogo();$('vencWrap').hidden=!p&&!pr;
@@ -690,12 +690,12 @@ $('premAvis').onclick=async()=>{const m=$('premMail').value.trim().toLowerCase()
   msg.textContent='Apuntando…';msg.hidden=false;
   try{await sbF('/rest/v1/interesados',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({email:m,origen:/Windows/.test(navigator.userAgent)?'windows':(MOVIL?'movil':'web')})});ok()}
   catch(e){if(e.st===409)ok();else{msg.textContent=navigator.onLine?'No se ha podido apuntar. Prueba otra vez.':'Sin conexión a internet.'}}
-  function ok(){ls_('ffAvisame','1');msg.hidden=true;cerrarHojas();verPrem();aviso('⭐ ¡Apuntado! Te avisaremos')}};
+  function ok(){ls_('ffAvisame','1');msg.hidden=true;cerrarHojas();verPrem();aviso('⭐ ¡Apuntado! Tendrás un 25 % de descuento')}};
 $('premProbar').onclick=()=>{cerrarHojas();setTimeout(()=>{abrirNube();nMsg('Entra con tu correo y prueba Premium gratis '+PRUEBA_DIAS+' días, sin tarjeta. Después, si no pagas, sigues con la versión gratis.')},250)};
 comprobarCompra();
 // Mientras la compra no esté lista (VENTA=false), el Premium solo se ve en modo prueba
 const VENTA=BETA;
-function verPrem(){const v=VENTA||PREM();$('misFac').hidden=!v;$('elegirCli').hidden=!v;$('verPremBtn').hidden=v;$('verPremBtn').innerHTML=ls_('ffAvisame')==='1'?'⭐ Premium llega pronto · <u>Ya estás apuntado</u>':'⭐ Premium llega pronto · <u>Avísame</u>';if(typeof pintarNube==='function'&&$('nubeBtn'))pintarNube()}
+function verPrem(){const v=VENTA||PREM();$('misFac').hidden=!v;$('elegirCli').hidden=!v;$('verPremBtn').hidden=v;$('verPremBtn').innerHTML=ls_('ffAvisame')==='1'?'⭐ Premium muy pronto · <u>Ya estás apuntado</u>':'⭐ Premium muy pronto · <u>Apúntate: −25 %</u>';if(typeof pintarNube==='function'&&$('nubeBtn'))pintarNube()}
 // ---- Nube: cuenta con correo + código (Supabase propio de Factura Fácil) ----
 const SB='https://iyhqopatmfnslnfsjdgq.supabase.co',SBK='sb_publishable_tXQ1D8XkIwPdc6-2fKaukg_T5Td1W7b';
 let ses=null;try{ses=JSON.parse(localStorage.getItem('ffSes')||'null')}catch(e){}
