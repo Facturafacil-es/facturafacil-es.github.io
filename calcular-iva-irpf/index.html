@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F5C4D">
+<title>Calcular IVA e IRPF de una factura · Factura Fácil</title>
+<meta name="description" content="Calculadora gratis de IVA e IRPF para autónomos: escribe tu precio y ve el total de la factura y lo que te llega. 21 %, 10 %, 4 %, 15 % y 7 %.">
+<link rel="canonical" href="https://mifacturafacil.app/calcular-iva-irpf/">
+<meta property="og:type" content="website"><meta property="og:url" content="https://mifacturafacil.app/calcular-iva-irpf/"><meta property="og:title" content="Calcular IVA e IRPF de una factura · Factura Fácil"><meta property="og:description" content="Calculadora gratis de IVA e IRPF para autónomos: escribe tu precio y ve el total de la factura y lo que te llega. 21 %, 10 %, 4 %, 15 % y 7 %."><meta property="og:image" content="https://mifacturafacil.app/og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../icon-192.png"><link rel="apple-touch-icon" href="../icon-192.png">
+<style>:root{--bg:#F6F8F7;--card:#fff;--txt:#10201B;--sub:#55665F;--line:#E3E9E6;--acc:#0F5C4D;--acc-h:#0B4A3E;--btxt:#fff;--soft:#E5F2EE;--warn:#FFF6DB;--warnt:#5A4300}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1513;--card:#17201D;--txt:#EEF4F1;--sub:#A3B4AD;--line:#26322E;--acc:#3FB896;--acc-h:#5CCBAA;--btxt:#0E1513;--soft:#1B2C27;--warn:#2B2513;--warnt:#F3DE9C}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:var(--acc)}
+.wrap{max-width:680px;margin:0 auto;padding:0 16px}
+header{border-bottom:1px solid var(--line);background:var(--card)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:10px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--txt);text-decoration:none}
+.logo img{width:32px;height:32px;border-radius:8px}
+.btn{display:inline-block;background:var(--acc);color:var(--btxt);font-weight:700;border:0;border-radius:12px;padding:12px 18px;text-decoration:none;font-size:16px;cursor:pointer}
+.btn:hover{background:var(--acc-h)}
+.btn.sm{padding:9px 14px;font-size:15px}
+h1{font-size:30px;line-height:1.15;margin:28px 0 10px;letter-spacing:-.01em}
+h2{font-size:21px;margin:30px 0 10px}
+p{margin:8px 0}
+.lead{color:var(--sub)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:18px 0}
+label{display:block;font-weight:600;margin:14px 0 6px;color:var(--sub);font-size:15px}
+input{width:100%;font:inherit;font-size:28px;font-weight:700;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--txt)}
+input:focus{outline:none;border-color:var(--acc)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:inherit;font-size:15px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--txt);cursor:pointer}
+.chips button.on{background:var(--acc);color:var(--btxt);border-color:var(--acc);font-weight:700}
+.res{margin-top:16px;border-top:1px solid var(--line)}
+.row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.row b{white-space:nowrap}
+.row.big{background:var(--soft);border-radius:12px;padding:14px;border:0;margin-top:10px;font-size:19px}
+.row.big b{color:var(--acc);font-size:24px}
+.nota{background:var(--warn);color:var(--warnt);border-radius:12px;padding:12px 14px;font-size:15px;margin:14px 0}
+ul.ok{list-style:none;margin:10px 0}
+ul.ok li{padding:8px 0 8px 30px;position:relative;border-bottom:1px solid var(--line)}
+ul.ok li:before{content:"✓";position:absolute;left:4px;color:var(--acc);font-weight:800}
+.cta{text-align:center;margin:26px 0}
+.cta p{color:var(--sub);font-size:15px}
+.mas{margin:26px 0}
+.mas a{display:block;padding:10px 0;border-bottom:1px solid var(--line);text-decoration:none;font-weight:600}
+footer{color:var(--sub);font-size:14px;padding:26px 0 40px;border-top:1px solid var(--line);margin-top:30px}
+footer a{color:var(--sub)}</style></head><body>
+<header><div class="wrap"><a class="logo" href="../inicio/"><img src="../icon-192.png" alt="">Factura Fácil</a><a class="btn sm" href="../?app=1">Abrir la app</a></div></header>
+<main class="wrap">
+<h1>Calcular el IVA y el IRPF de una factura</h1>
+<p class="lead">Escribe tu precio sin impuestos y verás al momento el IVA, la retención de IRPF, el total de la factura y lo que te llega.</p>
+<div class="card" id="calc">
+<label for="imp">Tu precio (sin impuestos)</label>
+<input id="imp" inputmode="decimal" value="1000" aria-label="Tu precio (sin impuestos)">
+<label>IVA</label>
+<div class="chips" id="iva"><button data-v="21" class="on">21 %</button><button data-v="10">10 %</button><button data-v="4">4 %</button><button data-v="0">Sin IVA</button></div>
+<label>¿A quién facturas?</label>
+<div class="chips" id="qui"><button data-v="e" class="on">Empresa o autónomo</button><button data-v="p">Particular</button></div>
+<div id="irpfW"><label>Retención de IRPF</label>
+<div class="chips" id="irpf"><button data-v="15" class="on">15 %</button><button data-v="7">7 %</button><button data-v="0">Sin IRPF</button></div></div>
+<div class="res">
+<div class="row"><span>Tu precio (sin impuestos)</span><b id="rB"></b></div>
+<div class="row"><span id="lI">+ IVA</span><b id="rI"></b></div>
+<div class="row" id="filaR"><span id="lR">− IRPF</span><b id="rR"></b></div>
+<div class="row"><span>Total de la factura</span><b id="rT"></b></div>
+<div class="row big"><span>Te llega</span><b id="rL"></b></div>
+</div></div>
+<script>
+(()=>{const MODO='precio',$=i=>document.getElementById(i);
+const eur=n=>(isFinite(n)?n:0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const num=s=>{s=String(s).trim().replace(/\s/g,'');if(/,/.test(s))s=s.replace(/\./g,'').replace(',','.');return parseFloat(s)||0};
+const sel=id=>$(id).querySelector('.on').dataset.v;
+function calc(){const x=num($('imp').value),iva=+sel('iva')/100,emp=sel('qui')==='e',irpf=emp?+sel('irpf')/100:0;
+$('irpfW').hidden=!emp;$('filaR').hidden=!emp;
+const b=MODO==='neto'?x/(1+iva-irpf):x,i=b*iva,r=b*irpf;
+$('rB').textContent=eur(b);$('lI').textContent='+ IVA '+Math.round(iva*100)+' %';$('rI').textContent=eur(i);
+$('lR').textContent='− IRPF '+Math.round(irpf*100)+' %';$('rR').textContent='− '+eur(r);$('rT').textContent=eur(b+i);$('rL').textContent=eur(b+i-r)}
+['iva','qui','irpf'].forEach(id=>$(id).onclick=e=>{const t=e.target.closest('button');if(!t)return;$(id).querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===t));calc()});
+$('imp').oninput=calc;calc()})();
+</script><h2>Cómo se calcula</h2>
+<ul class="ok"><li><b>IVA</b> = tu precio × el tipo de IVA (21 %, 10 % o 4 %).</li><li><b>Total de la factura</b> = tu precio + IVA.</li><li><b>IRPF</b> = tu precio × el tipo de retención. Solo si facturas a una empresa o a otro autónomo.</li><li><b>Te llega</b> = total de la factura − IRPF.</li></ul>
+<p>La retención de IRPF se calcula sobre tu precio, no sobre el total con IVA. La resta el cliente y la paga él a Hacienda en tu nombre.</p>
+<div class="cta"><a class="btn" href="../?app=1">🧾 Hacer la factura gratis</a><p>En un minuto, en PDF. Sin registro y sin tarjeta.</p></div>
+<div class="nota">Esta información es general y no es asesoramiento fiscal. Ante cualquier duda, consulta con tu gestor.</div>
+<div class="mas"><h2>También te puede servir</h2><a href="../cuanto-facturar/">Cuánto facturar para cobrar lo que quieres →</a><a href="../modelo-factura-autonomo/">Modelo de factura para autónomos →</a></div>
+</main>
+<footer><div class="wrap">Factura Fácil · <a href="../inicio/">Inicio</a> · <a href="../aviso-legal.html">Aviso legal</a> · <a href="../privacidad.html">Privacidad</a> · <a href="../terminos.html">Términos</a></div></footer>
+</body></html>
