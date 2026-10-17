@@ -151,9 +151,12 @@ input.malo,.malo{border:2px solid #D33A2C!important;background:#FFF1EF!important
 #hoja .ffoot{margin-top:20px;padding-top:8px;border-top:1px solid #E6ECE9;font-size:8pt;color:#7a8a84;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .colores{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;color:var(--sub);font-size:15px}#colores{display:flex;gap:8px}#colores button{width:30px;height:30px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}#colores button.on{box-shadow:0 0 0 2px var(--txt)}
 #logoTiene{display:flex;align-items:center;gap:14px;margin:0 0 8px}#logoPrev{max-width:120px;max-height:48px;object-fit:contain;background:#fff;border-radius:6px;padding:4px;border:1px solid var(--line)}
+#nuevaV{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:10px;background:#0F5C4D;color:#fff;border:0;border-radius:999px;padding:10px 18px;font:700 15px system-ui,-apple-system,"Segoe UI",sans-serif;box-shadow:0 6px 20px #0005;cursor:pointer;white-space:nowrap}#nuevaV u{color:#BFF0DF}#nuevaV[hidden]{display:none}
 </style>
 </head>
 <body>
+<button id="nuevaV" hidden>✨ Nueva versión · <u>Actualizar</u></button>
+
 <main>
 <div class="cabe"><h1><img src="icon-192.png" alt="">Factura Fácil</h1><span style="display:flex;gap:6px"><button class="top" id="instalar" hidden>📲 App</button><button class="top" id="misFac">📁 Mis facturas</button></span></div>
 
@@ -820,7 +823,11 @@ $('instalar').onclick=async()=>{
     :['Abre el menú del navegador (⋮).','Pulsa «Instalar app» o «Añadir a pantalla de inicio».','Confirma. ¡Listo!']).map(t=>'<li>'+t+'</li>').join('');
   abrirHoja('hojaInst')};
 $('instOk').onclick=cerrarHojas;
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+// Actualizaciones: al volver a la app (o cada 30 min) mira si hay versión nueva; si la hay, barrita para recargar (no recarga sola para no perder lo escrito)
+if('serviceWorker' in navigator){const habia=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js').then(r=>{const mira=()=>{if(document.visibilityState==='visible')r.update().catch(()=>{})};document.addEventListener('visibilitychange',mira);setInterval(mira,18e5)}).catch(()=>{});
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(habia)$('nuevaV').hidden=false});
+  $('nuevaV').onclick=()=>location.reload()}
 </script>
 </body>
 </html>
