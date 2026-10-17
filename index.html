@@ -811,7 +811,7 @@ if(new URLSearchParams(location.search).get('pagado')==='1'){history.replaceStat
   (async()=>{aviso('Comprobando el pago…');for(let k=0;k<10&&ses;k++){await sync();if(ls_('ffPremCuenta')==='1'){aviso('⭐ ¡Premium activado! Gracias');return}await new Promise(r=>setTimeout(r,3000))}
     aviso('El pago tarda en confirmarse. Vuelve a abrir la app en un rato.')})()}
 // Lista de lo que incluye Premium (una sola lista para todas las pantallas)
-const PLISTA=['📁 Todas tus facturas guardadas, para volver a descargarlas','📊 Lo facturado este mes y este año, y lo que te deben','✅ Cobradas, por cobrar y vencidas','🔢 Numeración automática, sin saltos','👥 Clientes guardados: elegir con un toque','📝 Presupuestos guardados: conviértelos en factura con un toque','🎨 Tu logo y tu color en facturas y presupuestos, sin publicidad','📄 Duplicar una factura en otra nueva','⬇️ Excel por trimestre para tu gestor','☁️ En la nube: en cualquier dispositivo, sin perderlas'];
+const PLISTA=['📁 Todas tus facturas guardadas, para volver a descargarlas','📊 Lo facturado este mes y este año, y lo que te deben','✅ Cobradas, por cobrar y vencidas','🔢 Numeración automática, sin saltos','👥 Clientes guardados: elegir con un toque','📝 Presupuestos guardados: conviértelos en factura con un toque','🎨 Tu logo y tu color en facturas y presupuestos, sin publicidad','📄 Duplicar una factura en otra nueva','⬇️ Excel por trimestre para tu gestor','☁️ En la nube, en cualquier dispositivo y con copia de seguridad cada día'];
 document.querySelectorAll('.plista').forEach(u=>u.innerHTML=PLISTA.map(t=>'<li>'+esc(t)+'</li>').join(''));
 
 // ---- Botón Instalar app (de momento solo en la beta) ----
